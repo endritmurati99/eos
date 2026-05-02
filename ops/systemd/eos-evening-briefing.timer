@@ -1,0 +1,10 @@
+[Unit]
+Description=Run EOS evening briefing
+
+[Timer]
+OnCalendar=*-*-* 20:30:00 Europe/Berlin
+Persistent=false
+Unit=eos-job@evening_briefing.service
+
+[Install]
+WantedBy=timers.target

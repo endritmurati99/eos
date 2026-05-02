@@ -1,0 +1,294 @@
+{
+  "$schema": "./eos_state.schema.json",
+  "schema_version": 1,
+  "created_at_utc": "2026-04-24T00:00:00Z",
+  "updated_at_utc": "2026-04-24T00:00:00Z",
+  "timezone": "Europe/Berlin",
+  "sources": {
+    "calendar_primary_source": "Google Calendar",
+    "tasks_primary_source": "Google Tasks",
+    "current_task_transition_source": "data/tasks.json",
+    "routines_source": "data/routines.json",
+    "profile_source": "data/profile.json",
+    "memory_pointer": "MEMORY.md"
+  },
+  "energy_profile": {
+    "default_daily_windows": [
+      {
+        "label": "morning_ramp",
+        "start": "06:00",
+        "end": "09:00",
+        "energy": "medium"
+      },
+      {
+        "label": "deep_work_peak",
+        "start": "09:00",
+        "end": "12:00",
+        "energy": "high"
+      },
+      {
+        "label": "afternoon_execution",
+        "start": "12:00",
+        "end": "17:00",
+        "energy": "medium"
+      },
+      {
+        "label": "evening_low_load",
+        "start": "17:00",
+        "end": "22:00",
+        "energy": "low"
+      }
+    ],
+    "workday_note": "On hard workdays, treat post-work capacity as reduced; prefer recovery, sport preparation, and at most one realistic extra focus block."
+  },
+  "planning_policy": {
+    "wake_window": {
+      "start": "06:00",
+      "end": "22:00"
+    },
+    "buffer_ratio": 0.2,
+    "collision_order": [
+      {
+        "rank": 1,
+        "kind": "hard_calendar_events"
+      },
+      {
+        "rank": 2,
+        "kind": "work"
+      },
+      {
+        "rank": 3,
+        "kind": "fixed_sport_courses"
+      },
+      {
+        "rank": 4,
+        "kind": "minimum_routine"
+      },
+      {
+        "rank": 5,
+        "kind": "deep_work"
+      },
+      {
+        "rank": 6,
+        "kind": "urgent_short_tasks"
+      },
+      {
+        "rank": 7,
+        "kind": "other_manual_tasks"
+      },
+      {
+        "rank": 8,
+        "kind": "gym"
+      },
+      {
+        "rank": 9,
+        "kind": "cardio"
+      },
+      {
+        "rank": 10,
+        "kind": "full_routine"
+      }
+    ],
+    "deep_work": {
+      "min_duration_min": 45,
+      "default_focus_min": 60,
+      "default_break_min": 10,
+      "preferred_blocks_per_day": 1,
+      "max_blocks_per_day": 2
+    },
+    "behavior_rules": [
+      "Do not invent active tasks locally; use Google Tasks or the current stub source only.",
+      "Explicit P1/P2/P3 priorities outrank all derived signals.",
+      "Missing priority is untriaged and must not be silently guessed.",
+      "Deadline, list, and energy match may inform recommendations only when marked as derived.",
+      "Habits are not tasks; preserve the minimum habit version during conflicts.",
+      "Persist review status so weekly review does not depend on chat history."
+    ]
+  },
+  "task_annotations": {
+    "task-inbox-insurance-form": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-inbox-fitness-receipt": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-next-thesis-outline": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-next-max-sync": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-next-lease-scan": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-waiting-landlord": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-waiting-insurance-refund": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-week-tax-sort": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    },
+    "task-week-max-sync": {
+      "priority": "untriaged",
+      "energy_required": "unknown",
+      "estimated_minutes": null,
+      "priority_source": "missing",
+      "last_reviewed_at": null,
+      "triage_status": "needs_triage"
+    }
+  },
+  "habits": [
+    {
+      "id": "habit-morning-routine",
+      "name": "Morgenroutine",
+      "status": "active",
+      "frequency": "daily",
+      "target_time": "07:00",
+      "routine_ref": "routine-morning",
+      "minimum_version": [
+        "Yoga Mobility",
+        "Skin Care"
+      ],
+      "full_version": [
+        "Yoga Mobility",
+        "Infrarot",
+        "Kokosoel",
+        "Skin Care"
+      ],
+      "collision_policy": {
+        "on_calendar_conflict": "preserve_minimum_version",
+        "on_task_conflict": "preserve_minimum_version"
+      }
+    },
+    {
+      "id": "habit-evening-routine",
+      "name": "Abendroutine",
+      "status": "active",
+      "frequency": "daily",
+      "target_time": "21:30",
+      "routine_ref": "routine-evening",
+      "minimum_version": [
+        "Yoga Mobility",
+        "Skin Care"
+      ],
+      "full_version": [
+        "Yoga Mobility",
+        "Infrarot",
+        "Kokosoel",
+        "Skin Care"
+      ],
+      "collision_policy": {
+        "on_calendar_conflict": "preserve_minimum_version",
+        "on_task_conflict": "preserve_minimum_version"
+      }
+    },
+    {
+      "id": "habit-pullup-bar-hang",
+      "name": "Haengenlassen an der Klimmzugstange",
+      "status": "active",
+      "frequency": "daily",
+      "target_time": "21:00",
+      "routine_ref": null,
+      "minimum_version": [
+        "short_hang",
+        "one_reflection_question"
+      ],
+      "full_version": [
+        "hang_from_pullup_bar",
+        "how_was_the_day",
+        "was_the_day_successful",
+        "what_should_improve"
+      ],
+      "collision_policy": {
+        "on_calendar_conflict": "preserve_minimum_version",
+        "on_task_conflict": "preserve_minimum_version"
+      }
+    }
+  ],
+  "habit_log": {
+    "habit-morning-routine": {
+      "last_done": null,
+      "streak": 0,
+      "missed_dates": [],
+      "updated_at_utc": null
+    },
+    "habit-evening-routine": {
+      "last_done": null,
+      "streak": 0,
+      "missed_dates": [],
+      "updated_at_utc": null
+    },
+    "habit-pullup-bar-hang": {
+      "last_done": null,
+      "streak": 0,
+      "missed_dates": [],
+      "updated_at_utc": null
+    }
+  },
+  "review_state": {
+    "last_daily_review_date": null,
+    "last_weekly_review_date": null,
+    "review_pending": true,
+    "open_review_questions": [
+      "What overloaded the last plan?",
+      "Which tasks were underestimated?",
+      "Which habits collided with fixed calendar blocks?"
+    ]
+  },
+  "escalation_policy": {
+    "overdue_tasks": {
+      "trigger": "open task due date is before current Berlin business date",
+      "action": "surface in daily briefing as overdue; do not invent a new deadline"
+    },
+    "deferred_tasks": {
+      "trigger": "same task is deferred two or more times",
+      "action": "ask for keep, resize, delegate, or cancel decision during review"
+    },
+    "missing_task_metadata": {
+      "trigger": "task has no explicit priority or effort estimate",
+      "action": "mark untriaged and request triage before deterministic top-3 planning"
+    }
+  }
+}

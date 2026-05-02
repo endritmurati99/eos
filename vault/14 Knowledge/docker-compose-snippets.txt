@@ -1,0 +1,39 @@
+# EOS / OpenClaw Docker Compose Snippets
+
+## Vault Mount
+Use a stable host path for the Obsidian-compatible Markdown vault.
+
+```yaml
+services:
+  openclaw:
+    volumes:
+      - /home/user/openclaw/vault:/app/vault
+```
+
+## Optional persistent workspace / agent data
+Adjust these only if they match your deployment.
+
+```yaml
+services:
+  openclaw:
+    volumes:
+      - /home/user/openclaw/data:/data
+      - /home/user/openclaw/vault:/app/vault
+```
+
+## Environment for EOS calendar path
+```yaml
+services:
+  openclaw:
+    environment:
+      - TZ=Europe/Berlin
+      - GOG_KEYRING_PASSWORD=change-me-to-a-strong-secret
+```
+
+## Reverse proxy expectation
+Recommended production pattern:
+- Nginx or Caddy in front
+- only 80/443 exposed publicly
+- webhook/token validation enabled
+- no direct unnecessary service exposure
+```

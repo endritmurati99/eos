@@ -1,0 +1,78 @@
+{
+  "routines": [
+    {
+      "id": "routine-morning",
+      "title": "Morgenroutine",
+      "context": "daily_morning",
+      "checklist": [
+        "Yoga Mobility",
+        "Infrarot",
+        "Kokosöl",
+        "danach Skin Care"
+      ]
+    },
+    {
+      "id": "routine-evening",
+      "title": "Abendroutine",
+      "context": "daily_evening",
+      "checklist": [
+        "Yoga Mobility",
+        "Infrarot",
+        "Kokosöl",
+        "danach Skin Care"
+      ]
+    },
+    {
+      "id": "routine-bjj",
+      "title": "BJJ Vorbereitung",
+      "context": "bjj",
+      "checklist": [
+        "Gi oder No-Gi",
+        "Wasser",
+        "Handtuch",
+        "Tape",
+        "Mundschutz",
+        "Abfahrtszeit prüfen",
+        "Duschzeug"
+      ]
+    },
+    {
+      "id": "routine-gym",
+      "title": "Gym Vorbereitung",
+      "context": "gym",
+      "checklist": [
+        "Kleidung",
+        "Schuhe",
+        "Wasser",
+        "Kopfhörer",
+        "Handtuch",
+        "Snack"
+      ]
+    },
+    {
+      "id": "routine-workday",
+      "title": "Arbeitstag Mitnahme",
+      "context": "workday",
+      "checklist": [
+        "Laptop",
+        "Ladekabel",
+        "Essen",
+        "Unterlagen",
+        "Schlüssel"
+      ]
+    },
+    {
+      "id": "routine-kickboxen-calisthenics",
+      "title": "Kickboxen plus Calisthenics Vorbereitung",
+      "context": "kickboxing_calisthenics",
+      "checklist": [
+        "Trainingskleidung",
+        "Wasser",
+        "Handtuch",
+        "ggf. Snack",
+        "Abfahrtszeit prüfen",
+        "Sachen für draußen einpacken"
+      ]
+    }
+  ]
+}

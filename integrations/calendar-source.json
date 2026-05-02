@@ -1,0 +1,23 @@
+{
+  "provider": "gog-google-calendar",
+  "primary": true,
+  "account": "endrit.murati99@gmail.com",
+  "keyring": "file",
+  "hard_event_source": true,
+  "timezone": "Europe/Berlin",
+  "calendars": [
+    {
+      "id": "endrit.murati99@gmail.com",
+      "role": "primary"
+    },
+    {
+      "id": "0a2994f0d433fcc6c52655f05f2266a4d3ea6fece247ea6df59ed6cb89785860@group.calendar.google.com",
+      "role": "sport"
+    }
+  ],
+  "notes": [
+    "Use Google Calendar as the source of truth for hard events.",
+    "Use Europe/Berlin for local planning display.",
+    "data/calendar.json is not primary anymore."
+  ]
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run EOS daily morning briefing
+
+[Timer]
+OnCalendar=*-*-* 06:00:00 Europe/Berlin
+Persistent=false
+Unit=eos-job@daily_morning.service
+
+[Install]
+WantedBy=timers.target

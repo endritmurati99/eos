@@ -1,0 +1,48 @@
+{
+  "user": "Endrit Murati",
+  "timezone": "Europe/Berlin",
+  "planning_preferences": {
+    "home_deep_work_start": "09:00",
+    "max_deep_work_blocks_per_day": 2,
+    "preferred_deep_work_blocks_per_day": 1,
+    "post_training_evening_pattern": [
+      "essen",
+      "abschalten"
+    ],
+    "brain_dump_mode": "structure_and_fill",
+    "gym_mode": "flexible_planned_block",
+    "gym_preferred_days": ["friday", "saturday", "sunday"],
+    "deep_work_definition": {
+      "min_duration_min": 45,
+      "requires_uninterrupted_focus": true,
+      "context_switch_costly": true,
+      "clear_output_required": true
+    }
+  },
+  "typical_work_blocks": [
+    {
+      "weekday": "thursday",
+      "start": "05:45",
+      "end": "14:00",
+      "type": "typical"
+    },
+    {
+      "weekday": "saturday",
+      "start": "06:00",
+      "end": "13:30",
+      "type": "typical"
+    },
+    {
+      "weekday_range": ["thursday", "saturday"],
+      "note": "Arbeit typischerweise Donnerstag bis Samstag, genaue Blöcke noch unvollständig bestätigt"
+    }
+  ],
+  "daily_output_format": [
+    "Tagesstruktur",
+    "Top-3",
+    "Deep-Work-Block",
+    "Sport",
+    "Vorbereitung",
+    "Warnung bei Überladung"
+  ]
+}

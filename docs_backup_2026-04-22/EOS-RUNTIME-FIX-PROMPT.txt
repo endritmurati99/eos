@@ -1,0 +1,27 @@
+Bitte behebe jetzt den EOS-Runtime-Fehler auf diesem Server.
+
+Kontext:
+- EOS / OpenClaw kann Google Calendar im manuellen Terminal-Test schreiben
+- derselbe Write-Pfad scheitert aus der laufenden Bot-Session
+- wahrscheinlichster Root Cause: `GOG_KEYRING_PASSWORD` fehlt in der echten Dienst-Runtime
+
+Deine Aufgabe:
+- Finde die echte Startquelle des laufenden OpenClaw-Dienstes
+- ändere genau diese Runtime-Quelle, nicht spekulative Dateien
+- stelle sicher, dass `GOG_KEYRING_PASSWORD` und `TZ=Europe/Berlin` im echten Dienst gesetzt sind
+- starte den Dienst sauber neu
+- prüfe danach ohne manuelles `export`:
+  1. `test -n "$GOG_KEYRING_PASSWORD" && echo set || echo missing`
+  2. `gog auth list`
+  3. `gog calendar calendars`
+- dokumentiere alle Befunde und Änderungen kurz und konkret
+
+Wichtige Regeln:
+- keine angenommenen Pfade als Fakten behandeln
+- keine Geheimnisse in Doku-Dateien schreiben
+- wenn `.env` verwendet wird, Rechte auf `600`
+- wenn mehrere Compose-Dateien oder Services existieren, identifiziere den aktiven OpenClaw-Dienst eindeutig
+- falls `GOG_KEYRING_PASSWORD` gesetzt ist, aber `gog auth list` weiter scheitert, prüfe als Nächstes Passwort-Mismatch zum existierenden Keyring und benenne das klar
+
+Erfolgskriterium:
+Der laufende Dienst kann `gog auth list` und `gog calendar calendars` ohne zusätzliches `export GOG_KEYRING_PASSWORD=...` ausführen.

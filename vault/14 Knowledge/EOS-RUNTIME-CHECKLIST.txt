@@ -1,0 +1,33 @@
+EOS Runtime Checklist
+
+1. Finde echten Startmodus
+- docker compose?
+- docker run?
+- systemd?
+
+2. Finde echten Service / Container
+- Name notieren
+
+3. Prüfe Runtime-Variable im laufenden Dienst
+- GOG_KEYRING_PASSWORD = set/missing
+
+4. Prüfe ohne manuelles export:
+- gog auth list
+- gog calendar calendars
+
+5. Falls missing:
+- echte Runtime-Datei anpassen (.env / compose / unit)
+- TZ=Europe/Berlin ebenfalls sauber setzen
+
+6. Dienst sauber neu erstellen
+- docker compose up -d --force-recreate
+- oder systemd restart des echten Dienstes
+
+7. Checks wiederholen
+- env sichtbar
+- gog auth list geht
+- gog calendar calendars geht
+
+8. Nur dann EOS erneut testen
+- Trage morgen von 07:00 bis 13:00 einen Deep-Work-Block ein.
+- danach Alias-Test: Mach mal morgen den E-Block von 7:00 Uhr 6 Stunden lang.

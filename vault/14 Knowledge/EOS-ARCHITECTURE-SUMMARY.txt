@@ -1,0 +1,65 @@
+EOS Architecture Summary
+
+Status
+- Phase 1 is the current production target.
+- EOS is already usable as a Telegram-based planning agent with live Google Calendar read.
+- Google Tasks and Obsidian Vault are still target-state integrations, not fully production-verified yet.
+
+Confirmed Live Baseline
+- Agent: personal-assistant
+- Display name: EOS (Personal Assistant)
+- Dedicated Telegram bot and routing
+- Google Calendar live read works
+- Timezone: Europe/Berlin
+- Hard-event aggregation includes at least:
+  - primary
+  - Sport
+- Daily Planning Policy v1 is defined
+- Weekly Planning Policy v1 is defined
+
+System Roles
+- Google Calendar = hard events and fixed time blocks
+- Google Tasks = active open tasks
+- Obsidian Vault = brain dumps, daily notes, long-term context, linked notes
+
+Critical Reality Checks
+- Workspace is the default working area, not a hard sandbox by itself
+- GUI-first Obsidian assumptions are wrong for VPS use
+- Vault should be treated as a mounted Markdown filesystem
+- Skills and external integrations must be treated as real attack surface
+- Do not assume placeholder capability names are real system components
+
+Planning Core
+- Deep Work default = 60 min focus + 10 min walking break
+- Thursday to Saturday 05:45 to 14:00 = hard-load workdays
+- Fixed sport from Calendar stays hard
+- Gym and Cardio are flexible blocks
+- Mindest-Routine is never removed
+- Overload must be stated explicitly
+
+Phase 1 Scope
+- Telegram input
+- Google Calendar live read
+- manual tasks via chat
+- Daily Planning
+- Weekly Planning
+- overload detection
+
+Phase 1 Success Criteria
+- usable for 7 consecutive real days
+- no calendar hallucinations
+- short, operational plans
+- realistic handling of work, sport, recovery, and deep work
+
+Next Rollout Order
+1. Finish 7-day Phase 1 pilot
+2. Google Tasks integration
+3. Obsidian Vault integration
+4. Review / history features
+5. light automation
+
+Open Items
+- final headless-safe Google Tasks path
+- real mounted Obsidian vault path
+- minimal skill/tool visibility for EOS
+- production-safe write permissions per system

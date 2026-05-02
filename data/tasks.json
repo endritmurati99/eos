@@ -1,0 +1,119 @@
+{
+  "provider": "google_tasks_stub",
+  "lists": [
+    {
+      "id": "eos-inbox",
+      "title": "Inbox",
+      "tasks": [
+        {
+          "id": "task-inbox-insurance-form",
+          "title": "Krankenkasse Formular pruefen",
+          "notes": "Untriagierter Capture aus dem Chat.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-04-21T08:30:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-inbox-fitness-receipt",
+          "title": "Beleg fuer Fitnessstudio ablegen",
+          "notes": "Noch nicht einsortiert.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-04-21T08:45:00.000Z",
+          "completed": null
+        }
+      ]
+    },
+    {
+      "id": "eos-next",
+      "title": "Next",
+      "tasks": [
+        {
+          "id": "task-next-thesis-outline",
+          "title": "Bachelorarbeit Gliederung finalisieren",
+          "notes": "Naechster konkreter Studienschritt.",
+          "status": "needsAction",
+          "due": "2026-04-23T00:00:00.000Z",
+          "updated": "2026-04-21T09:00:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-next-max-sync",
+          "title": "Mit Max Ruecksprache halten",
+          "notes": "Offener Abgleich zum EOS API-Ansatz.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-04-21T09:15:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-next-lease-scan",
+          "title": "Mietvertrag scannen",
+          "notes": "Soll eindeutig fuer Complete-Tests aufloesbar sein.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-04-21T09:20:00.000Z",
+          "completed": null
+        }
+      ]
+    },
+    {
+      "id": "eos-waiting",
+      "title": "Waiting",
+      "tasks": [
+        {
+          "id": "task-waiting-landlord",
+          "title": "Antwort von Vermieter abwarten",
+          "notes": "Wartet auf Rueckmeldung zum Parkplatz.",
+          "status": "needsAction",
+          "due": "2026-04-25T00:00:00.000Z",
+          "updated": "2026-04-21T09:30:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-waiting-insurance-refund",
+          "title": "Rueckerstattung Krankenkasse verfolgen",
+          "notes": "Naechster Schritt erst nach Dokumenteneingang.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-04-21T09:35:00.000Z",
+          "completed": null
+        }
+      ]
+    },
+    {
+      "id": "eos-this-week",
+      "title": "This Week",
+      "tasks": [
+        {
+          "id": "task-week-tax-sort",
+          "title": "Steuerunterlagen vorsortieren",
+          "notes": "Soll diese Woche vorbereitet werden, ohne Kalenderblock.",
+          "status": "needsAction",
+          "due": "2026-04-24T00:00:00.000Z",
+          "updated": "2026-04-21T09:45:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-week-max-sync",
+          "title": "Mit Max Ruecksprache halten",
+          "notes": "Zweiter offener Task mit gleichem Titel fuer Ambiguitaetstests.",
+          "status": "needsAction",
+          "due": "2026-04-26T00:00:00.000Z",
+          "updated": "2026-04-21T09:50:00.000Z",
+          "completed": null
+        },
+        {
+          "id": "task-week-photo",
+          "title": "Bewerbungsfoto anfragen",
+          "notes": "Bereits abgeschlossenes Beispiel fuer Filtertests.",
+          "status": "completed",
+          "due": "2026-04-20T00:00:00.000Z",
+          "updated": "2026-04-20T18:40:00.000Z",
+          "completed": "2026-04-20T18:40:00.000Z"
+        }
+      ]
+    }
+  ]
+}

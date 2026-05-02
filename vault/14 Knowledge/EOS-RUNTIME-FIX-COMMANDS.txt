@@ -1,0 +1,21 @@
+Nützliche Befehle für den Runtime-Fix
+
+# 1. Compose / Unit finden
+find / -maxdepth 4 \( -name 'docker-compose.yml' -o -name 'compose.yml' -o -name 'docker-compose.yaml' \) 2>/dev/null
+systemctl list-units --type=service | grep -Ei 'openclaw|gateway|docker'
+
+# 2. Laufende Container / Dienste prüfen
+docker ps
+docker compose ps
+systemctl status <service>
+
+# 3. Im echten Dienst prüfen
+docker compose exec <service_name> sh -lc 'test -n "$GOG_KEYRING_PASSWORD" && echo set || echo missing'
+docker compose exec <service_name> sh -lc 'gog auth list'
+docker compose exec <service_name> sh -lc 'gog calendar calendars'
+
+# 4. Nach Compose-Änderung sauber neu erstellen
+docker compose up -d --force-recreate
+
+# 5. Rechte für .env härten
+chmod 600 .env

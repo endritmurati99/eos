@@ -1,0 +1,10 @@
+[Unit]
+Description=Run EOS sport prep reminder
+
+[Timer]
+OnCalendar=*-*-* 20:00:00 Europe/Berlin
+Persistent=false
+Unit=eos-job@sport_prep_reminder.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run EOS weekly sync
+
+[Timer]
+OnCalendar=Sun *-*-* 18:00:00 Europe/Berlin
+Persistent=false
+Unit=eos-job@weekly_sync.service
+
+[Install]
+WantedBy=timers.target

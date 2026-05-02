@@ -1,0 +1,89 @@
+{
+  "timezone": "Europe/Berlin",
+  "events": [
+    {
+      "id": "sport-kickboxen-mon",
+      "title": "Kickboxen",
+      "type": "sport_class",
+      "location": "HSP, TU Dortmund",
+      "weekday": "monday",
+      "start": "16:30",
+      "end": "17:30",
+      "fixed": true,
+      "series": "weekly"
+    },
+    {
+      "id": "sport-bjj-tue",
+      "title": "BJJ",
+      "type": "sport_class",
+      "weekday": "tuesday",
+      "start": "17:45",
+      "end": "19:15",
+      "fixed": true,
+      "series": "weekly"
+    },
+    {
+      "id": "sport-calisthenics-wed",
+      "title": "Calisthenics draußen",
+      "type": "sport_block",
+      "weekday": "wednesday",
+      "start": "17:00",
+      "end": "18:00",
+      "fixed": false,
+      "series": "weekly_preferred"
+    },
+    {
+      "id": "sport-kickboxen-thu",
+      "title": "Kickboxen",
+      "type": "sport_class",
+      "location": "HSP, TU Dortmund",
+      "weekday": "thursday",
+      "start": "16:30",
+      "end": "17:30",
+      "fixed": true,
+      "series": "weekly"
+    },
+    {
+      "id": "sport-calisthenics-mon-post",
+      "title": "Calisthenics draußen nach Kickboxen",
+      "type": "sport_block",
+      "weekday": "monday",
+      "start": "17:40",
+      "end": "18:25",
+      "fixed": false,
+      "series": "weekly_preferred",
+      "after_event_id": "sport-kickboxen-mon"
+    },
+    {
+      "id": "sport-calisthenics-thu-post",
+      "title": "Calisthenics draußen nach Kickboxen",
+      "type": "sport_block",
+      "weekday": "thursday",
+      "start": "17:40",
+      "end": "18:25",
+      "fixed": false,
+      "series": "weekly_preferred",
+      "after_event_id": "sport-kickboxen-thu"
+    },
+    {
+      "id": "work-thu-regular",
+      "title": "Arbeit",
+      "type": "work_block",
+      "weekday": "thursday",
+      "start": "05:45",
+      "end": "14:00",
+      "fixed": false,
+      "series": "typical"
+    },
+    {
+      "id": "work-sat-regular",
+      "title": "Arbeit",
+      "type": "work_block",
+      "weekday": "saturday",
+      "start": "06:00",
+      "end": "13:30",
+      "fixed": false,
+      "series": "typical"
+    }
+  ]
+}

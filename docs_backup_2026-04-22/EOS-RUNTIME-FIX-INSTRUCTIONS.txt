@@ -1,0 +1,74 @@
+EOS Runtime Fix Instructions
+
+Ziel:
+Behebe den Runtime-Fehler, durch den EOS als Bot Google Calendar nicht schreiben kann, obwohl `gog` im manuellen Terminal-Test funktioniert.
+
+Wichtige Diagnose:
+- Terminal-Write funktioniert mit manuell gesetztem `GOG_KEYRING_PASSWORD`
+- Bot-Write scheitert
+- wahrscheinlichster Root Cause: `GOG_KEYRING_PASSWORD` fehlt in der echten OpenClaw-Dienst-Runtime
+
+Aufgabe:
+1. Finde den echten OpenClaw-Startpfad auf diesem Host
+2. Finde, ob OpenClaw per `docker compose`, `docker run` oder `systemd` gestartet wird
+3. Lege `GOG_KEYRING_PASSWORD` und `TZ=Europe/Berlin` in die echte Runtime-Quelle
+4. Starte den Dienst sauber neu / recreate
+5. Prüfe danach, dass die Variable im laufenden Dienst wirklich vorhanden ist
+6. Prüfe `gog auth list` ohne manuelles `export`
+7. Prüfe `gog calendar calendars` ohne manuelles `export`
+8. Dokumentiere exakt:
+   - gefundener Compose-/Systemd-Pfad
+   - geänderte Datei(en)
+   - verwendeter Service-Name
+   - Ergebnis der Runtime-Checks
+
+Wichtige Regeln:
+- Keine spekulativen Pfade annehmen
+- Nicht einfach neue Compose-Dateien erfinden
+- Erst die echte Startquelle finden, dann dort ändern
+- Geheimnisse nicht in Markdown-Dokus speichern
+- Falls `.env` benutzt wird, Dateirechte auf `600` setzen
+- Wenn mehrere mögliche Startquellen existieren, die tatsächlich aktive identifizieren
+
+Konkrete Checks, die du ausführen sollst:
+
+A. Startquelle finden
+- Suche nach `docker-compose.yml`, `compose.yml`, `docker-compose.yaml`
+- Suche nach `systemctl` Units oder Service-Dateien für OpenClaw
+- Prüfe laufende Container und Compose-Projekte
+
+B. Laufenden Dienst identifizieren
+- `docker ps`
+- `docker compose ps` im gefundenen Projektordner
+- Falls systemd: `systemctl status ...`
+
+C. Runtime-Env prüfen
+Im echten laufenden OpenClaw-Service:
+- `test -n "$GOG_KEYRING_PASSWORD" && echo set || echo missing`
+- `gog auth list`
+- `gog calendar calendars`
+
+D. Fix einbauen
+Wenn Compose verwendet wird:
+- `.env` oder `env_file` sauber verwenden
+- `GOG_KEYRING_PASSWORD` dort setzen
+- `TZ=Europe/Berlin` dort setzen
+- Service danach mit `docker compose up -d --force-recreate` neu erstellen
+
+E. Ergebnis prüfen
+Nur grün, wenn:
+- Runtime sieht `GOG_KEYRING_PASSWORD`
+- `gog auth list` funktioniert ohne extra `export`
+- `gog calendar calendars` funktioniert ohne extra `export`
+
+F. Falls weiterhin Fehler
+Dann als nächsten Verdacht prüfen:
+- Keyring-Passwort passt nicht zum bestehenden gespeicherten gog-Token
+- in dem Fall Ursache klar benennen und Re-Auth-Pfad vorschlagen
+
+Erwarteter Output am Ende:
+1. Root Cause bestätigt oder widerlegt
+2. geänderte Datei(en)
+3. genaue Kommandos, die ausgeführt wurden
+4. Ergebnis der drei Checks
+5. ob EOS-Bot jetzt technisch auf den Google-Calendar-Token zugreifen kann

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run EOS evening habit check-in
+
+[Timer]
+OnCalendar=*-*-* 21:30:00 Europe/Berlin
+Persistent=false
+Unit=eos-job@habit_checkin_evening.service
+
+[Install]
+WantedBy=timers.target
