@@ -12,6 +12,24 @@ All paths in `SOUL.md` and agent config reference this layer.
 
 ---
 
+## Durable EOS Context
+
+| File | Description |
+|------|-------------|
+| [eos/EOS-MASTER-CONTEXT.md](eos/EOS-MASTER-CONTEXT.md) | Durable project memory, scope, architecture rules, and phase baseline |
+| [eos/EOS-ROADMAP.md](eos/EOS-ROADMAP.md) | Controlled rollout from Phase 0 through controlled autopilot |
+| [eos/audits/EOS-REPO-AUDIT-2026-05.md](eos/audits/EOS-REPO-AUDIT-2026-05.md) | Phase 0 repository audit and current-state findings |
+| [eos/audits/EOS-SECURITY-SECRETS-AUDIT-2026-05.md](eos/audits/EOS-SECURITY-SECRETS-AUDIT-2026-05.md) | Metadata-only security, secrets, and OAuth audit |
+| [eos/policies/EOS-MAIL-POLICY-v1.md](eos/policies/EOS-MAIL-POLICY-v1.md) | Gmail read-only, labeling, storage, and sensitive-category policy |
+| [eos/policies/EOS-ACTION-AUTHORIZATION-POLICY-v1.md](eos/policies/EOS-ACTION-AUTHORIZATION-POLICY-v1.md) | L0-L5 authorization model for reads, suggestions, writes, and autonomy |
+| [eos/policies/EOS-MEMORY-POLICY-v1.md](eos/policies/EOS-MEMORY-POLICY-v1.md) | Source-backed personal memory and retention policy |
+| [eos/policies/EOS-CALENDAR-INTELLIGENCE-POLICY-v1.md](eos/policies/EOS-CALENDAR-INTELLIGENCE-POLICY-v1.md) | Meeting briefs, conflicts, prep, follow-ups, and calendar write limits |
+| [eos/policies/EOS-HABIT-JOURNAL-POLICY-v1.md](eos/policies/EOS-HABIT-JOURNAL-POLICY-v1.md) | Habit and journal signal limits, tone, and minimum-version policy |
+| [eos/policies/EOS-NOTIFICATION-BUDGET-v1.md](eos/policies/EOS-NOTIFICATION-BUDGET-v1.md) | Telegram-first notification budget and escalation rules |
+| [eos/policies/EOS-GLOBAL-AGENT-RULES-v1.md](eos/policies/EOS-GLOBAL-AGENT-RULES-v1.md) | Branching, safety, verification, and reporting rules for all implementation agents |
+
+---
+
 ## Core Architecture
 
 | File | Description |

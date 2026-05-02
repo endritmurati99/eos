@@ -57,6 +57,15 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - `trash` > `rm` (recoverable beats gone forever)
 - When in doubt, ask.
 
+## Global EOS Agent Rules
+
+- Never push directly to `main`; use a dedicated feature branch for every implementation task.
+- Do not touch secrets, print tokens, or modify `.env` with real credentials.
+- Do not add Gmail write scopes or send, delete, archive, unsubscribe, or label real Gmail messages unless explicitly requested.
+- Run `python -m pytest` or the host/repo fallback, run EOS smoke checks when available, and report the exact result.
+- End implementation reports with `BRANCH`, `COMMITS`, `FILES_CHANGED`, `TESTS_RUN`, `TEST_RESULT`, `OPEN_RISKS`, and `NEXT_RECOMMENDED_STEP`.
+- Full policy: `docs/eos/policies/EOS-GLOBAL-AGENT-RULES-v1.md`.
+
 ## External vs Internal
 
 **Safe to do freely:**
