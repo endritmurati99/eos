@@ -66,6 +66,8 @@ NEWSLETTER_CATEGORIES = {
 }
 
 NO_ARCHIVE_CATEGORIES = {
+    EOS_ACTION_REQUIRED,
+    EOS_REVIEW_NEEDED,
     MONEY_BANKING,
     MONEY_CREDIT_CARD,
     MONEY_INVOICE,
@@ -136,7 +138,9 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     "banking": (
         "bank account",
         "account statement",
+        "bank statement",
         "monthly statement",
+        "monthly bank statement",
         "balance notice",
         "direct debit",
         "wire transfer",
@@ -202,11 +206,15 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     "security_otp": (
         "one-time code",
         "one time code",
+        "one-time password",
+        "one time password",
         "verification code",
         "verifizierungscode",
         "bestaetigungscode",
         "security code",
         "two-factor code",
+        "2fa",
+        "2fa code",
         "otp",
     ),
     "security_suspicious": (
@@ -217,6 +225,7 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     ),
     "phishing": (
         "verify immediately",
+        "verify your account immediately",
         "account suspended",
         "mailbox will be closed",
         "confirm your password",
@@ -236,6 +245,8 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     "reply_required": (
         "please reply",
         "bitte antworten",
+        "bitte bestaetigen",
+        "bitte bestatigen",
         "antwort erforderlich",
         "reply by",
         "respond by",
@@ -304,10 +315,12 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     ),
     "legal": (
         "legal notice",
+        "contract",
         "contract review",
         "attorney",
         "law office",
         "court",
+        "mahnung",
         "terms notice",
         "sign the agreement",
     ),

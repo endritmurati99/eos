@@ -164,7 +164,7 @@ def classify_mail(mail: MailInput) -> MailClassification:
     priority = _priority_for(categories, requires_reply, text)
     categories.insert(0, PRIORITY_TO_CATEGORY[priority])
 
-    confidence = round(max(evidence_scores) if evidence_scores else 0.45, 2)
+    confidence = _bounded_confidence(max(evidence_scores) if evidence_scores else 0.45)
     if _needs_review(categories, risk_flags, confidence):
         if EOS_REVIEW_NEEDED not in categories:
             categories.append(EOS_REVIEW_NEEDED)
@@ -203,6 +203,10 @@ def _priority_for(categories: list[str], requires_reply: bool, text: str) -> str
     if NEWSLETTER_HIGH_SIGNAL in categories:
         return "important"
     return "low"
+
+
+def _bounded_confidence(raw_confidence: float) -> float:
+    return round(min(1.0, max(0.0, raw_confidence)), 2)
 
 
 def _needs_review(categories: list[str], risk_flags: list[str], confidence: float) -> bool:

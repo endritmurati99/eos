@@ -27,5 +27,9 @@ class MailClassification:
     reason: str
     risk_flags: list[str] = field(default_factory=list)
 
+    def __post_init__(self) -> None:
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError("confidence must be between 0.0 and 1.0")
+
     def to_dict(self) -> dict[str, object]:
         return asdict(self)

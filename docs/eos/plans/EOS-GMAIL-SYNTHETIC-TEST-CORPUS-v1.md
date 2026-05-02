@@ -55,9 +55,11 @@ Rule groups cover:
 Safety defaults:
 
 - Banking, credit card, tax, security, legal, health, phishing, spam, and unknown-sender cases are never archive-safe.
+- `_EOS/Action Required` and `_EOS/Review Needed` are also never archive-safe.
 - Newsletter cases are archive-safe only when `List-Unsubscribe` exists, no reply/action cue exists, no sensitive/risk category exists, and confidence is at least `0.95`.
 - High-signal newsletters are retained for attention and are not archive-safe by default.
 - Low confidence and risky cases receive `_EOS/Review Needed`.
+- Classification confidence is bounded to `0.0..1.0`; direct `MailClassification` construction rejects out-of-range confidence.
 
 Confidence bands:
 
@@ -97,6 +99,23 @@ The corpus lives in `tests/fixtures/mail_synthetic/` and contains 25 synthetic c
 - `health_appointment`
 
 Fixtures use synthetic sender domains and synthetic message IDs only. They intentionally omit real names, real banking data, OTP values, password-reset links, login links, personal mailbox content, and Gmail API payloads.
+
+## Hardening Validation
+
+The fixture corpus remains at 25 JSON cases. Additional hardening is covered by direct unit tests for:
+
+- newsletter plus banking statement
+- newsletter plus reply request
+- high-signal research newsletter retention
+- phishing with security language and fake account-verification sender
+- legal notice, contract, and Mahnung with newsletter header
+- OTP, verification code, one-time password, and 2FA handling
+- weak unknown-sender fallback
+- confidence bounds
+- hard no-archive category invariants
+- generic reasons that do not echo OTP values, reset links, or raw sensitive snippets
+
+No Gmail API, OAuth, label write, archive, delete, send, unsubscribe, CLI integration, or database persistence is introduced by this hardening pass.
 
 ## Verification
 
