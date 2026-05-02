@@ -24,3 +24,4 @@ agent remains the only orchestrator and the only writer of operational state.
 - Ask one specialist for one bounded question.
 - Do not let multiple subagents independently rank the same task list.
 - Prefer deterministic EOS Core results over agent opinion when they conflict.
+- Implementation subagents must also follow `docs/eos/policies/EOS-GLOBAL-AGENT-RULES-v1.md` for branching, safety, verification, and reporting.
