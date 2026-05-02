@@ -1,0 +1,20 @@
+{
+  "case_id": "university_important",
+  "mail": {
+    "message_id": "synthetic-university-important-001",
+    "thread_id": "synthetic-thread-university-important-001",
+    "sender": "registrar@example-university.test",
+    "subject": "Exam registration deadline",
+    "snippet": "The university registrar sent a synthetic deadline reminder.",
+    "body_excerpt": "No real student record or course enrollment is included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_University", "_EOS/Action Required"],
+    "priority": "important",
+    "requires_reply": true,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": []
+  }
+}

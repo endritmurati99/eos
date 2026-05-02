@@ -1,0 +1,20 @@
+{
+  "case_id": "credit_card_alert",
+  "mail": {
+    "message_id": "synthetic-credit-card-alert-001",
+    "thread_id": "synthetic-thread-credit-card-alert-001",
+    "sender": "alerts@synthetic-card.test",
+    "subject": "Credit card charge alert",
+    "snippet": "A new charge alert was generated for your synthetic card.",
+    "body_excerpt": "No real card number or transaction details are included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Money/Credit Card"],
+    "priority": "critical",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": ["sensitive_credit_card"]
+  }
+}
