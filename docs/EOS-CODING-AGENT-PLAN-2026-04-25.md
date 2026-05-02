@@ -1,4 +1,4 @@
-# Personal Assistant / EOS Coding Agent Plan (2026-04-25)
+# EOS Coding Agent Plan (2026-04-25)
 
 ## Audience
 This document is for Claude Code, Codex, or another coding agent working directly in `/data/.openclaw/workspaces/personal-assistant`.

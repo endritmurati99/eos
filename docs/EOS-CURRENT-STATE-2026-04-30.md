@@ -1,7 +1,7 @@
 # EOS – Current State & Architecture
 
 **Stand:** 2026-04-30
-**Agent:** `personal-assistant` (Display-Name: *Eos – Personal Assistant*)
+**Agent:** `personal-assistant` (Display-Name: *EOS*)
 **Workspace:** `/data/.openclaw/workspaces/personal-assistant`
 **Scope dieser Datei:** Vollständige, ehrliche Bestandsaufnahme — *was EOS heute wirklich kann*, nicht das Zielbild.
 
@@ -12,7 +12,7 @@
 | Feld | Wert |
 |---|---|
 | Agent-ID | `personal-assistant` |
-| Display-Name | `Eos (Personal Assistant)` |
+| Display-Name | `EOS` |
 | Vibe | Fokussiert, strukturiert, minimal, scheduling-aware, ruhig, direkt |
 | Emoji | 📅 |
 | Interface | Dedizierter Telegram-Bot, geroutet auf `personal-assistant` |

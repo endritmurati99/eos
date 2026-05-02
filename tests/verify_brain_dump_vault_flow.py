@@ -21,7 +21,7 @@ def main() -> int:
             source="chat",
             context="implementation test",
             summary="Tasks und Vault sollen getrennte Rollen behalten.",
-            project_slugs=["eos-personal-assistant"],
+            project_slugs=["eos"],
             idea_slugs=["second-brain-cleanup"],
             task_candidates=["Google Tasks API im Cloud-Projekt aktivieren"],
             workspace_root=root,
@@ -41,7 +41,7 @@ def main() -> int:
         assert "Google Tasks reparieren" in inbox
         assert "[task_candidate] Google Tasks API im Cloud-Projekt aktivieren" in inbox
         assert "[[2026-04-28-0930-brain-dump]]" in daily
-        assert "[[eos-personal-assistant]]" in daily
+        assert "[[eos]]" in daily
         assert "[[second-brain-cleanup]]" in daily
 
         archive_result = archive_brain_dump(

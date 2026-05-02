@@ -122,7 +122,7 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
-### EOS Personal Assistant Commands
+### EOS Commands
 
 For EOS runtime commands, work from `/data/.openclaw/workspaces/personal-assistant`.
 

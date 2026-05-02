@@ -1,4 +1,4 @@
-# EOS (Personal Assistant) - Plan
+# EOS — Plan
 
 ## Current State
 - Dedicated agent routing via Telegram account `personal-assistant`

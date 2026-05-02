@@ -2,7 +2,7 @@
 
 ## Identity
 - Agent: `personal-assistant`
-- Display name: `EOS (Personal Assistant)`
+- Display name: `EOS`
 - Interface: dedicated Telegram bot routed to agent `personal-assistant`
 - Workspace: `/data/.openclaw/workspaces/personal-assistant`
 

@@ -29,7 +29,7 @@ Jeder Agent hat einen eigenen Telegram-Bot und eine eigene Workspace-Identität.
 | Agent | Name | Modell | Bot | Rolle |
 |-------|------|--------|-----|-------|
 | `main` | main | (default: GPT-5.4-mini) | `8635109777:…` | Haupt-Agent, Standard-DM |
-| `personal-assistant` | Eos (Personal Assistant) | GPT-5.4-mini | `8634473256:…` | **EOS** — Planer, Kalender, Tasks |
+| `personal-assistant` | EOS | GPT-5.4-mini | `8634473256:…` | **EOS** — Planer, Kalender, Tasks |
 | `pharos` | Pharos (Research) | Gemini 2.5 Pro | `8722196187:…` | Recherche, Orientierung |
 | `solara` | Solara (Fitness) | GPT-5.4-mini | `8707561138:…` | Fitness, Coaching, Klienten |
 | `photon` | Photon (Coding) | GPT-5.1-codex | `8788385095:…` | Code, Debugging, Automation |

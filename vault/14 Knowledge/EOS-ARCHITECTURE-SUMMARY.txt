@@ -7,7 +7,7 @@ Status
 
 Confirmed Live Baseline
 - Agent: personal-assistant
-- Display name: EOS (Personal Assistant)
+- Display name: EOS
 - Dedicated Telegram bot and routing
 - Google Calendar live read works
 - Timezone: Europe/Berlin
