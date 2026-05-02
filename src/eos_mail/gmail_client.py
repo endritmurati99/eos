@@ -13,6 +13,10 @@ from src.runtime import WORKSPACE_ROOT, load_env_file
 
 PROVIDER_NAME = "gog_gmail"
 READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+LIVE_CONTRACT_UNVERIFIED_ITEMS = (
+    "gog gmail messages search JSON shape in production",
+    "gog gmail get --format metadata JSON shape in production",
+)
 ALLOWED_HEADER_NAMES = (
     "From",
     "To",
@@ -70,7 +74,7 @@ class GmailClientError(RuntimeError):
         return {
             "status": self.status,
             "provider": self.provider,
-            "error": str(self),
+            "error": _sanitize_error_text(str(self)),
             "command": _redact_command(self.command),
         }
 
@@ -166,12 +170,19 @@ class GogGmailReadOnlyClient:
             "--results-only",
             "--no-input",
         ]
-        completed = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            env=self.build_command_env(),
-        )
+        try:
+            completed = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                env=self.build_command_env(),
+            )
+        except FileNotFoundError as exc:
+            raise GmailClientError(
+                "config_missing",
+                "gog binary not found; set EOS_GOG_BIN or add gog to PATH.",
+                command=command,
+            ) from exc
         result = {
             "returncode": completed.returncode,
             "stdout": completed.stdout.strip(),
@@ -296,7 +307,7 @@ def _status_from_command(command: dict[str, Any]) -> str:
 def _best_error(command: dict[str, Any]) -> str | None:
     for value in (command.get("stderr"), command.get("stdout")):
         if value:
-            return str(value)
+            return _sanitize_error_text(str(value))
     return None
 
 
@@ -314,6 +325,17 @@ def _redact_command(command: list[str]) -> list[str]:
     return redacted
 
 
+def _sanitize_error_text(raw: str) -> str:
+    sanitized = raw
+    sanitized = re.sub(r"Bearer\s+[A-Za-z0-9._~+/=-]+", "Bearer <redacted>", sanitized, flags=re.IGNORECASE)
+    sanitized = re.sub(r"ya29\.[A-Za-z0-9._~+/=-]+", "<redacted-token>", sanitized)
+    sanitized = re.sub(r"(access[_-]?token|refresh[_-]?token|id[_-]?token|token|secret|password)=\S+", r"\1=<redacted>", sanitized, flags=re.IGNORECASE)
+    sanitized = re.sub(r"(https?://\S*(?:token|code|auth|oauth)\S*)", "<redacted-url>", sanitized, flags=re.IGNORECASE)
+    sanitized = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "<redacted-account>", sanitized)
+    sanitized = re.sub(r"(/[^\s:]*?(?:credentials|token|gogcli|oauth)[^\s:]*)", "<redacted-path>", sanitized, flags=re.IGNORECASE)
+    return sanitized
+
+
 def _optional_str(value: Any) -> str | None:
     if value is None:
         return None
@@ -326,4 +348,6 @@ def gmail_scope_guidance() -> dict[str, Any]:
         "required_scope": READONLY_SCOPE,
         "gog_auth_hint": "gog auth add <account> --services gmail --readonly --gmail-scope=readonly",
         "write_scopes_added": False,
+        "live_contract_verified": False,
+        "live_contract_unverified_items": list(LIVE_CONTRACT_UNVERIFIED_ITEMS),
     }

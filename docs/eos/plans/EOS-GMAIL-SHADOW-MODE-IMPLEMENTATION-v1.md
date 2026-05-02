@@ -45,6 +45,13 @@ gog gmail get ... --format metadata
 
 No methods exist for send, delete, archive, unsubscribe, or label modification.
 
+Live Gmail E2E is not verified by this implementation. The following provider contracts remain unverified until credentials and a reviewed production command run are available:
+
+```text
+gog gmail messages search JSON shape in production
+gog gmail get --format metadata JSON shape in production
+```
+
 ## Scope Requirement
 
 Required future Gmail scope:
@@ -126,7 +133,7 @@ config_missing
 provider_error
 ```
 
-Errors are sanitized and do not print token contents.
+Errors are sanitized and do not print token contents, account identifiers, auth URLs, credential paths, or raw provider output that appears secret-bearing.
 
 ## Non-Goals
 
