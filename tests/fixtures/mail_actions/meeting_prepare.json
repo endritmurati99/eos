@@ -1,0 +1,22 @@
+{
+  "id": "meeting_prepare",
+  "mail": {
+    "message_id": "synthetic-meeting-prepare",
+    "thread_id": "thread-meeting-prepare",
+    "sender": "manager@example-company.test",
+    "subject": "Prepare for planning meeting",
+    "snippet": "Please prepare for the planning meeting tomorrow.",
+    "body_excerpt": "Agenda is attached. Please prepare for the planning meeting tomorrow.",
+    "categories": ["_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T20:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "prepare_meeting",
+    "title_prefix": "Prepare meeting:",
+    "due": "2026-05-05",
+    "list_name": "Next",
+    "requires_approval": true
+  }
+}

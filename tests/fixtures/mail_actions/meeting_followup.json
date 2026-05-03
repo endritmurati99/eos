@@ -1,0 +1,22 @@
+{
+  "id": "meeting_followup",
+  "mail": {
+    "message_id": "synthetic-meeting-followup",
+    "thread_id": "thread-meeting-followup",
+    "sender": "team@example-company.test",
+    "subject": "Schedule follow-up",
+    "snippet": "Can we schedule a follow-up until Monday?",
+    "body_excerpt": "Let's schedule a follow-up until Monday for next steps.",
+    "categories": ["_Work"],
+    "priority": "important",
+    "received_at": "2026-05-05T09:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "schedule_followup",
+    "title_prefix": "Schedule follow-up:",
+    "due": "2026-05-11",
+    "list_name": "Next",
+    "requires_approval": true
+  }
+}

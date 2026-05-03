@@ -1,0 +1,17 @@
+{
+  "id": "spam_no_task",
+  "mail": {
+    "message_id": "synthetic-spam",
+    "thread_id": "thread-spam",
+    "sender": "winner@example-spam.test",
+    "subject": "You won",
+    "snippet": "Claim your prize now.",
+    "body_excerpt": "You won a fake prize. Reply immediately.",
+    "categories": ["_Risk/Spam Review"],
+    "priority": "low",
+    "received_at": "2026-05-04T23:00:00"
+  },
+  "expected": {
+    "proposal_count": 0
+  }
+}

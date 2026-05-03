@@ -1,0 +1,17 @@
+{
+  "id": "receipt_no_action",
+  "mail": {
+    "message_id": "synthetic-receipt",
+    "thread_id": "thread-receipt",
+    "sender": "store@example.test",
+    "subject": "Your receipt",
+    "snippet": "Payment received. This is your receipt.",
+    "body_excerpt": "No action is needed. Payment received.",
+    "categories": ["_Money/Receipt"],
+    "priority": "low",
+    "received_at": "2026-05-04T13:00:00"
+  },
+  "expected": {
+    "proposal_count": 0
+  }
+}

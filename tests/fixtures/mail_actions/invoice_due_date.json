@@ -1,0 +1,22 @@
+{
+  "id": "invoice_due_date",
+  "mail": {
+    "message_id": "synthetic-invoice-due",
+    "thread_id": "thread-invoice-due",
+    "sender": "billing@example.test",
+    "subject": "Rechnung faellig am 10.05.2026",
+    "snippet": "Bitte Zahlung bis faellig am 10.05.2026 pruefen.",
+    "body_excerpt": "Die Rechnung ist faellig am 10.05.2026. Bitte Zahlung pruefen.",
+    "categories": ["_Money/Invoice"],
+    "priority": "important",
+    "received_at": "2026-05-04T12:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "pay_invoice",
+    "title_prefix": "Pay invoice:",
+    "due": "2026-05-10",
+    "list_name": "Inbox",
+    "requires_approval": true
+  }
+}

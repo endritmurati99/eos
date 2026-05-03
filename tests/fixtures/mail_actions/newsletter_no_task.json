@@ -1,0 +1,17 @@
+{
+  "id": "newsletter_no_task",
+  "mail": {
+    "message_id": "synthetic-newsletter",
+    "thread_id": "thread-newsletter",
+    "sender": "newsletter@example.test",
+    "subject": "Weekly digest",
+    "snippet": "This week's digest is ready.",
+    "body_excerpt": "Read the latest stories when you have time.",
+    "categories": ["_Newsletter/Normal"],
+    "priority": "low",
+    "received_at": "2026-05-04T22:00:00"
+  },
+  "expected": {
+    "proposal_count": 0
+  }
+}

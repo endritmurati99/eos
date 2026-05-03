@@ -1,0 +1,22 @@
+{
+  "id": "reply_by_friday",
+  "mail": {
+    "message_id": "synthetic-reply-friday",
+    "thread_id": "thread-reply-friday",
+    "sender": "alex@example.test",
+    "subject": "Project decision needed",
+    "snippet": "Please reply by Friday with your decision.",
+    "body_excerpt": "Can you review the proposal and please reply by Friday?",
+    "categories": ["_EOS/Action Required", "_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T09:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "reply_required",
+    "title_prefix": "Reply:",
+    "due": "2026-05-08",
+    "list_name": "Inbox",
+    "requires_approval": false
+  }
+}
