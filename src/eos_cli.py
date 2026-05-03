@@ -20,6 +20,7 @@ from src.dispatch import dispatch_text
 from src.confirmations import ConfirmationService
 from src.energy import EnergyService, parse_energy_text
 from src.database.models import init_db
+from src.eos_mail.auth_preflight import run_gmail_auth_preflight
 from src.eos_mail.digest import digest_payload, render_shadow_digest
 from src.eos_mail.gmail_client import GogGmailReadOnlyClient, gmail_scope_guidance
 from src.eos_mail.ingestion import query_for_today, query_from_last, run_shadow_ingestion
@@ -288,6 +289,11 @@ def command_mail(args: argparse.Namespace) -> dict[str, Any]:
             "gmail_write_actions_added": False,
         }
 
+    if args.mail_command == "auth-check":
+        result = run_gmail_auth_preflight()
+        result["dry_run"] = True
+        return result
+
     repository = InMemoryMailShadowRepository()
     client = GogGmailReadOnlyClient()
     max_results = int(args.max_results)
@@ -539,6 +545,10 @@ def _build_parser() -> argparse.ArgumentParser:
     mail_digest.add_argument("--query")
     mail_digest.add_argument("--limit", "--max-results", dest="max_results", type=int, default=50)
     mail_digest.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+
+    mail_auth_check = mail_subparsers.add_parser("auth-check")
+    mail_auth_check.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+    mail_auth_check.add_argument("--json-only", action="store_true", default=argparse.SUPPRESS)
 
     daily = subparsers.add_parser("daily-plan")
     daily.add_argument("--date", required=True)

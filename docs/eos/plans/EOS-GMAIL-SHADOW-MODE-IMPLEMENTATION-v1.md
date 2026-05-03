@@ -13,9 +13,10 @@ CLI:
 ```bash
 python3 -m src.eos_cli mail audit --last 7d --dry-run
 python3 -m src.eos_cli mail digest --today --dry-run
+python3 -m src.eos_cli mail auth-check --dry-run
 ```
 
-Both commands are dry-run by default. `--no-dry-run` is rejected because Phase 1 has no write mode.
+Mail commands are dry-run by default. `--no-dry-run` is rejected because Phase 1 has no write mode.
 
 Modules:
 
@@ -25,6 +26,7 @@ src/eos_mail/ingestion.py
 src/eos_mail/repository.py
 src/eos_mail/digest.py
 src/eos_mail/audit.py
+src/eos_mail/auth_preflight.py
 ```
 
 ## Gmail Access
@@ -67,6 +69,15 @@ gog auth add <account> --services gmail --readonly --gmail-scope=readonly
 ```
 
 This implementation does not run auth, does not change OAuth configuration, and does not add Gmail write scopes.
+
+OAuth readiness is documented in:
+
+```text
+docs/eos/runbooks/EOS-GMAIL-GOOGLE-CLOUD-OAUTH-RUNBOOK.md
+docs/eos/contracts/EOS-GMAIL-GOG-CONTRACT-v1.md
+```
+
+`mail auth-check --dry-run` performs local preflight only. It checks read-only scope expectations, `gog` availability, account configuration, optional token and credential path presence, and write-scope detection without importing credentials or calling Gmail.
 
 ## Stored Data Shape
 

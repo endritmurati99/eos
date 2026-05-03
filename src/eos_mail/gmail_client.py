@@ -13,6 +13,12 @@ from src.runtime import WORKSPACE_ROOT, load_env_file
 
 PROVIDER_NAME = "gog_gmail"
 READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+FORBIDDEN_GMAIL_WRITE_SCOPES = (
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.compose",
+    "https://mail.google.com/",
+)
 LIVE_CONTRACT_UNVERIFIED_ITEMS = (
     "gog gmail messages search JSON shape in production",
     "gog gmail get --format metadata JSON shape in production",
@@ -25,6 +31,37 @@ ALLOWED_HEADER_NAMES = (
     "List-Unsubscribe",
     "Authentication-Results",
 )
+GOG_GMAIL_CONTRACT_COMMANDS = {
+    "messages_search": (
+        "gog",
+        "-a",
+        "<account>",
+        "gmail",
+        "messages",
+        "search",
+        "<query>",
+        "--max",
+        "<n>",
+        "--json",
+        "--results-only",
+        "--no-input",
+    ),
+    "metadata_get": (
+        "gog",
+        "-a",
+        "<account>",
+        "gmail",
+        "get",
+        "<message_id>",
+        "--format",
+        "metadata",
+        "--headers",
+        ",".join(ALLOWED_HEADER_NAMES),
+        "--json",
+        "--results-only",
+        "--no-input",
+    ),
+}
 EXIT_AUTH_REQUIRED = 4
 EXIT_CONFIG = 10
 
@@ -334,6 +371,21 @@ def _sanitize_error_text(raw: str) -> str:
     sanitized = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "<redacted-account>", sanitized)
     sanitized = re.sub(r"(/[^\s:]*?(?:credentials|token|gogcli|oauth)[^\s:]*)", "<redacted-path>", sanitized, flags=re.IGNORECASE)
     return sanitized
+
+
+def sanitize_gmail_error_text(raw: str) -> str:
+    return _sanitize_error_text(raw)
+
+
+def detect_forbidden_gmail_write_scopes(scopes: str | list[str] | tuple[str, ...] | set[str] | None) -> tuple[str, ...]:
+    if scopes is None:
+        return ()
+    if isinstance(scopes, str):
+        candidates = re.split(r"[\s,;]+", scopes)
+    else:
+        candidates = [str(scope) for scope in scopes]
+    normalized = {scope.strip() for scope in candidates if scope and scope.strip()}
+    return tuple(scope for scope in FORBIDDEN_GMAIL_WRITE_SCOPES if scope in normalized)
 
 
 def _optional_str(value: Any) -> str | None:
