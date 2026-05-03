@@ -1,0 +1,10 @@
+{
+  "event_id": "university_exam",
+  "title": "Uni Klausur Statistik",
+  "start": "2026-05-06T09:00:00",
+  "end": "2026-05-06T11:00:00",
+  "location": "Campus Room A",
+  "description": "Exam; bring student ID and calculator.",
+  "attendees": [],
+  "calendar_role": "university"
+}

@@ -1,0 +1,10 @@
+{
+  "event_id": "weekly_review",
+  "title": "Weekly Review",
+  "start": "2026-05-07T16:00:00",
+  "end": "2026-05-07T17:00:00",
+  "location": null,
+  "description": "Review progress, decision log, and next steps.",
+  "attendees": ["coach@example.test"],
+  "calendar_role": "primary"
+}

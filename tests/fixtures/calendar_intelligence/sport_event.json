@@ -1,0 +1,10 @@
+{
+  "event_id": "sport_event",
+  "title": "Kickbox Training",
+  "start": "2026-05-05T18:00:00",
+  "end": "2026-05-05T19:30:00",
+  "location": "Gym",
+  "description": "Fixed sport class.",
+  "attendees": [],
+  "calendar_role": "sport"
+}
