@@ -1,0 +1,12 @@
+{
+  "date": "2026-05-08",
+  "sleep_quality": 2,
+  "energy_level": 2,
+  "mood_level": 4,
+  "stress_level": 7,
+  "deep_work_done": false,
+  "training_done": false,
+  "evening_shutdown_done": false,
+  "open_task_count": 4,
+  "calendar_load_score": 0.25
+}
