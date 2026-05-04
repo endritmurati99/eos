@@ -134,6 +134,10 @@ def test_supported_intents_complete():
         "task_capture",
         "calendar_proposal_request",
         "review_request",
+        "habit_relapse",
+        "habit_recovery",
+        "habit_failure",
+        "confirm_response",
         "unknown",
     }
     assert set(SUPPORTED_INTENTS) == expected, f"intent set drifted: {SUPPORTED_INTENTS}"

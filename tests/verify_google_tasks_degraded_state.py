@@ -78,6 +78,10 @@ def main() -> int:
     os.environ["EOS_GOG_BIN"] = "/tmp/eos-fake-gog"
     os.environ["EOS_GOOGLE_TOKEN_PATH"] = "/tmp/eos-config"
     os.environ["EOS_GOOGLE_ACCOUNT"] = "person@example.com"
+    os.environ.pop("EOS_GOOGLE_TASKS_ENABLED", None)
+    default_disabled_gateway = TaskGateway()
+    assert default_disabled_gateway.get_auth_status()["status"] == "provider_disabled"
+
     os.environ["EOS_GOOGLE_TASKS_ENABLED"] = "false"
     disabled_gateway = TaskGateway()
     assert disabled_gateway.get_auth_status()["status"] == "provider_disabled"
