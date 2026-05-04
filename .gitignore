@@ -24,14 +24,20 @@ data/.openclaw/
 data/linuxbrew/
 data/.gitconfig
 data/.zshrc
+data/*.json
 data/eos_v2.db
 data/*.db
+data/*.db-journal
 data/*.db-shm
 data/*.db-wal
 data/*.sqlite
+data/*.sqlite3
+data/*.sqlite-journal
 data/*.sqlite-shm
 data/*.sqlite-wal
 
+*.log
+*.pid
 *.token
 *.secret
 *credentials*.json
