@@ -5,6 +5,7 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 .cache/
+
 .build.log
 .claude/
 .env
@@ -15,6 +16,9 @@ tokens/
 .gog/
 .config/gog/
 
+var/
+logs/
+
 data/.codex/
 data/.config/
 data/.local/
@@ -24,11 +28,15 @@ data/.openclaw/
 data/linuxbrew/
 data/.gitconfig
 data/.zshrc
+data/*.json
 data/eos_v2.db
 data/*.db
+data/*.db-journal
 data/*.db-shm
 data/*.db-wal
 data/*.sqlite
+data/*.sqlite3
+data/*.sqlite-journal
 data/*.sqlite-shm
 data/*.sqlite-wal
 data/mail/
@@ -41,6 +49,9 @@ data/google_workspace/
 *.db-wal
 *.sqlite-shm
 *.sqlite-wal
+
+*.log
+*.pid
 *.token
 *.secret
 *credentials*.json
