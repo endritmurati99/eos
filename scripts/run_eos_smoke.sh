@@ -86,7 +86,7 @@ run_safe gmail_write_scope_probe bash -lc '
 '
 run_safe cli_help "${PYTHON_BIN}" -m src.eos_cli --help
 run_safe health bash -lc "${PYTHON_BIN} -m src.eos_cli --json-only health >/dev/null"
-run_safe cron_audit "${PYTHON_BIN}" -m src.eos_cli --json-only cron-audit
+run_safe cron_audit bash -lc "${PYTHON_BIN} -m src.eos_cli --json-only cron-audit >/dev/null"
 run_safe model_audit bash -lc "${PYTHON_BIN} -m src.eos_cli --json-only model-audit >/dev/null"
 echo "- sensitive_output_printed: no"
 echo "- raw_output_printed: no"

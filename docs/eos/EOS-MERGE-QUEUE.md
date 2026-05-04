@@ -4,23 +4,39 @@ Status checked on 2026-05-04 UTC with `gh pr list`, `gh pr view`, and PR diff in
 
 ## Current Control Status
 
-PR #14 is the canonical runtime-gate branch for CI, pytest discovery, privacy-safe smoke, hard/soft gate policy, and merge-queue reconciliation.
+PR #5 and PR #13 are merged and now form the foundation/runtime recovery base.
+
+PR #14 is the canonical runtime-gate branch for CI, pytest discovery, privacy-safe smoke, hard/soft gate policy, and merge-queue reconciliation. It must merge before additional runtime, security, Gmail, or release-candidate cleanup work.
 
 PR #6 is superseded. PR #12 content is reconciled into PR #14 and should not merge independently unless PR #14 is abandoned.
 
+Current queue after PR #14:
+
+- PR #16 Add EOS security retention and Google live readiness gates.
+- PR #17 Integrate Gmail classifier with read-only digest.
+- PR #18 Add EOS release candidate PR cleanup docs.
+
+Current hold set:
+
+- PR #8, #9, #10, #11, and #15 require separate audit or owner decision after PR #14.
+- PR #11 remains draft and must not merge while draft.
+
 ## Final Merge Order
 
-1. PR #5 Foundation.
-2. PR #1/#2 superseded close or mark.
-3. PR #13 Runtime DB + path fix.
-4. PR #14 Runtime gates / CI / safe smoke.
-5. PR #15 local dev env doctor optional.
-6. PR #16 security retention gates.
-7. PR #17 Gmail integrated path, replacing #3/#4.
-8. PR #8 Mail to Task Proposal.
-9. PR #9 Calendar Intelligence.
-10. PR #10 Habit Journal Coach.
-11. PR #11 Google Platform/Maps last, after draft removal.
+1. PR #5 Foundation. Merged.
+2. PR #13 Runtime DB + path fix. Merged.
+3. PR #14 Runtime gates / CI / safe smoke.
+4. PR #16 Security retention and Google live readiness gates.
+5. PR #17 Gmail integrated read-only path, replacing #3/#4.
+6. PR #18 Release candidate PR cleanup docs.
+
+Hold until separate audit or explicit owner decision:
+
+- PR #8 Mail to Task Proposal.
+- PR #9 Calendar Intelligence.
+- PR #10 Habit Journal Coach.
+- PR #11 Google Platform/Maps. Draft; must remain last while draft.
+- PR #15 Local dev environment doctor.
 
 ## Superseded PRs
 
@@ -31,7 +47,7 @@ PR #6 is superseded. PR #12 content is reconciled into PR #14 and should not mer
 | #3 | Superseded by PR #17 Gmail integrated path. Do not merge independently. |
 | #4 | Superseded by PR #17 Gmail integrated path. Do not merge independently. |
 | #6 | Superseded by PR #14 runtime-gates reconciliation. Do not merge independently. |
-| #7 | Likely superseded by PR #13/#14/#15 runtime doctor and gate work; merge only after explicit owner review. |
+| #7 | Superseded by PR #13/#14 runtime doctor and gate work; merge only after explicit owner review if a gap is proven. |
 | #12 | Content reconciled into PR #14. Do not merge independently unless PR #14 is abandoned. |
 
 ## PR #6/#12/#14 Decision
@@ -95,6 +111,7 @@ If sensitive or secret output is detected in captured stdout/stderr, the smoke s
 ## Must Not Merge
 
 - PR #1, #2, #3, #4, #6, #7, or #12 independently unless the merge queue is explicitly revised.
+- PR #8, #9, #10, #11, or #15 before separate audit or explicit owner decision.
 - PR #11 while it remains draft.
 - Any PR that introduces Gmail write scopes or write actions before explicit approval.
 - Any PR that prints raw smoke output from live tasks, calendar, Gmail, Telegram, credentials, environment, or sensitive local paths.
