@@ -17,6 +17,12 @@ def test_no_gmail_write_scopes_are_configured_for_runtime() -> None:
     env_example = (WORKSPACE_ROOT / ".env.example").read_text(encoding="utf-8")
 
     assert READONLY_SCOPE == "https://www.googleapis.com/auth/gmail.readonly"
+    assert set(FORBIDDEN_GMAIL_WRITE_SCOPES) == {
+        "https://www.googleapis.com/auth/gmail.modify",
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/gmail.compose",
+        "https://mail.google.com/",
+    }
     for forbidden_scope in FORBIDDEN_GMAIL_WRITE_SCOPES:
         assert forbidden_scope not in env_example
 
@@ -72,5 +78,36 @@ def test_eos_mail_implementation_defines_no_write_methods() -> None:
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in forbidden_function_names:
                 discovered.append((str(path.relative_to(WORKSPACE_ROOT)), node.name))
+
+    assert discovered == []
+
+
+def test_eos_mail_implementation_calls_no_write_methods() -> None:
+    forbidden_call_names = {
+        "send",
+        "delete",
+        "archive",
+        "trash",
+        "modify",
+        "modify_label",
+        "modify_labels",
+        "unsubscribe",
+    }
+
+    discovered: list[tuple[str, str]] = []
+    for path in sorted((WORKSPACE_ROOT / "src" / "eos_mail").glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if isinstance(func, ast.Name):
+                name = func.id
+            elif isinstance(func, ast.Attribute):
+                name = func.attr
+            else:
+                continue
+            if name in forbidden_call_names:
+                discovered.append((str(path.relative_to(WORKSPACE_ROOT)), name))
 
     assert discovered == []

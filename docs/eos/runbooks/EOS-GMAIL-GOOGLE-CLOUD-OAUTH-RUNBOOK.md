@@ -2,6 +2,11 @@
 
 Status: Phase 1 read-only readiness notes. Google Cloud UI steps, live provider contract, and live Gmail E2E are not verified by this repository change.
 
+```yaml
+provider_contract_verified: false
+live_e2e_verified: false
+```
+
 ## 1. Goal
 
 Prepare EOS for Gmail read-only shadow mode without adding Gmail write actions, storing real secrets, or persisting personal mail bodies.
@@ -81,7 +86,19 @@ No live Gmail E2E or OAuth browser flow is executed by this integration. The bou
 - one bounded metadata-only message fetch
 - no stored full bodies, tokens, auth URLs, OTPs, reset links, or raw payloads in output
 
-## 12. Troubleshooting
+## 12. CLI Dry-run Checks
+
+The local CLI has read-only Phase 1 dry-run commands:
+
+```bash
+python3 -m src.eos_cli --json-only mail auth-check --dry-run
+python3 -m src.eos_cli --json-only mail audit --last 1d --dry-run
+python3 -m src.eos_cli --json-only mail digest --today --dry-run
+```
+
+`--no-dry-run` is forbidden. These CLI checks do not run OAuth login flows and do not verify live Gmail reads. Missing `gog`, account, token, or credential configuration should return `config_missing` or warnings instead of crashing.
+
+## 13. Troubleshooting
 
 - `config_missing`: install or configure `gog`, set `EOS_GOOGLE_ACCOUNT`, or prepare OAuth credentials.
 - `warning` with `scope_not_verifiable`: add an explicit read-only Gmail scope list or provider auth status before treating readiness as configured.
@@ -89,6 +106,6 @@ No live Gmail E2E or OAuth browser flow is executed by this integration. The bou
 - `provider_error`: inspect the local `gog` version and compare it with the contract in `docs/eos/contracts/EOS-GMAIL-GOG-CONTRACT-v1.md`.
 - `failed` with write scopes detected: remove all Gmail write scopes before retrying.
 
-## 13. Forbidden Actions
+## 14. Forbidden Actions
 
 Phase 1 must not label, archive, delete, trash, send, compose, unsubscribe, mark read/unread, create tasks, create calendar events, or request Gmail write scopes.

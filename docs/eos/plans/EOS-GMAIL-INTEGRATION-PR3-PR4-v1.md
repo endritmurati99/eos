@@ -4,6 +4,8 @@
 
 Integrate the Gmail classifier from PR #4 with the read-only Gmail shadow digest from PR #3. The result keeps Gmail in metadata-only shadow mode, uses deterministic classifier categories for digest grouping, and keeps all live provider work explicitly unverified.
 
+PR #17 is the canonical Gmail Phase 1 PR. PR #3 and PR #4 are superseded by this integration and should not be merged independently.
+
 ## 2. Why PR #4 Before PR #3
 
 PR #4 defines the classifier contract: `MailInput`, `MailClassification`, classifier rules, and synthetic corpus coverage. PR #3 can then adapt Gmail `MailSummary` metadata into that classifier contract instead of maintaining a separate heuristic digest taxonomy.
@@ -39,12 +41,24 @@ The integration keeps these statuses separate:
 
 ## 7. Tests
 
-Coverage includes classifier digest integration, strict auth preflight behavior, write guard checks, metadata-only digest fallback, no body persistence, and the PR #4 synthetic classifier corpus.
+Coverage includes classifier digest integration, strict auth preflight behavior, write guard checks, read-only CLI mail commands, metadata-only digest fallback, no body persistence, and the PR #4 synthetic classifier corpus.
 
-## 8. Non-goals
+## 8. Read-only CLI Commands
 
-This integration does not add Gmail labels, archive, delete, trash, send, compose, unsubscribe, CLI integration, OAuth login, live Gmail reads, tokens, credentials, or real Gmail data.
+The CLI exposes minimal read-only Gmail Phase 1 commands:
 
-## 9. Next Step
+```bash
+python3 -m src.eos_cli mail auth-check --dry-run
+python3 -m src.eos_cli mail audit --last 1d --dry-run
+python3 -m src.eos_cli mail digest --today --dry-run
+```
+
+`--dry-run` is the default. `--no-dry-run` is parsed only to return a blocked result. CLI audit and digest dry-runs do not make live Gmail reads; they return preflight status, planned query metadata, and an empty digest preview until the live provider contract is verified separately.
+
+## 9. Non-goals
+
+This integration does not add Gmail labels, archive, delete, trash, send, compose, unsubscribe, OAuth login, live Gmail reads, tokens, credentials, or real Gmail data.
+
+## 10. Next Step
 
 Run a bounded live provider contract later with reviewed credentials, no secret output, metadata-only reads, and no write scopes.

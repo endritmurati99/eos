@@ -2,6 +2,11 @@
 
 Status: assumed contract. Live `gog` Gmail command syntax and JSON response shapes are not verified by this repository change. The bounded live provider contract remains pending.
 
+```yaml
+provider_contract_verified: false
+live_e2e_verified: false
+```
+
 ## Assumed Read-only Commands
 
 Search bounded message references:
@@ -55,3 +60,7 @@ https://mail.google.com/
 ```
 
 `List-Unsubscribe` is allowed only as a metadata header read from Gmail, not as an unsubscribe action.
+
+## CLI Gate Status
+
+The Phase 1 CLI exposes `mail auth-check`, `mail audit`, and `mail digest` only as dry-run/preflight commands. These commands do not prove the live provider contract and must not be cited as evidence that Gmail works live.
