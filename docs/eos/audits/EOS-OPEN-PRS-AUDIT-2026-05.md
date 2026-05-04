@@ -16,15 +16,15 @@ gh pr diff 14 --repo endritmurati99/eos --name-only
 ## Open PR Count
 
 ```text
-17
+16
 ```
 
-PR #5 is merged and is no longer in the open PR list.
+PR #5 and PR #13 are merged and are no longer in the open PR list.
 
 ## Classification Summary
 
 ```text
-READY: #5 (merged), #13, #14, #16, #17, #18
+READY: #5 (merged), #13 (merged), #14, #16, #17, #18
 SUPERSEDED: #1, #2, #3, #4, #6, #7, #12
 HOLD: #8, #9, #10, #11, #15
 ```
@@ -47,7 +47,7 @@ No superseded PR is authorized for closure in this pass.
 | #10 | Add EOS habit journal coach v1 | Open | `HOLD` | Hold behind runtime gates. |
 | #11 | Add EOS Google Platform and Maps travel time readiness | Draft | `HOLD` | Keep last after draft removal and live-gate review. |
 | #12 | Harden EOS privacy-safe runtime smoke and merge queue | Open | `SUPERSEDED` | Do not merge independently; release-gate content is covered by #14. |
-| #13 | Add EOS DB runtime recovery tooling | Open | `READY` | Canonical Runtime DB/path fix candidate. |
+| #13 | Add EOS DB runtime recovery tooling | Merged | `READY_DONE` | Completed Runtime DB/path fix baseline. |
 | #14 | Reconcile EOS merge queue and runtime gates | Open | `READY` | Canonical runtime gates, CI, and safe smoke candidate. |
 | #15 | Add EOS local dev environment doctor | Open | `HOLD` | Optional local-dev support after core stabilization. |
 | #16 | Add EOS security retention and Google live readiness gates | Open | `READY` | Canonical security retention/live-gate candidate. |
@@ -91,4 +91,4 @@ No PRs were closed.
 
 ## Next Step
 
-Keep the open PR set reduced by treating only #13, #14, #16, #17, and #18 as active READY candidates after merged #5. Hold #8, #9, #10, #11, and #15 until the stabilization path is settled.
+Keep the open PR set reduced by treating only #14, #16, #17, and #18 as active READY candidates after merged #5 and #13. Hold #8, #9, #10, #11, and #15 until the stabilization path is settled.

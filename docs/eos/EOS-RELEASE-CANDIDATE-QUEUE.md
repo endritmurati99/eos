@@ -7,10 +7,10 @@ Audit date: 2026-05-04.
 Current open PR count:
 
 ```text
-17
+16
 ```
 
-PR #5 has already merged and remains the completed Foundation baseline for this queue.
+PR #5 and PR #13 have already merged and remain completed stabilization baselines for this queue.
 
 ## 2. Release Queue Classification
 
@@ -28,7 +28,7 @@ PR #5 has already merged and remains the completed Foundation baseline for this 
 | #10 | Add EOS habit journal coach v1 | `agent3/habit-journal-coach-v1` | Open | `HOLD` |
 | #11 | Add EOS Google Platform and Maps travel time readiness | `agent3/google-platform-readiness` | Draft | `HOLD` |
 | #12 | Harden EOS privacy-safe runtime smoke and merge queue | `agent2/privacy-safe-runtime-ci` | Open | `SUPERSEDED` |
-| #13 | Add EOS DB runtime recovery tooling | `agent1/p0-db-runtime-recovery` | Open | `READY` |
+| #13 | Add EOS DB runtime recovery tooling | `agent1/p0-db-runtime-recovery` | Merged | `READY_DONE` |
 | #14 | Reconcile EOS merge queue and runtime gates | `agent1/merge-queue-runtime-gates` | Open | `READY` |
 | #15 | Add EOS local dev environment doctor | `agent4/local-dev-environment-doctor` | Open | `HOLD` |
 | #16 | Add EOS security retention and Google live readiness gates | `agent3/security-retention-google-live-gates` | Open | `READY` |
@@ -38,7 +38,7 @@ PR #5 has already merged and remains the completed Foundation baseline for this 
 ## 3. Active Stabilization Sequence
 
 1. #5 Foundation: merged, complete.
-2. #13 Runtime DB/path fix.
+2. #13 Runtime DB/path fix: merged, complete.
 3. #14 Runtime gates / CI / safe smoke.
 4. #16 Security retention/live gates.
 5. #17 Gmail Phase 1 canonical integration.
@@ -92,7 +92,7 @@ Before the next release-candidate review:
 
 ```text
 - Confirm superseded PR comments exist.
-- Confirm #13, #14, #16, #17, and #18 are still mergeable or document blockers.
+- Confirm #14, #16, #17, and #18 are still mergeable or document blockers.
 - Keep #8, #9, #10, #11, and #15 on hold.
 - Do not close superseded PRs unless the owner explicitly authorizes closure.
 - Verify no feature PR bypasses runtime gates.
