@@ -13,6 +13,12 @@ This blocks daily and weekly runtime even when commands are dry-runs, because dr
 
 ## 2. Ursache
 
+There were three P0 causes:
+
+- `src/runtime.py` used `WORKSPACE_ROOT.parents[2]` at import time, which crashed in a root checkout or any workspace with a different path depth.
+- `data/eos_v2.db` was tracked by git even though it is runtime state.
+- The active DB file could be owned by `root:root` with mode `0644`, while the runtime process writes as the OpenClaw service user.
+
 The active deployment uses systemd `eos-job@.service`, which shells into the `openclaw` Docker service:
 
 ```text
@@ -29,6 +35,15 @@ data/eos_v2.db -> root:root, 0644
 ```
 
 The DB file is writable by host/container root, but not by the service process user. A root-run smoke can therefore produce a false positive unless the target service user is checked explicitly.
+
+The runtime path resolver now discovers the OpenClaw root in this order:
+
+1. `EOS_OPENCLAW_ROOT`
+2. nearest parent containing `.openclaw/`
+3. nearest parent containing `data/.openclaw/`
+4. `WORKSPACE_ROOT` fallback
+
+This keeps `import src.runtime` from crashing in root and nested workspaces.
 
 ## 3. Sofortdiagnose
 
@@ -54,6 +69,14 @@ EOS_DB_PATH=/docker/openclaw-qt6t/data/.openclaw/workspaces/personal-assistant/d
 EOS_DB_OWNER_USER=ubuntu \
 EOS_DB_OWNER_GROUP=ubuntu \
 python3 scripts/eos_db_doctor.py
+```
+
+Expected live-ready DB fields:
+
+```text
+sqlite_write_probe: success
+db_writable: true
+parent_writable: true
 ```
 
 ## 4. Safe Fix
@@ -99,8 +122,9 @@ Do not:
 
 Short term:
 
-- keep the current DB path
+- keep the current default DB path if needed
 - set DB ownership to the actual service user mapping
+- keep `data/eos_v2.db` untracked by git
 
 Better long term:
 
@@ -127,6 +151,8 @@ Systemd can manage the state directory:
 Environment=EOS_DB_PATH=/var/lib/eos/eos_v2.db
 StateDirectory=eos
 ```
+
+`EOS_DB_PATH` remains the supported override and should be preferred for stable deployments. The parent directory must be writable by the service user.
 
 ## 7. Systemd/OpenClaw Hinweise
 
@@ -169,7 +195,9 @@ If `EOS_DB_PATH` is changed in a future deployment:
 
 ## 10. Offene Risiken
 
-- `data/eos_v2.db` is tracked in git, so runtime writes can create worktree noise and ownership drift.
+- `data/eos_v2.db` was previously tracked in git. It is removed from the index in the recovery branch, but any private data already committed to history requires a separate history-rewrite decision.
 - Root-run Docker exec commands can recreate root-owned DB files.
 - The systemd unit currently uses `--no-dry-run --send`; dry-run recovery should be validated before scheduled sends resume.
 - Google Calendar/Tasks runtime issues can still fail a job after the DB writeability blocker is fixed.
+
+History rewrite is intentionally not part of this runbook. If the tracked DB ever contained private task, calendar, Gmail, token, or profile data, open a separate retention/security task before rewriting repository history.

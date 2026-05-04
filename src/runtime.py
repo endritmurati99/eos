@@ -6,9 +6,45 @@ from pathlib import Path
 from typing import Any
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
-CRON_JOBS_PATH = WORKSPACE_ROOT.parents[2] / ".openclaw" / "cron" / "jobs.json"
-CRON_RUNS_DIR = WORKSPACE_ROOT.parents[2] / ".openclaw" / "cron" / "runs"
-AGENT_MODELS_PATH = WORKSPACE_ROOT.parents[2] / ".openclaw" / "agents" / "personal-assistant" / "agent" / "models.json"
+
+
+def discover_openclaw_root(start: Path | None = None) -> Path:
+    env_root = os.getenv("EOS_OPENCLAW_ROOT")
+    if env_root:
+        return Path(env_root).expanduser().resolve()
+
+    current = (start or WORKSPACE_ROOT).expanduser().resolve()
+    if current.is_file():
+        current = current.parent
+
+    for candidate_root in (current, *current.parents):
+        if candidate_root == candidate_root.parent:
+            continue
+        if (candidate_root / ".openclaw").exists():
+            return candidate_root
+        if (candidate_root / "data" / ".openclaw").exists():
+            return candidate_root
+
+    return WORKSPACE_ROOT
+
+
+def _openclaw_state_root(openclaw_root: Path) -> Path:
+    data_state = openclaw_root / "data" / ".openclaw"
+    if data_state.exists():
+        return data_state
+
+    direct_state = openclaw_root / ".openclaw"
+    if direct_state.exists():
+        return direct_state
+
+    return direct_state
+
+
+OPENCLAW_ROOT = discover_openclaw_root()
+OPENCLAW_STATE_ROOT = _openclaw_state_root(OPENCLAW_ROOT)
+CRON_JOBS_PATH = OPENCLAW_STATE_ROOT / "cron" / "jobs.json"
+CRON_RUNS_DIR = OPENCLAW_STATE_ROOT / "cron" / "runs"
+AGENT_MODELS_PATH = OPENCLAW_STATE_ROOT / "agents" / "personal-assistant" / "agent" / "models.json"
 
 MODEL_PROFILES = {
     "fast": "gpt-5.4-mini",

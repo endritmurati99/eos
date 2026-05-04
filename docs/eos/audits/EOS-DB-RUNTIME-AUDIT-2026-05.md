@@ -12,6 +12,8 @@ The immediate blocker is runtime ownership mismatch on SQLite derived state. The
 
 Recommended immediate fix: set the DB file and existing SQLite sidecars to `ubuntu:ubuntu` on the host so the container service user sees them as `node:node`.
 
+Additional P0 runtime blocker: `src/runtime.py` used fixed parent indexing during import. This could crash `python3 -m src.eos_cli --help` before any command logic ran when EOS was checked out at root depth instead of the expected nested OpenClaw workspace path.
+
 ## Current DB Path
 
 ```text
@@ -29,6 +31,8 @@ The default application DB path remains:
 ```text
 data/eos_v2.db
 ```
+
+The runtime DB is derived state and must not be tracked by git. This recovery branch removes `data/eos_v2.db` from the index and adds SQLite DB patterns to `.gitignore`; it does not delete the local DB file.
 
 ## Ownership Before Fix
 
@@ -104,6 +108,24 @@ DROP TABLE
 
 The probe is intentionally small and removes the probe table after the write test.
 
+The DB doctor now reports:
+
+```text
+db_path
+exists
+parent_writable
+db_writable
+sqlite_write_probe
+effective_user
+owner_user
+owner_group
+mode
+sidecar writability
+error_class
+```
+
+The SQLite error `attempt to write a readonly database` is classified as `readonly_database`.
+
 ## Daily Dry-Run Ergebnis
 
 Post-fix status:
@@ -160,6 +182,14 @@ data/eos_v2.db-journal, if present
 
 It does not use `chmod 777` and does not recursively chown the repository.
 
+Runtime path import crash fix:
+
+```text
+EOS_OPENCLAW_ROOT override -> parent .openclaw discovery -> parent data/.openclaw discovery -> WORKSPACE_ROOT fallback
+```
+
+This makes root checkout and nested workspace imports safe.
+
 ## Angewendeter Fix
 
 Applied on 2026-05-03:
@@ -173,6 +203,7 @@ No `chmod 777` was used. No recursive repo `chown` was used. No DB file was dele
 ## Verbleibende Risiken
 
 - Root-run maintenance commands can recreate root-owned SQLite files.
-- The DB is currently under the repository worktree, which can mix runtime state with git state.
+- The DB default path is still under the repository worktree, so long-term deployments should set `EOS_DB_PATH` to a dedicated writable state directory.
+- If the previously tracked DB contained private runtime data, repository history rewrite should be evaluated separately. This branch does not rewrite history.
 - Long-term reliability requires `EOS_DB_PATH` to point to a dedicated runtime state location.
 - Google Calendar/Tasks/auth issues may still surface after the DB blocker is removed.

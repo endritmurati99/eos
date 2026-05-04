@@ -6,16 +6,16 @@ choose_python() {
     echo "$EOS_PYTHON"
     return
   fi
-  if [ -x ".venv/bin/python" ]; then
-    echo ".venv/bin/python"
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
     return
   fi
   if command -v python >/dev/null 2>&1; then
     command -v python
     return
   fi
-  if command -v python3 >/dev/null 2>&1; then
-    command -v python3
+  if [ -x ".venv/bin/python" ]; then
+    echo ".venv/bin/python"
     return
   fi
   echo "ERROR: no Python interpreter found." >&2

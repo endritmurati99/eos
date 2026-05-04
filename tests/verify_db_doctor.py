@@ -25,6 +25,11 @@ def test_db_doctor_success_with_temp_sqlite_path(monkeypatch, tmp_path: Path) ->
     assert payload["parent_writable"] is True
     assert payload["db_writable"] is True
     assert payload["sqlite_write_probe"] == "success"
+    assert payload["error_class"] is None
+    assert payload["effective_user"]["user"]
+    assert payload["owner_user"]
+    assert payload["owner_group"]
+    assert payload["mode"]
     json.dumps(payload)
 
 
@@ -50,6 +55,7 @@ def test_readonly_db_file_is_reported_even_when_effective_user_is_root(monkeypat
         db_path.chmod(stat.S_IRUSR | stat.S_IWUSR)
 
     assert payload["status"] == "failed"
+    assert payload["error_class"] == "readonly_database"
     assert payload["db_writable"] is False
     assert any(issue["code"] == "db_not_writable" for issue in payload["issues"])
 
@@ -67,6 +73,7 @@ def test_parent_not_writable_is_reported_even_when_effective_user_is_root(monkey
         parent.chmod(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
     assert payload["status"] == "failed"
+    assert payload["error_class"] == "readonly_database"
     assert payload["parent_writable"] is False
     assert any(issue["code"] == "parent_not_writable" for issue in payload["issues"])
 
@@ -98,3 +105,11 @@ def test_target_owner_writeability_can_detect_service_user_mismatch(monkeypatch,
     assert payload["target_identity"]["resolved"] is False
     assert payload["status"] == "warning"
     assert any(issue["code"] == "target_identity_unresolved" for issue in payload["issues"])
+
+
+def test_sqlite_readonly_error_classification() -> None:
+    result = eos_db_doctor.classify_sqlite_error(
+        "sqlite3.OperationalError: attempt to write a readonly database"
+    )
+
+    assert result == "readonly_database"
