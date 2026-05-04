@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
+*.py[cod]
 .mypy_cache/
 .pytest_cache/
 .cache/
@@ -44,9 +45,10 @@ data/drive/
 data/maps/
 data/routes/
 data/google_workspace/
-data/eos_v2.db
-data/*.db
-data/*.sqlite
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
 
 *.log
 *.pid
