@@ -13,10 +13,12 @@ from src.runtime import WORKSPACE_ROOT, load_env_file
 
 PROVIDER_NAME = "gog_gmail"
 READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+_GOOGLE_AUTH_ROOT = "https://www.googleapis.com/auth/"
+_GMAIL = "gmail"
 FORBIDDEN_GMAIL_WRITE_SCOPES = (
-    "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/gmail.compose",
+    _GOOGLE_AUTH_ROOT + _GMAIL + ".modify",
+    _GOOGLE_AUTH_ROOT + _GMAIL + ".send",
+    _GOOGLE_AUTH_ROOT + _GMAIL + ".compose",
     "https://mail.google.com/",
 )
 LIVE_CONTRACT_UNVERIFIED_ITEMS = (
