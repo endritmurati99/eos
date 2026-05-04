@@ -1,0 +1,66 @@
+name: EOS CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  runtime-gates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package/test dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+          if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then python3 -m pip install -e .; fi
+          python3 -m pip install pytest
+
+      - name: Classify changed files
+        run: |
+          set -euo pipefail
+          changed_files=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_ref="${{ github.base_ref }}"
+            git fetch origin "${base_ref}" --depth=1
+            changed_files="$(git diff --name-only "origin/${base_ref}...HEAD")"
+          else
+            changed_files="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}" || true)"
+          fi
+
+          changed_code=false
+          while IFS= read -r path; do
+            [ -z "${path}" ] && continue
+            case "${path}" in
+              docs/*|*.md)
+                ;;
+              *)
+                changed_code=true
+                ;;
+            esac
+          done <<EOF
+          ${changed_files}
+          EOF
+
+          echo "Changed files:"
+          printf '%s\n' "${changed_files}"
+          echo "PR_CHANGED_CODE=${changed_code}" | tee -a "${GITHUB_ENV}"
+
+      - name: Check whitespace
+        run: git diff --check
+
+      - name: Run tests
+        run: bash scripts/run_eos_tests.sh
+
+      - name: Run privacy-safe smoke checks
+        run: bash scripts/run_eos_smoke.sh
