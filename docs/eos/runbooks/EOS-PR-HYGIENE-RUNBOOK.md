@@ -2,120 +2,121 @@
 
 ## Purpose
 
-This runbook keeps the EOS release queue reviewable while multiple agents produce parallel PRs.
+Keep the EOS queue reviewable after the P0 stabilization chain has landed.
 
-The target is a controlled queue with explicit blockers, holds, and superseded PRs.
+This runbook does not authorize feature merges, Google live calls, Gmail writes, calendar writes, Drive downloads, Maps routes, or Telegram beta.
 
-## Active PR Limit
+## Current Stabilization Baseline
 
-Keep at most four active implementation PRs at the same time.
-
-Active implementation PRs are PRs that are not:
+Merged:
 
 ```text
-- superseded
-- draft
-- explicit hold
-- documentation-only support
-- blocked by the current runtime gate
+#5 Foundation reconciliation
+#13 DB runtime recovery
+#19 P0 live-risk cleanup
+#14 Runtime gates / CI / safe smoke
+#16 Security retention / Google live-readiness gates
+#17 Gmail read-only phase 1
 ```
 
-When the queue exceeds that limit, classify PRs before starting new work.
-
-## Current Feature Freeze
-
-Do not start new feature PRs until these are stable:
+Current document PR:
 
 ```text
-#14 runtime gates / CI / safe smoke
-#16 security retention and Google live readiness
-#17 Gmail canonical phase 1
-```
-
-Allowed exceptions:
-
-```text
-- release coordination docs
-- audit docs
-- PR hygiene comments
-- emergency fixes explicitly requested by the user
+#18 Release candidate cleanup docs
 ```
 
 ## Superseded PRs
 
-Superseded PRs must not merge independently.
-
-For a superseded PR:
+Close or mark do-not-merge after #18:
 
 ```text
-1. Confirm the superseding PR contains the useful scope.
-2. Add or confirm a PR comment explaining the superseding PR.
-3. Mark it as no-merge in the release queue.
-4. Close only after explicit user approval.
+#1, #2, #3, #4, #6, #7, #12
 ```
 
-Current do-not-merge superseded set:
+Canonical replacements:
+
+| Superseded | Replacement |
+| --- | --- |
+| #1 | #5 |
+| #2 | #5 |
+| #3 | #17 |
+| #4 | #17 |
+| #6 | #14 |
+| #7 | #14 |
+| #12 | #14 |
+
+Suggested close comment:
 
 ```text
-#1, #2, #3, #4, #6, #7
+Closed as superseded by #<replacement>. Do not merge independently.
 ```
 
-#12 is likely superseded by #14. Keep it open only if #14 is missing useful #12 content.
+## Hold And Draft Rules
 
-## Runtime Gate Rule
-
-#14 is the current blocker until conflicts and tests are fixed.
-
-Do not promote #16 until #14 is stable.
-
-Do not promote #17 until #14 and #16 are stable.
-
-Do not promote feature PRs before #14/#16/#17 are stable.
-
-## Draft And Hold Rules
-
-Draft PR #11 remains draft.
-
-Use `HOLD` when a PR may remain useful but is not safe to merge now.
-
-Use `NEEDS_FIX` when a PR is a candidate but requires rebase, conflict resolution, test repair, or audit updates before merge.
-
-Use `READY_AFTER_GATES` only for PRs that may become candidates after #14/#16 stabilize.
-
-## PR Requirements
-
-Every PR must state:
+Keep open:
 
 ```text
-- tests run
-- no-tests policy if tests are not relevant
-- secrets policy impact
-- whether feature code changed
-- release queue classification
+#8 hold
+#9 hold
+#10 hold
+#15 hold
 ```
 
-No PR should include secrets, tokens, `.env` contents, credential files, or runtime data.
+Keep draft:
+
+```text
+#11
+```
+
+Do not promote hold or draft PRs without a separate audit and explicit owner decision.
 
 ## Merge Queue Checklist
 
-Before merging any PR:
+Before merging any later PR:
 
 ```text
 - Confirm it is not superseded.
 - Confirm it is not draft.
 - Confirm it is not hold.
-- Confirm it is not blocked by #14/#16/#17.
-- Confirm dependencies are merged or intentionally waived.
-- Confirm tests or no-tests rationale are documented.
-- Confirm secrets policy is satisfied.
-- Confirm no unrelated files are in the diff.
+- Confirm current main test collection is greater than zero.
+- Run pytest, run_eos_tests.sh, and run_eos_smoke.sh.
+- Confirm safe smoke prints no private raw output.
+- Confirm tracked runtime data is absent.
+- Confirm tracked secret hits are absent or documented false positives only.
+- Confirm no Google live call is required.
+- Confirm no Gmail/Calendar/Tasks/Drive/Maps write path is introduced.
 ```
 
-## Agent 5 Review Gate
+## PR Requirements
 
-Review-only Agent 5 must rerun after #14, #16, and #17 stabilize.
+Every later PR must state:
 
-Do not treat the feature queue as ready until that review-only pass confirms the runtime gate, security gate, and Gmail read-only integration are coherent.
+```text
+- tests run
+- test classification
+- secrets policy impact
+- runtime data impact
+- live-readiness claim, if any
+- whether feature code changed
+- release queue classification
+```
+
+Unit, Contract, Synthetic, and Readiness evidence do not prove Live E2E.
+
+## What Not To Do
+
+Do not:
+
+```text
+- merge superseded PRs
+- merge feature PRs during P0 stabilization
+- remove #11 draft status before audit
+- treat MERGEABLE as READY
+- use Google/Gmail/Drive/Maps live providers without gates
+- run Telegram personal smoke before final P0 gates
+- commit runtime data, `.env`, credentials, tokens, logs, or DB files
+- claim Live E2E without a real end-to-end test path
+```
 
 ## Final Review Prep
 
@@ -123,7 +124,7 @@ For each control audit:
 
 ```bash
 gh pr list --repo endritmurati99/eos --state open --limit 50
-for pr in $(seq 1 18); do
+for pr in $(seq 1 19); do
   gh pr view "$pr" --repo endritmurati99/eos --json number,title,state,isDraft,mergeable,headRefName,url 2>/dev/null || true
 done
 ```
@@ -133,18 +134,4 @@ Then update:
 ```text
 docs/eos/EOS-RELEASE-CANDIDATE-QUEUE.md
 docs/eos/audits/EOS-OPEN-PRS-AUDIT-2026-05.md
-```
-
-## What Not To Do
-
-Do not:
-
-```text
-- close superseded PRs without explicit user approval
-- merge superseded PRs
-- merge feature PRs before #14/#16/#17 are stable
-- remove #11 draft status before audit
-- treat MERGEABLE as READY
-- push feature fixes from release hygiene branches
-- change src, tests, scripts, .github, data, credentials, tokens, or env files from PR hygiene work
 ```

@@ -1,20 +1,24 @@
 # EOS Release Candidate Queue
 
-## 1. Current Open PRs
-
 Audit date: 2026-05-04.
 
-Current open PR count:
+## 1. Current State
+
+Merged core PRs:
 
 ```text
-16
+#5 Foundation reconciliation
+#13 DB runtime recovery
+#19 P0 live-risk cleanup before Telegram smoke
+#14 Runtime gates / CI / safe smoke
+#16 Security retention / Google live gates
+#17 Gmail read-only phase 1 integration
 ```
 
-Merged since the previous queue audit:
+Current open PR count before merging this document PR:
 
 ```text
-#5 Reconcile EOS foundation governance docs
-#13 Add EOS DB runtime recovery tooling
+13
 ```
 
 Open PRs:
@@ -30,15 +34,12 @@ Open PRs:
 | #8 | Add EOS mail to task proposal engine | `agent1/mail-task-proposal-engine` | Open | `HOLD` |
 | #9 | Add EOS calendar intelligence v1 | `agent2/calendar-intelligence-v1` | Open | `HOLD` |
 | #10 | Add EOS habit journal coach v1 | `agent3/habit-journal-coach-v1` | Open | `HOLD` |
-| #11 | Add EOS Google Platform and Maps travel time readiness | `agent3/google-platform-readiness` | Draft | `HOLD` |
-| #12 | Harden EOS privacy-safe runtime smoke and merge queue | `agent2/privacy-safe-runtime-ci` | Open, conflicting | `SUPERSEDED_IF_COVERED_BY_14` |
-| #14 | Reconcile EOS merge queue and runtime gates | `agent1/merge-queue-runtime-gates` | Open, conflicting | `BLOCKED` |
+| #11 | Add EOS Google Platform and Maps travel time readiness | `agent3/google-platform-readiness` | Draft | `HOLD_DRAFT` |
+| #12 | Harden EOS privacy-safe runtime smoke and merge queue | `agent2/privacy-safe-runtime-ci` | Open, conflicting | `SUPERSEDED` |
 | #15 | Add EOS local dev environment doctor | `agent4/local-dev-environment-doctor` | Open | `HOLD` |
-| #16 | Add EOS security retention and Google live readiness gates | `agent3/security-retention-google-live-gates` | Open, conflicting | `NEEDS_FIX` |
-| #17 | Integrate Gmail classifier with read-only digest | `agent2/gmail-pr3-pr4-integration` | Open | `READY_AFTER_GATES` |
-| #18 | Add EOS release candidate PR cleanup docs | `agent4/release-candidate-cleanup` | Open | `NEEDS_FIX` |
+| #18 | Add EOS release candidate PR cleanup docs | `agent4/release-candidate-cleanup` | Open | `READY_AFTER_DOC_REFRESH` |
 
-Queue classification controls release readiness. GitHub mergeability alone is not enough.
+GitHub mergeability alone is not release verification.
 
 ## 2. Superseded PRs
 
@@ -48,84 +49,55 @@ Do not merge these independently:
 | --- | --- | --- |
 | #1 | #5 | #5 is merged and contains the foundation/global-agent-rule baseline. |
 | #2 | #5 | #5 is merged and contains the foundation policy/roadmap baseline. |
-| #3 | #17 | #17 is the canonical Gmail phase 1 integration branch. |
-| #4 | #17 | #17 integrates the Gmail classifier and synthetic corpus. |
-| #6 | #14 | #14 is the runtime gate and merge-queue reconciliation candidate. |
-| #7 | #14 | #14 is the runtime gate path; do not merge #7 independently. |
-| #12 | #14, if fully covered | Keep #12 only if #14 is missing useful privacy-safe smoke or merge-queue content. |
+| #3 | #17 | #17 is merged and contains the canonical Gmail read-only phase 1 path. |
+| #4 | #17 | #17 is merged and contains the classifier and synthetic corpus. |
+| #6 | #14 | #14 is merged and owns runtime gates, CI, safe smoke, and queue reconciliation. |
+| #7 | #14 | #14 is merged and owns the runtime gate path. |
+| #12 | #14 | #14 is merged and contains the privacy-safe smoke and merge-queue hardening path. |
 
-Do not close superseded PRs without explicit user approval.
+The current cleanup instruction authorizes closing #1, #2, #3, #4, #6, #7, and #12 as superseded after #18 merges.
 
-## 3. Runtime Gate Blockers
+## 3. Candidate Merge Order
 
-Current release blocker:
+1. #18 Release candidate cleanup docs.
+2. Hold #15 until owner decides whether local-dev tooling is still needed.
+3. Hold #8, #9, and #10 until separate feature audits.
+4. Keep #11 draft until separate Google Platform/Maps audit.
 
-```text
-#14 until conflicts are resolved and tests are green
-```
+No feature PR should merge as part of this P0 stabilization pass.
 
-Dependent stabilization queue:
-
-```text
-#16 needs rebase/fix after #14
-#17 waits for #14 and #16
-#18 needs this queue/audit correction before it can be treated as current
-```
-
-No new feature PRs should start until #14, #16, and #17 are stable.
-
-## 4. Candidate Merge Order
-
-1. #14 Runtime gates / CI / safe smoke after conflict resolution and tests.
-2. #16 Security retention and Google live-readiness gates after #14.
-3. #17 Gmail canonical phase 1 after #14/#16.
-4. #18 Release queue docs after this correction is pushed and reviewed.
-5. #15 optional local dev environment doctor.
-6. #8 Mail to Task Proposal.
-7. #9 Calendar Intelligence.
-8. #10 Habit Journal Coach.
-9. #11 Google Platform/Maps only after draft removal and separate audit.
-
-## 5. Hold PRs
+## 4. Hold PRs
 
 | PR | Hold reason |
 | --- | --- |
-| #8 | Hold until #17 Gmail canonical phase 1 lands. |
-| #9 | Hold until runtime gates and security/live-readiness gates are stable. |
-| #10 | Hold until runtime gates and security/live-readiness gates are stable. |
-| #11 | Draft; hold until runtime gates, security retention gates, and Google live-readiness policy are merged. |
-| #15 | Local development support; optional after the runtime gate path is stable. |
+| #8 | Feature PR; waits for separate mail-to-task audit after Gmail read-only base is merged. |
+| #9 | Feature PR; waits for separate calendar-intelligence audit. |
+| #10 | Feature PR; waits for separate habit-journal audit. |
+| #11 | Draft; Google Platform/Maps live readiness is not approved by P0 stabilization. |
+| #15 | Local development support; optional and outside the P0 runtime merge chain. |
 
-## 6. What Not To Merge
+## 5. What Not To Merge
 
 Do not merge superseded PRs:
 
 ```text
-#1, #2, #3, #4, #6, #7
+#1, #2, #3, #4, #6, #7, #12
 ```
 
-Do not merge #12 unless #14 is missing required content:
+Do not merge feature or draft PRs during this P0 pass:
 
 ```text
-#12
+#8, #9, #10, #11, #15
 ```
 
-Do not merge feature PRs before #14/#16/#17 are stable:
+## 6. Next Control Checklist
+
+Before any later feature queue review:
 
 ```text
-#8, #9, #10, #11
-```
-
-## 7. Next Control Audit Checklist
-
-Before the next release-candidate review:
-
-```text
-- Refresh open PR list.
-- Confirm #14 conflict resolution and test status.
-- Confirm #16 is rebased after #14.
-- Confirm #17 remains read-only and waits for #14/#16.
-- Confirm #8/#9/#10/#11/#15 remain hold.
-- Confirm superseded comments exist for #1/#2/#3/#4/#6/#7/#12.
-- Rerun review-only Agent 5 after #14/#16/#17 stabilize.
+- Confirm #18 is merged.
+- Confirm superseded PRs are closed or clearly marked do-not-merge.
+- Confirm #8/#9/#10/#11/#15 remain hold or draft.
+- Rerun tests and safe smoke on current main.
+- Do not claim Live E2E readiness without a real end-to-end provider path.
 ```
