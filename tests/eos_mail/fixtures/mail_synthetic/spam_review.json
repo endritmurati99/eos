@@ -1,0 +1,20 @@
+{
+  "case_id": "spam_review",
+  "mail": {
+    "message_id": "synthetic-spam-review-001",
+    "thread_id": "synthetic-thread-spam-review-001",
+    "sender": "promo@random-offer.invalid",
+    "subject": "Congratulations winner",
+    "snippet": "Claim your prize and guaranteed income today.",
+    "body_excerpt": "Synthetic spam-like wording without links or attachments.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Risk/Spam Review", "_EOS/Review Needed"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.80,
+    "risk_flags_include": ["spam_review"]
+  }
+}

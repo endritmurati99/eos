@@ -1,0 +1,20 @@
+{
+  "case_id": "security_login_alert",
+  "mail": {
+    "message_id": "synthetic-security-login-alert-001",
+    "thread_id": "synthetic-thread-security-login-alert-001",
+    "sender": "alerts@example-security.test",
+    "subject": "Login alert for your synthetic account",
+    "snippet": "A new sign-in was detected from a synthetic device.",
+    "body_excerpt": "No location, IP address, or login link is included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Security/Login Alert", "_EOS/Review Needed"],
+    "priority": "critical",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.90,
+    "risk_flags_include": ["security_sensitive"]
+  }
+}
