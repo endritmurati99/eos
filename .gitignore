@@ -15,6 +15,9 @@ tokens/
 .gog/
 .config/gog/
 
+var/
+logs/
+
 data/.codex/
 data/.config/
 data/.local/
@@ -35,6 +38,15 @@ data/*.sqlite3
 data/*.sqlite-journal
 data/*.sqlite-shm
 data/*.sqlite-wal
+data/mail/
+data/gmail/
+data/drive/
+data/maps/
+data/routes/
+data/google_workspace/
+data/eos_v2.db
+data/*.db
+data/*.sqlite
 
 *.log
 *.pid
