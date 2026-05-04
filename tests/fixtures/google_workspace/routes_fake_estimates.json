@@ -1,0 +1,76 @@
+{
+  "estimates": [
+    {
+      "origin": "Home",
+      "destination": "Office Example",
+      "mode": "driving",
+      "duration_minutes": 20,
+      "duration_in_traffic_minutes": 24,
+      "distance_text": "8 km"
+    },
+    {
+      "origin": "Home",
+      "destination": "University Example",
+      "mode": "driving",
+      "duration_minutes": 30,
+      "duration_in_traffic_minutes": 35,
+      "distance_text": "12 km"
+    },
+    {
+      "origin": "Home",
+      "destination": "University Example",
+      "mode": "transit",
+      "duration_minutes": 38,
+      "duration_in_traffic_minutes": null,
+      "distance_text": "11 km"
+    },
+    {
+      "origin": "Home",
+      "destination": "Clinic Example",
+      "mode": "driving",
+      "duration_minutes": 32,
+      "duration_in_traffic_minutes": 38,
+      "distance_text": "14 km"
+    },
+    {
+      "origin": "Office Example",
+      "destination": "University Example",
+      "mode": "driving",
+      "duration_minutes": 25,
+      "duration_in_traffic_minutes": 30,
+      "distance_text": "9 km"
+    },
+    {
+      "origin": "Office Example",
+      "destination": "Clinic Example",
+      "mode": "driving",
+      "duration_minutes": 25,
+      "duration_in_traffic_minutes": 30,
+      "distance_text": "10 km"
+    },
+    {
+      "origin": "Office Example",
+      "destination": "Gym Example",
+      "mode": "driving",
+      "duration_minutes": 15,
+      "duration_in_traffic_minutes": 18,
+      "distance_text": "5 km"
+    },
+    {
+      "origin": "Office Example",
+      "destination": "Gym Example",
+      "mode": "walking",
+      "duration_minutes": 20,
+      "duration_in_traffic_minutes": null,
+      "distance_text": "1.6 km"
+    },
+    {
+      "origin": "University Example",
+      "destination": "Gym Example",
+      "mode": "cycling",
+      "duration_minutes": 18,
+      "duration_in_traffic_minutes": null,
+      "distance_text": "4 km"
+    }
+  ]
+}

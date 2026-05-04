@@ -1,0 +1,218 @@
+{
+  "cases": [
+    {
+      "case_id": "home_to_meeting",
+      "events": [
+        {
+          "event_id": "home_to_meeting",
+          "title": "Planning Meeting",
+          "start": "2026-05-04T09:00:00",
+          "end": "2026-05-04T09:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "meeting_to_meeting",
+      "events": [
+        {
+          "event_id": "office_sync",
+          "title": "Office Sync",
+          "start": "2026-05-04T10:00:00",
+          "end": "2026-05-04T10:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "university_review",
+          "title": "University Review",
+          "start": "2026-05-04T11:30:00",
+          "end": "2026-05-04T12:00:00",
+          "location": "University Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "same_location",
+      "events": [
+        {
+          "event_id": "office_one",
+          "title": "Office One",
+          "start": "2026-05-04T13:00:00",
+          "end": "2026-05-04T13:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "office_two",
+          "title": "Office Two",
+          "start": "2026-05-04T13:45:00",
+          "end": "2026-05-04T14:15:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "missing_location",
+      "events": [
+        {
+          "event_id": "missing_location",
+          "title": "Context Call",
+          "start": "2026-05-04T15:00:00",
+          "end": "2026-05-04T15:30:00",
+          "location": null,
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "sport_location_after_work",
+      "events": [
+        {
+          "event_id": "work_block",
+          "title": "Work Block",
+          "start": "2026-05-05T16:00:00",
+          "end": "2026-05-05T17:00:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "gym_training",
+          "title": "Gym Training",
+          "start": "2026-05-05T18:00:00",
+          "end": "2026-05-05T19:00:00",
+          "location": "Gym Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "university_after_home",
+      "events": [
+        {
+          "event_id": "university_after_home",
+          "title": "University Seminar",
+          "start": "2026-05-06T09:00:00",
+          "end": "2026-05-06T10:30:00",
+          "location": "University Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "doctor_after_meeting",
+      "events": [
+        {
+          "event_id": "office_meeting",
+          "title": "Office Meeting",
+          "start": "2026-05-06T11:00:00",
+          "end": "2026-05-06T11:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "clinic_visit",
+          "title": "Clinic Visit",
+          "start": "2026-05-06T12:30:00",
+          "end": "2026-05-06T13:00:00",
+          "location": "Clinic Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "travel_time_too_tight",
+      "events": [
+        {
+          "event_id": "office_before_clinic",
+          "title": "Office Before Clinic",
+          "start": "2026-05-07T12:00:00",
+          "end": "2026-05-07T12:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "tight_clinic",
+          "title": "Clinic Example Tight",
+          "start": "2026-05-07T13:00:00",
+          "end": "2026-05-07T13:30:00",
+          "location": "Clinic Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "enough_buffer",
+      "events": [
+        {
+          "event_id": "office_before_buffer",
+          "title": "Office Before Buffer",
+          "start": "2026-05-07T09:30:00",
+          "end": "2026-05-07T10:00:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "buffer_clinic",
+          "title": "Clinic Example Buffer",
+          "start": "2026-05-07T11:30:00",
+          "end": "2026-05-07T12:00:00",
+          "location": "Clinic Example",
+          "calendar_role": "primary"
+        }
+      ]
+    },
+    {
+      "case_id": "transit_mode",
+      "events": [
+        {
+          "event_id": "transit_university",
+          "title": "Transit University",
+          "start": "2026-05-08T10:00:00",
+          "end": "2026-05-08T11:00:00",
+          "location": "University Example",
+          "calendar_role": "primary"
+        }
+      ],
+      "mode": "transit"
+    },
+    {
+      "case_id": "walking_mode",
+      "events": [
+        {
+          "event_id": "office_walk_start",
+          "title": "Office Walk Start",
+          "start": "2026-05-08T16:00:00",
+          "end": "2026-05-08T16:30:00",
+          "location": "Office Example",
+          "calendar_role": "primary"
+        },
+        {
+          "event_id": "walking_gym",
+          "title": "Walking Gym",
+          "start": "2026-05-08T17:15:00",
+          "end": "2026-05-08T18:00:00",
+          "location": "Gym Example",
+          "calendar_role": "primary"
+        }
+      ],
+      "mode": "walking"
+    },
+    {
+      "case_id": "ambiguous_location",
+      "events": [
+        {
+          "event_id": "ambiguous_location",
+          "title": "Ambiguous Meeting",
+          "start": "2026-05-09T10:00:00",
+          "end": "2026-05-09T10:30:00",
+          "location": "Ambiguous Example",
+          "calendar_role": "primary"
+        }
+      ]
+    }
+  ]
+}
