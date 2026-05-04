@@ -70,6 +70,13 @@ Soft gates defined:
 - PR #1/#2 remain open until explicitly closed or marked superseded.
 - PR #8/#9/#10/#11 need separate audits before merge.
 - Runtime is not live-ready if `python3 scripts/eos_db_doctor.py` does not report `sqlite_write_probe: success`, `db_writable: true`, and `parent_writable: true`.
+- Current full pytest discovery exposes existing Runtime/Dispatch/Intake failures that are outside this reconciliation branch:
+  `tests/verify_dispatch_layer.py::test_dispatch_energy_checkin`,
+  `tests/verify_dispatch_layer.py::test_cli_dispatch_handle_json`,
+  `tests/verify_dispatch_layer.py::test_cli_energy_today_empty`,
+  `tests/verify_dispatch_layer.py::test_cli_confirmations_list_empty`,
+  and `tests/verify_intake_engine.py::test_supported_intents_complete`.
+- In shallow local clones such as `/docker/eos-agent1-runtime-gates`, `src.runtime` can raise `IndexError: 2` while resolving `WORKSPACE_ROOT.parents[2]`; classify that local result as `environment_issue` unless reproduced in the normal OpenClaw workspace path or GitHub Actions path.
 
 ## Verification Policy
 
