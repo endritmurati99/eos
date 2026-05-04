@@ -1,0 +1,20 @@
+{
+  "case_id": "subscription",
+  "mail": {
+    "message_id": "synthetic-subscription-001",
+    "thread_id": "synthetic-thread-subscription-001",
+    "sender": "billing@example-service.test",
+    "subject": "Subscription renewal notice",
+    "snippet": "Your synthetic plan renews soon.",
+    "body_excerpt": "No real payment details are included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Money/Subscription"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": []
+  }
+}

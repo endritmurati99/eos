@@ -1,0 +1,22 @@
+{
+  "case_id": "newsletter_low_signal",
+  "mail": {
+    "message_id": "synthetic-newsletter-low-signal-001",
+    "thread_id": "synthetic-thread-newsletter-low-signal-001",
+    "sender": "deals@example-shop.test",
+    "subject": "Daily deals and coupon roundup",
+    "snippet": "Limited time promo offers and sponsored product links.",
+    "body_excerpt": "Synthetic marketing newsletter content only.",
+    "headers": {
+      "List-Unsubscribe": "<mailto:unsubscribe@example-shop.test>"
+    }
+  },
+  "expected": {
+    "categories_include": ["_Newsletter/Low Signal"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": true,
+    "min_confidence": 0.95,
+    "risk_flags_include": []
+  }
+}
