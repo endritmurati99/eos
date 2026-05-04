@@ -40,6 +40,9 @@ data/drive/
 data/maps/
 data/routes/
 data/google_workspace/
+data/eos_v2.db
+data/*.db
+data/*.sqlite
 
 *.token
 *.secret

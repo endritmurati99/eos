@@ -11,7 +11,19 @@ fi
 is_docs_only_path() {
   local path="$1"
   case "${path}" in
-    docs/*|*.md)
+    docs/*|README.md|AGENTS.md)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+is_code_path() {
+  local path="$1"
+  case "${path}" in
+    src/*|tests/*|scripts/*|.github/*)
       return 0
       ;;
     *)
@@ -22,15 +34,16 @@ is_docs_only_path() {
 
 derive_changed_code() {
   local changed_files=""
+  local docs_only="true"
   local path
 
   if [ -n "${GITHUB_BASE_REF:-}" ]; then
-    git fetch origin "${GITHUB_BASE_REF}" --depth=1 >/dev/null 2>&1 || true
-    changed_files="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" 2>/dev/null || true)"
+    git fetch origin "${GITHUB_BASE_REF}" --depth=1 >/dev/null 2>&1
+    changed_files="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")"
   elif git rev-parse --verify origin/main >/dev/null 2>&1; then
-    changed_files="$(git diff --name-only origin/main...HEAD 2>/dev/null || true)"
+    changed_files="$(git diff --name-only origin/main...HEAD)"
   else
-    changed_files="$(git diff --name-only HEAD 2>/dev/null || true)"
+    changed_files="$(git diff --name-only HEAD)"
   fi
 
   if [ -z "${changed_files}" ]; then
@@ -40,20 +53,60 @@ derive_changed_code() {
 
   while IFS= read -r path; do
     [ -z "${path}" ] && continue
-    if ! is_docs_only_path "${path}"; then
+    if is_code_path "${path}"; then
       echo "true"
       return
+    fi
+    if ! is_docs_only_path "${path}"; then
+      docs_only="false"
     fi
   done <<EOF
 ${changed_files}
 EOF
 
-  echo "false"
+  if [ "${docs_only}" = "true" ]; then
+    echo "false"
+  else
+    # Unknown/config-only changes are not docs-only; fail closed on no-test collection.
+    echo "true"
+  fi
+}
+
+derive_changed_files_count() {
+  local changed_files=""
+  if [ -n "${GITHUB_BASE_REF:-}" ]; then
+    git fetch origin "${GITHUB_BASE_REF}" --depth=1 >/dev/null 2>&1
+    changed_files="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")"
+  elif git rev-parse --verify origin/main >/dev/null 2>&1; then
+    changed_files="$(git diff --name-only origin/main...HEAD)"
+  else
+    changed_files="$(git diff --name-only HEAD)"
+  fi
+  if [ -z "${changed_files}" ]; then
+    echo "0"
+  else
+    printf '%s\n' "${changed_files}" | wc -l | tr -d ' '
+  fi
+}
+
+validate_changed_code_value() {
+  case "$1" in
+    true|false)
+      return 0
+      ;;
+    *)
+      echo "PR_CHANGED_CODE must be true or false when set." >&2
+      echo "true"
+      return 1
+      ;;
+  esac
 }
 
 changed_code="${PR_CHANGED_CODE:-}"
 if [ -z "${changed_code}" ]; then
   changed_code="$(derive_changed_code)"
+else
+  validate_changed_code_value "${changed_code}" >/dev/null
 fi
 
 compile_targets=()
@@ -77,7 +130,8 @@ if [ "${pytest_status}" -eq 5 ]; then
     echo "pytest collected no tests; docs-only change classified as warning."
     exit 0
   fi
-  echo "pytest collected no tests for a non-doc change; failing merge gate." >&2
+  changed_count="$(derive_changed_files_count)"
+  echo "pytest collected no tests for a non-doc change; failing merge gate. changed_files=${changed_count}" >&2
   exit 5
 fi
 

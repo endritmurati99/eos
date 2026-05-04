@@ -12,9 +12,9 @@ from typing import Any
 SOFT_CLASSES = {
     "environment_issue",
     "gmail_live_unverified",
-    "google_credentials_missing",
     "google_drive_live_unverified",
     "maps_live_unverified",
+    "missing_credentials",
     "missing_gog",
     "missing_python_alias",
     "missing_systemctl",
@@ -23,11 +23,10 @@ SOFT_CLASSES = {
 }
 
 HARD_CLASSES = {
-    "compile_failure",
     "gmail_write_scope_detected",
-    "import_failure",
     "real_code_failure",
     "secret_output_detected",
+    "sensitive_output_detected",
     "unknown",
 }
 
@@ -88,17 +87,13 @@ def classify_error(stdout: str, stderr: str) -> str:
         return "gmail_write_scope_detected"
     if "attempt to write a readonly database" in combined or "readonly database" in combined:
         return "readonly_database"
-    if "syntaxerror" in combined or "indentationerror" in combined:
-        return "compile_failure"
-    if "no module named 'src.eos_cli'" in combined or 'no module named "src.eos_cli"' in combined:
-        return "import_failure"
-    if "importerror" in combined and "src.eos_cli" in combined:
-        return "import_failure"
     if "python: command not found" in combined or "python not found on path" in combined:
         return "missing_python_alias"
     if "no such file or directory: 'python'" in combined or 'no such file or directory: "python"' in combined:
         return "missing_python_alias"
     if "gog: command not found" in combined or "gog not found" in combined:
+        return "missing_gog"
+    if "no such file or directory: 'gog'" in combined or 'no such file or directory: "gog"' in combined:
         return "missing_gog"
     if "systemctl: command not found" in combined or "systemctl unavailable" in combined:
         return "missing_systemctl"
@@ -107,9 +102,9 @@ def classify_error(stdout: str, stderr: str) -> str:
     if "no tests collected" in combined or "pip is not available" in combined:
         return "environment_issue"
     if re.search(r"(?i)(missing|required|not configured).{0,80}(credential|secret|token|api key)", combined_raw):
-        return "google_credentials_missing"
+        return "missing_credentials"
     if re.search(r"(?i)(credential|secret|token).{0,80}(missing|required|not configured|not found)", combined_raw):
-        return "google_credentials_missing"
+        return "missing_credentials"
     if re.search(r"(?i)(unauthorized|authorization required|auth required|login required|oauth|invalid_grant)", combined_raw):
         return "provider_auth_required"
     if "gmail live e2e unverified" in combined:
@@ -118,7 +113,14 @@ def classify_error(stdout: str, stderr: str) -> str:
         return "maps_live_unverified"
     if "google drive live api unverified" in combined:
         return "google_drive_live_unverified"
-    if "traceback (most recent call last)" in combined or "assertionerror" in combined:
+    if (
+        "traceback (most recent call last)" in combined
+        or "assertionerror" in combined
+        or "syntaxerror" in combined
+        or "indentationerror" in combined
+        or "importerror" in combined
+        or "modulenotfounderror" in combined
+    ):
         return "real_code_failure"
     if not combined.strip():
         return "unknown"
@@ -133,15 +135,22 @@ def summarize_command(
     *,
     readonly_database_hard: bool = False,
 ) -> dict[str, Any]:
-    error_class = classify_error(stdout, stderr)
-    reported_status = _extract_reported_status(stdout)
     sensitive_output_detected = contains_sensitive_output(stdout) or contains_sensitive_output(stderr)
     secret_output_detected = contains_secret_output(stdout) or contains_secret_output(stderr)
+    error_class = classify_error(stdout, stderr)
+    if secret_output_detected:
+        error_class = "secret_output_detected"
+    elif sensitive_output_detected:
+        error_class = "sensitive_output_detected"
+
+    reported_status = _extract_reported_status(stdout)
 
     if error_class == "readonly_database" and readonly_database_hard:
         status = "failed"
+    elif error_class in {"secret_output_detected", "sensitive_output_detected", "gmail_write_scope_detected"}:
+        status = "failed"
     elif error_class in HARD_CLASSES:
-        status = "failed" if exit_code != 0 or error_class == "secret_output_detected" else "pass"
+        status = "failed" if exit_code != 0 else "pass"
     elif error_class in SOFT_CLASSES:
         status = "warning"
     elif reported_status in {"warning", "yellow", "partial"}:
@@ -182,15 +191,21 @@ def format_summary_line(summary: dict[str, Any]) -> str:
 
 
 def run_self_test() -> int:
-    raw_secret = "gho_123456789012345678901234567890123456"
+    raw_secret = "example-secret-value"
     raw_private = "telegram:123456789 raw@example.com"
     assert mask_value(raw_private) == f"<masked:{len(raw_private)}>"
     assert contains_sensitive_output('{"title": "Private task", "location": "Home"}')
     assert contains_sensitive_output(raw_private)
     assert contains_secret_output(f"token={raw_secret}")
     assert classify_error("", "sqlite3.OperationalError: attempt to write a readonly database") == "readonly_database"
+    assert classify_error("", "bash: python: command not found") == "missing_python_alias"
+    assert classify_error("", "gog: command not found") == "missing_gog"
+    assert classify_error("", "systemctl unavailable") == "missing_systemctl"
+    assert classify_error("", "credentials not configured") == "missing_credentials"
+    assert classify_error("", "oauth login required") == "provider_auth_required"
+    assert classify_error("", "Traceback (most recent call last)") == "real_code_failure"
+    assert classify_error("", "") == "unknown"
     assert classify_error("", "gmail_write_scope_detected") == "gmail_write_scope_detected"
-    assert classify_error("", "SyntaxError: invalid syntax") == "compile_failure"
     summary = summarize_command("daily_plan", 1, "", "attempt to write a readonly database")
     assert summary["status"] == "warning"
     hard_summary = summarize_command(
@@ -201,6 +216,12 @@ def run_self_test() -> int:
         readonly_database_hard=True,
     )
     assert hard_summary["status"] == "failed"
+    sensitive_summary = summarize_command("daily_plan", 0, '{"title": "Private task"}', "")
+    assert sensitive_summary["status"] == "failed"
+    assert sensitive_summary["error_class"] == "sensitive_output_detected"
+    secret_summary = summarize_command("auth", 0, "", f"token={raw_secret}")
+    assert secret_summary["status"] == "failed"
+    assert secret_summary["error_class"] == "secret_output_detected"
     serialized = json.dumps(summary)
     assert "attempt to write" not in serialized
     print("eos_safe_smoke_summary self-test: ok")

@@ -1,107 +1,101 @@
 # EOS Merge Queue
 
-Status checked on 2026-05-04 UTC with `gh pr view` and `gh pr diff --name-only`.
+Status checked on 2026-05-04 UTC with `gh pr list`, `gh pr view`, and PR diff inspection.
 
-## Current PR Map
+## Current Control Status
 
-| PR | Branch | Status | Role | Merge guidance |
-| --- | --- | --- | --- | --- |
-| #5 | `agent1/foundation-reconciliation` | open, mergeable | Canonical Foundation baseline | Merge first. |
-| #6 | `agent1/merge-queue-ci-bootstrap` | open, mergeable | CI/smoke/queue bootstrap | Superseded by PR #12. Do not merge independently. |
-| #12 | `agent2/privacy-safe-runtime-ci` | open, mergeable | Privacy-safe runtime smoke and queue hardening | Merge after PR #13 or rebase after PR #13 if needed. |
-| #13 | `agent1/p0-db-runtime-recovery` | open, mergeable | P0 readonly DB recovery tooling | Merge after Foundation and before runtime live gate. |
-| #1 | `eos/global-agent-rules` | open, mergeable | Superseded Foundation draft | Close or mark superseded after #5. |
-| #2 | `agent1/eos-foundation-policies` | open, mergeable | Superseded Foundation draft | Close or mark superseded after #5. |
-| #7 | `agent2/runtime-cli-cron-doctor` | open, mergeable | Runtime doctor | Merge only if not replaced by #12/#13 content. |
-| #4 | `agent2/gmail-classifier-synthetic-tests` | open, mergeable | Gmail classifier | Rebase after runtime gates stabilize. |
-| #3 | `agent3/gmail-readonly-shadow-mode` | open, mergeable | Gmail read-only shadow mode | Rebase after #4. |
-| #8 | `agent1/mail-task-proposal-engine` | open, mergeable | Mail task proposal | Hold until separate audit. |
-| #9 | `agent2/calendar-intelligence-v1` | open, mergeable | Calendar intelligence | Hold until separate audit. |
-| #10 | `agent3/habit-journal-coach-v1` | open, mergeable | Habit journal coach | Hold until separate audit. |
-| #11 | `agent3/google-platform-readiness` | draft, mergeable | Google platform readiness | Hold until separate audit and live gates. |
+PR #14 is the canonical runtime-gate branch for CI, pytest discovery, privacy-safe smoke, hard/soft gate policy, and merge-queue reconciliation.
 
-## Collision Matrix
+PR #6 is superseded. PR #12 content is reconciled into PR #14 and should not merge independently unless PR #14 is abandoned.
 
-### PR #6 vs PR #12
+## Final Merge Order
 
-- Shared files: `.github/workflows/eos-ci.yml`, `docs/eos/EOS-MERGE-QUEUE.md`, `scripts/run_eos_smoke.sh`, `scripts/run_eos_tests.sh`.
-- Different goals: PR #6 bootstraps CI, smoke, and queue documentation. PR #12 hardens the same surface with privacy-safe summaries, pytest discovery, `.gitignore` protection, runtime diagnostics, and stricter queue policy.
-- Conflict risk: high. Both PRs create or replace the same gate files, and #12 intentionally changes #6 behavior.
-- Decision: Option A. PR #12 replaces PR #6 fully. PR #6 should be closed or marked superseded after owner approval.
+1. PR #5 Foundation.
+2. PR #1/#2 superseded close or mark.
+3. PR #13 Runtime DB + path fix.
+4. PR #14 Runtime gates / CI / safe smoke.
+5. PR #15 local dev env doctor optional.
+6. PR #16 security retention gates.
+7. PR #17 Gmail integrated path, replacing #3/#4.
+8. PR #8 Mail to Task Proposal.
+9. PR #9 Calendar Intelligence.
+10. PR #10 Habit Journal Coach.
+11. PR #11 Google Platform/Maps last, after draft removal.
 
-### PR #12 vs PR #13
+## Superseded PRs
 
-- Shared files: none in `gh pr diff --name-only`.
-- Different goals: PR #12 owns privacy-safe CI/smoke output and queue policy. PR #13 owns DB doctor, DB permission recovery tooling, and DB recovery runbook.
-- Conflict risk: low at file level, medium at gate policy level because both mention `readonly_database`.
-- Recommendation: merge PR #13 before the runtime live gate, then merge or rebase PR #12 so its `readonly_database` classification aligns with `scripts/eos_db_doctor.py`.
+| PR | Status |
+| --- | --- |
+| #1 | Superseded by PR #5 Foundation. Do not merge independently. |
+| #2 | Superseded by PR #5 Foundation. Do not merge independently. |
+| #3 | Superseded by PR #17 Gmail integrated path. Do not merge independently. |
+| #4 | Superseded by PR #17 Gmail integrated path. Do not merge independently. |
+| #6 | Superseded by PR #14 runtime-gates reconciliation. Do not merge independently. |
+| #7 | Likely superseded by PR #13/#14/#15 runtime doctor and gate work; merge only after explicit owner review. |
+| #12 | Content reconciled into PR #14. Do not merge independently unless PR #14 is abandoned. |
 
-## Required Merge Order
+## PR #6/#12/#14 Decision
 
-1. Merge PR #5 Foundation Reconciliation.
-2. Close or explicitly mark PR #1 and PR #2 as superseded.
-3. Merge PR #13 DB Runtime Recovery.
-4. Merge PR #12 Privacy-Safe Runtime Smoke and Queue, rebased after #13 if needed.
-5. Merge PR #7 Runtime Doctor only if its useful content is not already replaced by #12/#13.
-6. Rebase, test, and merge PR #4 Gmail Classifier.
-7. Rebase PR #3 Gmail Read-only Shadow Mode on PR #4, then test and merge.
-8. Keep PR #8, #9, #10, and #11 on hold until separate audit.
+- PR #6 bootstraps CI and merge queue files but lacks the final privacy-safe smoke and no-tests guard behavior.
+- PR #12 contributes privacy-safe smoke, pytest discovery, `.gitignore` hardening, and runtime smoke scripts.
+- PR #14 is canonical because it already carries the runtime-gate policy surface and is the target for final reconciliation.
+
+Decision: keep PR #14 as the only merge candidate for this CI/smoke/merge-queue strand, copy missing allowed PR #12 content into #14, and mark #6/#12 as superseded or held.
 
 ## Hard Gates
 
-- `src.eos_cli` import failure.
-- Syntax or compile failure.
-- Real pytest failure in a changed module.
-- Secrets detected in captured or printed output.
+- Syntax or import failure.
+- Real pytest failure.
+- Secret scan hit.
+- Raw sensitive smoke output detected in captured command output.
 - Gmail write scope or Gmail write action detected.
-- `readonly_database` in live runtime after DB recovery is claimed fixed.
-- Zero tests collected in a non-doc PR.
+- Code PR with zero tests collected.
+- `readonly_database` after DB recovery is claimed fixed.
 
 ## Soft Gates
 
 - Missing `gog`.
-- Missing `systemctl` or systemd not running in the test environment.
-- Missing Google credentials.
-- Gmail live E2E unverified.
-- Maps live API unverified.
-- Google Drive live API unverified.
+- Missing `systemctl` or systemd unavailable.
+- Missing credentials.
+- Provider auth required.
+- Live Gmail, Maps, or Drive verification still pending.
+- `readonly_database` before DB recovery is claimed fixed.
 
-## Zero Tests Policy
+## Pytest Discovery And Zero Tests
 
-Docs-only PRs may classify `pytest` exit code 5 as `docs_only_no_tests` and continue with a warning.
+`pytest.ini` must collect both `test_*.py` and `verify_*.py` under `tests`.
 
-Any non-doc PR must fail if `pytest` exits 5. CI sets `PR_CHANGED_CODE=true/false`; local runs derive the same value from `origin/main...HEAD` when possible and fail closed when the change set is unknown.
+Docs-only PRs may treat pytest exit code 5 as a warning. Code/config PRs fail on exit code 5. Code paths are:
+
+```text
+src/**
+tests/**
+scripts/**
+.github/**
+```
+
+Docs-only paths are:
+
+```text
+docs/**
+README.md
+AGENTS.md
+```
+
+All other changed paths fail closed for no-tests-collected handling.
 
 ## Privacy-Safe Smoke Policy
 
-Smoke output must be summary-only. It may print command names, pass/warning/failed status, exit code, error class, line counts, and whether sensitive output was detected internally.
+Smoke output is summary-only. It may print command name, pass/warning/fail status, exit code, error class, line counts, and detection flags.
 
-Smoke output must not print task titles, calendar event titles, locations, Telegram IDs or targets, Google accounts, Gmail IDs, Gmail snippets, thread IDs, raw environment values, secrets, or sensitive absolute paths.
+Smoke output must not print task titles, calendar event titles, locations, Telegram IDs or targets, Google accounts, Gmail message IDs, Gmail snippets, thread IDs, raw environment values, secrets, or sensitive absolute paths.
 
-## DB Recovery Gate
-
-`readonly_database` is P0. Daily, weekly, and run-job runtime are not live-ready while the SQLite write probe fails.
-
-After PR #13 is present, the live gate is:
-
-```bash
-python3 scripts/eos_db_doctor.py
-```
-
-The result must show at least:
-
-```text
-sqlite_write_probe: success
-db_writable: true
-parent_writable: true
-```
-
-If `scripts/eos_db_doctor.py` is not yet on the branch, PR #13 must merge or be rebased before any runtime live-ready claim.
+If sensitive or secret output is detected in captured stdout/stderr, the smoke summary marks that command failed and does not print the raw output.
 
 ## Must Not Merge
 
-- PR #1 or PR #2 independently after PR #5.
-- PR #6 independently after PR #12 is accepted.
-- Any branch that introduces Gmail write scopes or Gmail write actions before explicit approval.
-- Any branch that prints raw smoke output from live tasks, calendar, Gmail, Telegram, credentials, or local sensitive paths.
-- Runtime feature PRs #8, #9, #10, or #11 before separate audit and gate review.
+- PR #1, #2, #3, #4, #6, #7, or #12 independently unless the merge queue is explicitly revised.
+- PR #11 while it remains draft.
+- Any PR that introduces Gmail write scopes or write actions before explicit approval.
+- Any PR that prints raw smoke output from live tasks, calendar, Gmail, Telegram, credentials, environment, or sensitive local paths.
+- Any PR that modifies feature modules as part of this runtime-gate reconciliation.

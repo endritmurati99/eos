@@ -8,7 +8,7 @@ TEMP_DB_CREATED=0
 READONLY_DATABASE_HARD="${EOS_DB_RECOVERY_FIXED:-${EOS_RUNTIME_LIVE_GATE:-false}}"
 
 if [ -z "${EOS_DB_PATH:-}" ]; then
-  EOS_DB_PATH="$(mktemp -t eos-safe-smoke-db.XXXXXX)"
+  EOS_DB_PATH="$(mktemp -t eos-cron-safe-smoke-db.XXXXXX)"
   export EOS_DB_PATH
   TEMP_DB_CREATED=1
 fi
@@ -65,29 +65,13 @@ run_safe() {
 }
 
 echo "EOS_SAFE_SMOKE"
-run_safe python_alias bash -lc "python --version"
-run_safe safe_summary_self_test "${PYTHON_BIN}" "${SUMMARY_SCRIPT}" --self-test
-run_safe compile_src "${PYTHON_BIN}" -m compileall -q src
-run_safe import_eos_cli "${PYTHON_BIN}" -c "import src.eos_cli"
-run_safe gmail_write_scope_probe bash -lc '
-  if ! command -v rg >/dev/null 2>&1; then
-    exit 0
-  fi
-  pattern="gmail\\.(modify|send|compose|labels)|googleapis\\.com/auth/gmail($|[^.[:alnum:]_-])|messages\\.(modify|trash|delete)|labels\\.(create|delete|update)"
-  if rg -I -q "${pattern}" src .github 2>/dev/null; then
-    echo gmail_write_scope_detected
-    exit 1
-  fi
-  status=$?
-  if [ "${status}" -eq 1 ]; then
-    exit 0
-  fi
-  exit "${status}"
-'
-run_safe cli_help "${PYTHON_BIN}" -m src.eos_cli --help
-run_safe health bash -lc "${PYTHON_BIN} -m src.eos_cli --json-only health >/dev/null"
+run_safe cron_files bash -lc "find ops -maxdepth 3 -type f | sort | wc -l"
 run_safe cron_audit "${PYTHON_BIN}" -m src.eos_cli --json-only cron-audit
-run_safe model_audit bash -lc "${PYTHON_BIN} -m src.eos_cli --json-only model-audit >/dev/null"
+if command -v systemctl >/dev/null 2>&1; then
+  run_safe systemd_timers bash -lc "systemctl list-timers --all | grep -i eos; test \${PIPESTATUS[1]} -ne 2"
+else
+  run_safe systemd_timers bash -lc "echo systemctl unavailable; exit 127"
+fi
 echo "- sensitive_output_printed: no"
 echo "- raw_output_printed: no"
 
