@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
 from pathlib import Path
 import sys
@@ -33,10 +34,50 @@ def assert_eq(actual, expected, label):
     assert actual == expected, f"{label}: expected {expected!r}, got {actual!r}"
 
 
+def fixture_workspace(tmp: str | Path) -> Path:
+    root = Path(tmp) / "workspace"
+    data_dir = root / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / "eos_state.json").write_text(
+        json.dumps(
+            {
+                "habits": [
+                    {
+                        "id": "habit-morning-routine",
+                        "name": "Morgenroutine",
+                        "status": "active",
+                        "frequency": "daily",
+                        "target_time": "07:00",
+                        "routine_ref": "morning",
+                        "minimum_version": ["Wasser", "Licht"],
+                        "full_version": ["Wasser", "Licht", "Plan"],
+                    },
+                    {
+                        "id": "habit-evening-routine",
+                        "name": "Abendroutine",
+                        "status": "active",
+                        "frequency": "daily",
+                        "target_time": "21:30",
+                        "routine_ref": "evening",
+                        "minimum_version": ["Shutdown"],
+                        "full_version": ["Shutdown", "Review"],
+                    },
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return root
+
+
+def habit_service(tmp: str | Path) -> HabitService:
+    return HabitService(workspace_root=fixture_workspace(tmp), db_path=str(Path(tmp) / "habits.db"))
+
+
 def test_default_habit_type_migration():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             for habit in service.list_definitions(include_paused=True):
                 assert habit["habit_type"] == "build", (
@@ -52,8 +93,7 @@ def test_default_habit_type_migration():
 
 def test_add_reduce_habit_with_metadata():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             result = service.add_habit(
                 name="Doomscrolling Night",
@@ -77,8 +117,7 @@ def test_add_reduce_habit_with_metadata():
 
 def test_set_habit_type_changes_existing():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             result = service.set_habit_type("morgenroutine", "maintain")
             assert_eq(result["status"], "success", "set type status")
@@ -89,8 +128,7 @@ def test_set_habit_type_changes_existing():
 
 def test_log_relapse_writes_relapse_and_event():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             service.add_habit(
                 name="Doomscrolling Night",
@@ -135,8 +173,7 @@ def test_log_relapse_writes_relapse_and_event():
 
 def test_log_relapse_only_for_reduce_habits():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             result = service.log_relapse(
                 "morgenroutine",
@@ -151,8 +188,7 @@ def test_log_relapse_only_for_reduce_habits():
 
 def test_log_recovery_protects_streak():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             service.mark_done("morgenroutine", target_date=date(2026, 4, 25), mode="full")
             service.mark_done("morgenroutine", target_date=date(2026, 4, 26), mode="full")
@@ -185,8 +221,7 @@ def test_log_recovery_protects_streak():
 
 def test_log_failure_mode_records_reason():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             result = service.log_failure_mode(
                 "morgenroutine",
@@ -209,8 +244,7 @@ def test_log_failure_mode_records_reason():
 
 def test_pattern_detection_finds_multiple_classes():
     with tempfile.TemporaryDirectory() as tmp:
-        db_path = str(Path(tmp) / "habits.db")
-        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        service = habit_service(tmp)
         try:
             service.add_habit(
                 name="Doomscrolling Night",
@@ -299,9 +333,10 @@ def test_no_telegram_no_calendar_writes():
 def test_init_db_idempotent():
     with tempfile.TemporaryDirectory() as tmp:
         db_path = str(Path(tmp) / "habits.db")
-        first = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        workspace = fixture_workspace(tmp)
+        first = HabitService(workspace_root=workspace, db_path=db_path)
         first.close()
-        second = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        second = HabitService(workspace_root=workspace, db_path=db_path)
         try:
             cols = {row["name"] for row in second.connection.execute("PRAGMA table_info(habit_definitions)").fetchall()}
             for col in (

@@ -1,0 +1,20 @@
+{
+  "case_id": "shopping_delivery",
+  "mail": {
+    "message_id": "synthetic-shopping-delivery-001",
+    "thread_id": "synthetic-thread-shopping-delivery-001",
+    "sender": "shipping@example-shop.test",
+    "subject": "Your package delivery update",
+    "snippet": "The synthetic package is out for delivery.",
+    "body_excerpt": "No real address or tracking number is included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Shopping"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": []
+  }
+}

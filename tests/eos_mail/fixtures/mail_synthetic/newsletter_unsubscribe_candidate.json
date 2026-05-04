@@ -1,0 +1,22 @@
+{
+  "case_id": "newsletter_unsubscribe_candidate",
+  "mail": {
+    "message_id": "synthetic-newsletter-unsubscribe-candidate-001",
+    "thread_id": "synthetic-thread-newsletter-unsubscribe-candidate-001",
+    "sender": "marketing@example-retail.test",
+    "subject": "Marketing update and promo roundup",
+    "snippet": "You are receiving this newsletter and can unsubscribe at any time.",
+    "body_excerpt": "Manage email preferences in this synthetic example.",
+    "headers": {
+      "List-Unsubscribe": "<mailto:unsubscribe@example-retail.test>"
+    }
+  },
+  "expected": {
+    "categories_include": ["_Newsletter/Unsubscribe Candidate"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": true,
+    "min_confidence": 0.95,
+    "risk_flags_include": []
+  }
+}

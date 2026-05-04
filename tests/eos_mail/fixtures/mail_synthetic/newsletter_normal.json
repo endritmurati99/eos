@@ -1,0 +1,22 @@
+{
+  "case_id": "newsletter_normal",
+  "mail": {
+    "message_id": "synthetic-newsletter-normal-001",
+    "thread_id": "synthetic-thread-newsletter-normal-001",
+    "sender": "updates@example-community.test",
+    "subject": "Monthly update from Example Community",
+    "snippet": "Here are product notes and upcoming webinars.",
+    "body_excerpt": "Synthetic newsletter update only.",
+    "headers": {
+      "List-Unsubscribe": "<mailto:unsubscribe@example-community.test>"
+    }
+  },
+  "expected": {
+    "categories_include": ["_Newsletter/Normal"],
+    "priority": "low",
+    "requires_reply": false,
+    "safe_to_archive": true,
+    "min_confidence": 0.95,
+    "risk_flags_include": []
+  }
+}

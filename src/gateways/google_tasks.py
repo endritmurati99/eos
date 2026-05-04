@@ -46,7 +46,7 @@ class TaskGateway:
         self.account = account or os.getenv("EOS_GOOGLE_ACCOUNT") or self._load_default_account()
         self.credentials_path = credentials_path or os.getenv("EOS_GOOGLE_CREDENTIALS_PATH")
         self.token_root = token_root or os.getenv("EOS_GOOGLE_TOKEN_PATH")
-        self.tasks_enabled = _env_flag_enabled(os.getenv("EOS_GOOGLE_TASKS_ENABLED", "true"))
+        self.tasks_enabled = _env_flag_enabled(os.getenv("EOS_GOOGLE_TASKS_ENABLED", "false"))
 
     def build_command_env(self) -> dict[str, str]:
         env = os.environ.copy()
