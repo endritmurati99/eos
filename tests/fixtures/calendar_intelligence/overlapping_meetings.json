@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "event_id": "overlap_a",
+      "title": "Project Sync A",
+      "start": "2026-05-11T10:00:00",
+      "end": "2026-05-11T11:00:00",
+      "location": "Zoom",
+      "description": "Project sync.",
+      "attendees": ["a@example.test"],
+      "calendar_role": "primary"
+    },
+    {
+      "event_id": "overlap_b",
+      "title": "Client Call B",
+      "start": "2026-05-11T10:45:00",
+      "end": "2026-05-11T11:30:00",
+      "location": "Meet",
+      "description": "Client call.",
+      "attendees": ["b@example.test"],
+      "calendar_role": "primary"
+    }
+  ]
+}

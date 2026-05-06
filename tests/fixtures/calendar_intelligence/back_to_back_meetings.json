@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "event_id": "back_a",
+      "title": "Review One",
+      "start": "2026-05-12T09:00:00",
+      "end": "2026-05-12T09:30:00",
+      "location": "Zoom",
+      "description": "Review.",
+      "attendees": ["a@example.test"],
+      "calendar_role": "primary"
+    },
+    {
+      "event_id": "back_b",
+      "title": "Project Sync Two",
+      "start": "2026-05-12T09:30:00",
+      "end": "2026-05-12T10:00:00",
+      "location": "Zoom",
+      "description": "Sync.",
+      "attendees": ["b@example.test"],
+      "calendar_role": "primary"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "event_id": "client_call",
+  "title": "Client Call with Mira",
+  "start": "2026-05-08T14:00:00",
+  "end": "2026-05-08T14:45:00",
+  "location": "Google Meet",
+  "description": "Discuss invoice questions and send afterwards summary.",
+  "attendees": ["mira@example.test"],
+  "calendar_role": "primary"
+}

@@ -1,0 +1,10 @@
+{
+  "event_id": "deep_work_block",
+  "title": "Deep Work Block",
+  "start": "2026-05-10T09:00:00",
+  "end": "2026-05-10T11:00:00",
+  "location": null,
+  "description": "Focus block with no meeting context.",
+  "attendees": [],
+  "calendar_role": "primary"
+}
