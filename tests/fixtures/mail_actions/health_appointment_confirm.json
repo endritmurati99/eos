@@ -1,0 +1,22 @@
+{
+  "id": "health_appointment_confirm",
+  "mail": {
+    "message_id": "synthetic-health",
+    "thread_id": "thread-health",
+    "sender": "clinic@example-health.test",
+    "subject": "Appointment confirmation",
+    "snippet": "Please confirm your appointment tomorrow.",
+    "body_excerpt": "Please confirm the health appointment tomorrow.",
+    "categories": ["_Health"],
+    "priority": "important",
+    "received_at": "2026-05-04T19:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "confirm_required",
+    "title_prefix": "Confirm:",
+    "due": "2026-05-05",
+    "list_name": "Review",
+    "requires_approval": true
+  }
+}

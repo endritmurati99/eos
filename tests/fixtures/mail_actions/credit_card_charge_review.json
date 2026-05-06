@@ -1,0 +1,22 @@
+{
+  "id": "credit_card_charge_review",
+  "mail": {
+    "message_id": "synthetic-card-alert",
+    "thread_id": "thread-card-alert",
+    "sender": "cards@example-bank.test",
+    "subject": "New card charge alert",
+    "snippet": "A new charge was posted to your credit card.",
+    "body_excerpt": "Review the card alert for card 4111 1111 1111 1111.",
+    "categories": ["_Money/Credit Card"],
+    "priority": "critical",
+    "received_at": "2026-05-04T15:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "check_bank_alert",
+    "title_prefix": "Review banking alert:",
+    "due": null,
+    "list_name": "Review",
+    "requires_approval": true
+  }
+}

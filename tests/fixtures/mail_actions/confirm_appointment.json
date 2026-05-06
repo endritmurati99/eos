@@ -1,0 +1,22 @@
+{
+  "id": "confirm_appointment",
+  "mail": {
+    "message_id": "synthetic-confirm-appointment",
+    "thread_id": "thread-confirm-appointment",
+    "sender": "office@example.test",
+    "subject": "Appointment confirmation",
+    "snippet": "Please confirm tomorrow's appointment.",
+    "body_excerpt": "Please confirm the appointment tomorrow so we can keep the slot.",
+    "categories": ["_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T10:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "confirm_required",
+    "title_prefix": "Confirm:",
+    "due": "2026-05-05",
+    "list_name": "Inbox",
+    "requires_approval": true
+  }
+}

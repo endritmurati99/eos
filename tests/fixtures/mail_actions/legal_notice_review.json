@@ -1,0 +1,22 @@
+{
+  "id": "legal_notice_review",
+  "mail": {
+    "message_id": "synthetic-legal",
+    "thread_id": "thread-legal",
+    "sender": "notices@example-law.test",
+    "subject": "Legal notice",
+    "snippet": "Please review the legal notice by Friday.",
+    "body_excerpt": "Legal notice requires review by Friday.",
+    "categories": ["_Legal"],
+    "priority": "important",
+    "received_at": "2026-05-04T18:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "review_legal_notice",
+    "title_prefix": "Review legal notice:",
+    "due": "2026-05-08",
+    "list_name": "Review",
+    "requires_approval": true
+  }
+}

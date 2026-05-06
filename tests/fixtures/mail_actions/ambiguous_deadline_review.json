@@ -1,0 +1,23 @@
+{
+  "id": "ambiguous_deadline_review",
+  "mail": {
+    "message_id": "synthetic-ambiguous-deadline",
+    "thread_id": "thread-ambiguous-deadline",
+    "sender": "colleague@example.test",
+    "subject": "Need your response soon",
+    "snippet": "Please reply soon; the deadline is moving.",
+    "body_excerpt": "Please reply soon. The deadline is not fixed yet.",
+    "categories": ["_EOS/Action Required", "_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T09:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "reply_required",
+    "title_prefix": "Reply:",
+    "due": null,
+    "list_name": "Inbox",
+    "requires_approval": true,
+    "risk_flag": "deadline_uncertain"
+  }
+}

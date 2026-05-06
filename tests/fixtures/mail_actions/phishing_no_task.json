@@ -1,0 +1,17 @@
+{
+  "id": "phishing_no_task",
+  "mail": {
+    "message_id": "synthetic-phishing",
+    "thread_id": "thread-phishing",
+    "sender": "verify@example-risk.test",
+    "subject": "Urgent account verification",
+    "snippet": "Verify your account immediately.",
+    "body_excerpt": "Confirm your password at https://phish.example.test.",
+    "categories": ["_Risk/Phishing Suspected"],
+    "priority": "critical",
+    "received_at": "2026-05-04T23:30:00"
+  },
+  "expected": {
+    "proposal_count": 0
+  }
+}
