@@ -20,6 +20,11 @@ from src.dispatch import dispatch_text
 from src.confirmations import ConfirmationService
 from src.energy import EnergyService, parse_energy_text
 from src.database.models import init_db
+from src.eos_mail.auth_preflight import run_gmail_auth_preflight
+from src.eos_mail.digest import digest_payload, render_shadow_digest
+from src.eos_mail.gmail_client import GogGmailReadOnlyClient, gmail_scope_guidance
+from src.eos_mail.ingestion import query_for_today, query_from_last, run_shadow_ingestion
+from src.eos_mail.repository import InMemoryMailShadowRepository
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -47,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         result = command_confirmations(args)
     elif args.command == "energy":
         result = command_energy(args)
+    elif args.command == "mail":
+        result = command_mail(args)
     elif args.command == "cron-audit":
         result = audit_cron(args.jobs_path)
     elif args.command == "model-audit":
@@ -272,6 +279,58 @@ def command_energy(args: argparse.Namespace) -> dict[str, Any]:
     return {"status": "not_found", "error": f"Unknown energy command: {args.energy_command}"}
 
 
+def command_mail(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.dry_run:
+        return {
+            "status": "failed",
+            "error_class": "write_mode_forbidden",
+            "dry_run": args.dry_run,
+            "error": "Gmail shadow mode is read-only. Re-run without --no-dry-run.",
+            "gmail_write_actions_added": False,
+        }
+
+    if args.mail_command == "auth-check":
+        result = run_gmail_auth_preflight()
+        result["dry_run"] = True
+        return result
+
+    repository = InMemoryMailShadowRepository()
+    client = GogGmailReadOnlyClient()
+    max_results = int(args.max_results)
+    query = _mail_query(args)
+    audit_result = run_shadow_ingestion(
+        client=client,
+        query=query,
+        max_results=max_results,
+        dry_run=True,
+        repository=repository,
+    )
+    audit_result["scope_guidance"] = gmail_scope_guidance()
+    audit_result["gmail_write_actions_added"] = False
+
+    if args.mail_command == "audit":
+        return audit_result
+
+    if args.mail_command == "digest":
+        return {
+            "status": audit_result["status"],
+            "audit_run_id": audit_result["audit_run_id"],
+            "started_at": audit_result["started_at"],
+            "finished_at": audit_result["finished_at"],
+            "dry_run": True,
+            "query": query,
+            "max_results": max_results,
+            "messages_seen": audit_result["messages_seen"],
+            "errors": audit_result["errors"],
+            "scope_guidance": audit_result["scope_guidance"],
+            "gmail_write_actions_added": False,
+            "digest": digest_payload(repository.messages),
+            "output_markdown": render_shadow_digest(repository.messages),
+        }
+
+    return {"status": "not_found", "error": f"Unknown mail command: {args.mail_command}"}
+
+
 def command_run_job(args: argparse.Namespace) -> dict[str, Any]:
     if args.send and args.dry_run:
         return {
@@ -473,6 +532,24 @@ def _build_parser() -> argparse.ArgumentParser:
     energy_log_cmd.add_argument("--date")
     energy_subparsers.add_parser("today")
 
+    mail = subparsers.add_parser("mail")
+    mail_subparsers = mail.add_subparsers(dest="mail_command", required=True)
+    mail_audit = mail_subparsers.add_parser("audit")
+    mail_audit.add_argument("--last", default="7d")
+    mail_audit.add_argument("--query")
+    mail_audit.add_argument("--limit", "--max-results", dest="max_results", type=int, default=50)
+    mail_audit.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+
+    mail_digest = mail_subparsers.add_parser("digest")
+    mail_digest.add_argument("--today", action="store_true", default=True)
+    mail_digest.add_argument("--query")
+    mail_digest.add_argument("--limit", "--max-results", dest="max_results", type=int, default=50)
+    mail_digest.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+
+    mail_auth_check = mail_subparsers.add_parser("auth-check")
+    mail_auth_check.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+    mail_auth_check.add_argument("--json-only", action="store_true", default=argparse.SUPPRESS)
+
     daily = subparsers.add_parser("daily-plan")
     daily.add_argument("--date", required=True)
     daily.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
@@ -548,6 +625,14 @@ def _summary(result: dict[str, Any]) -> str:
 
 def _result_status(result: dict[str, Any]) -> str:
     return str(result.get("status") or result.get("task_read_status") or result.get("auth_status") or "unknown")
+
+
+def _mail_query(args: argparse.Namespace) -> str:
+    if getattr(args, "query", None):
+        return str(args.query)
+    if getattr(args, "mail_command", None) == "digest":
+        return query_for_today(datetime.now(BERLIN).date())
+    return query_from_last(str(getattr(args, "last", "7d")))
 
 
 def _is_successful_result(result: dict[str, Any]) -> bool:
