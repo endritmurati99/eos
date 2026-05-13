@@ -20,6 +20,7 @@ from src.dispatch import dispatch_text
 from src.confirmations import ConfirmationService
 from src.energy import EnergyService, parse_energy_text
 from src.database.models import init_db
+from src.eos_assistant import run_assistant_command
 from src.eos_mail.auth_preflight import run_gmail_auth_preflight
 from src.eos_mail.digest import digest_payload, render_shadow_digest
 from src.eos_mail.gmail_client import GogGmailReadOnlyClient, gmail_scope_guidance
@@ -54,6 +55,8 @@ def main(argv: list[str] | None = None) -> int:
         result = command_energy(args)
     elif args.command == "mail":
         result = command_mail(args)
+    elif args.command == "assistant":
+        result = command_assistant(args)
     elif args.command == "cron-audit":
         result = audit_cron(args.jobs_path)
     elif args.command == "model-audit":
@@ -331,6 +334,15 @@ def command_mail(args: argparse.Namespace) -> dict[str, Any]:
     return {"status": "not_found", "error": f"Unknown mail command: {args.mail_command}"}
 
 
+def command_assistant(args: argparse.Namespace) -> dict[str, Any]:
+    return run_assistant_command(
+        args.assistant_command,
+        target_date=_parse_optional_date(getattr(args, "date", None)),
+        dry_run=getattr(args, "dry_run", True),
+        max_results=getattr(args, "max_results", 20),
+    )
+
+
 def command_run_job(args: argparse.Namespace) -> dict[str, Any]:
     if args.send and args.dry_run:
         return {
@@ -550,6 +562,17 @@ def _build_parser() -> argparse.ArgumentParser:
     mail_auth_check.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
     mail_auth_check.add_argument("--json-only", action="store_true", default=argparse.SUPPRESS)
 
+    assistant = subparsers.add_parser("assistant")
+    assistant_subparsers = assistant.add_subparsers(dest="assistant_command", required=True)
+    for name in ("home", "status", "heute", "jetzt", "abend"):
+        assistant_cmd = assistant_subparsers.add_parser(name)
+        assistant_cmd.add_argument("--date")
+        assistant_cmd.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+    assistant_mail = assistant_subparsers.add_parser("mail")
+    assistant_mail.add_argument("--date")
+    assistant_mail.add_argument("--limit", "--max-results", dest="max_results", type=int, default=20)
+    assistant_mail.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+
     daily = subparsers.add_parser("daily-plan")
     daily.add_argument("--date", required=True)
     daily.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
@@ -586,9 +609,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _print_result(result: dict[str, Any], *, json_only: bool) -> None:
-    if not json_only:
-        print(_summary(result))
-        print("")
+    if json_only:
+        print(json.dumps(result, ensure_ascii=False, default=str, separators=(",", ":")))
+        return
+    print(_summary(result))
+    print("")
     print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
 
 
@@ -597,6 +622,8 @@ def _summary(result: dict[str, Any]) -> str:
     job = result.get("job") or "EOS"
     if "output_markdown" in result:
         return f"{job}: {status}\n\n{result['output_markdown'].strip()}"
+    if "summary_markdown" in result and "cards" in result:
+        return f"assistant {result.get('command', '')}: {status}\n\n{result['summary_markdown'].strip()}"
     if "checks" in result:
         checks = result["checks"]
         return (
@@ -643,6 +670,8 @@ def _is_successful_result(result: dict[str, Any]) -> bool:
         "partial",
         "warning",
         "skipped",
+        "degraded",
+        "read_only",
     }
 
 

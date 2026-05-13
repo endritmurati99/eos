@@ -12,7 +12,15 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 
 from src.database.models import init_db  # noqa: E402
 from src.dispatch import dispatch_text, DispatchResult  # noqa: E402
-from src.dispatch.actions import ACTION_NOOP, ACTION_ENERGY_LOG, ACTION_HABIT_MARK_DONE, ACTION_PENDING_CONFIRMATION  # noqa: E402
+from src.dispatch.actions import (  # noqa: E402
+    ACTION_CALENDAR_PROPOSAL,
+    ACTION_ENERGY_LOG,
+    ACTION_HABIT_MARK_DONE,
+    ACTION_HABIT_STATUS,
+    ACTION_NOOP,
+    ACTION_PENDING_CONFIRMATION,
+    ACTION_TASK_PROPOSAL,
+)
 from src.confirmations import ConfirmationService  # noqa: E402
 from src.energy import EnergyService, parse_energy_text, EnergyLog  # noqa: E402
 from src.intake.models import SUPPORTED_INTENTS  # noqa: E402
@@ -266,12 +274,45 @@ def test_dispatch_log_always_written():
         conn.close()
 
 
+def test_dispatch_habit_status():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "test.db")
+        result = dispatch_text("habit status", db_path=db_path)
+        assert_eq(result.status, "ok", "habit status result")
+        assert_eq(result.action_type, ACTION_HABIT_STATUS, "habit status action")
+        assert_eq(result.extra.get("target_service"), "HabitService", "habit status target")
+
+
+def test_dispatch_task_capture_proposal_only():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "test.db")
+        first = dispatch_text("merken: Steuerunterlagen sortieren", user_id="task-user", db_path=db_path)
+        assert_eq(first.status, "pending", "task capture pending")
+        second = dispatch_text("ja", user_id="task-user", db_path=db_path)
+        assert_eq(second.status, "ok", "task proposal result")
+        assert_eq(second.action_type, ACTION_TASK_PROPOSAL, "task proposal action")
+        assert second.extra.get("external_writes_performed") is False
+        assert second.extra.get("google_tasks_write_performed") is False
+
+
+def test_dispatch_calendar_capture_proposal_only():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "test.db")
+        first = dispatch_text("trag in den kalender morgen fokusblock", user_id="calendar-user", db_path=db_path)
+        assert_eq(first.status, "pending", "calendar proposal pending")
+        second = dispatch_text("ja", user_id="calendar-user", db_path=db_path)
+        assert_eq(second.status, "ok", "calendar proposal result")
+        assert_eq(second.action_type, ACTION_CALENDAR_PROPOSAL, "calendar proposal action")
+        assert second.extra.get("external_writes_performed") is False
+        assert second.extra.get("calendar_external_writes_performed") is False
+
+
 # ── 8. CLI smoke tests ───────────────────────────────────────────────────────
 
 def test_cli_dispatch_handle_json():
     import subprocess
     result = subprocess.run(
-        ["python3", "-m", "src.eos_cli", "--json-only", "dispatch", "handle", "morgenroutine erledigt"],
+        [sys.executable, "-m", "src.eos_cli", "--json-only", "dispatch", "handle", "morgenroutine erledigt"],
         capture_output=True, text=True, cwd=str(WORKSPACE_ROOT)
     )
     assert result.returncode in (0, 1), f"CLI exited with {result.returncode}: {result.stderr}"
@@ -284,7 +325,7 @@ def test_cli_energy_today_empty():
     import subprocess
     with tempfile.TemporaryDirectory() as tmp:
         result = subprocess.run(
-            ["python3", "-m", "src.eos_cli", "--json-only", "energy", "today"],
+            [sys.executable, "-m", "src.eos_cli", "--json-only", "energy", "today"],
             capture_output=True, text=True, cwd=str(WORKSPACE_ROOT),
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
@@ -297,7 +338,7 @@ def test_cli_confirmations_list_empty():
     import subprocess
     with tempfile.TemporaryDirectory() as tmp:
         result = subprocess.run(
-            ["python3", "-m", "src.eos_cli", "--json-only", "confirmations", "list"],
+            [sys.executable, "-m", "src.eos_cli", "--json-only", "confirmations", "list"],
             capture_output=True, text=True, cwd=str(WORKSPACE_ROOT),
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
@@ -339,6 +380,9 @@ def main():
     test_dispatch_energy_checkin()
     test_dispatch_idempotency()
     test_dispatch_log_always_written()
+    test_dispatch_habit_status()
+    test_dispatch_task_capture_proposal_only()
+    test_dispatch_calendar_capture_proposal_only()
     test_cli_dispatch_handle_json()
     test_cli_energy_today_empty()
     test_cli_confirmations_list_empty()

@@ -53,6 +53,12 @@ run_safe cron_audit "${PYTHON_BIN}" -m src.eos_cli --json-only cron-audit
 run_safe model_audit "${PYTHON_BIN}" -m src.eos_cli --json-only model-audit
 run_safe daily_plan "${PYTHON_BIN}" -m src.eos_cli --json-only daily-plan --date "$(date +%F)" --dry-run
 run_safe weekly_plan "${PYTHON_BIN}" -m src.eos_cli --json-only weekly-plan --week-start "$(date +%F)" --dry-run
+run_safe assistant_home "${PYTHON_BIN}" -m src.eos_cli --json-only assistant home --date "$(date +%F)" --dry-run
+run_safe assistant_status "${PYTHON_BIN}" -m src.eos_cli --json-only assistant status --dry-run
+run_safe assistant_heute "${PYTHON_BIN}" -m src.eos_cli --json-only assistant heute --date "$(date +%F)" --dry-run
+run_safe assistant_jetzt "${PYTHON_BIN}" -m src.eos_cli --json-only assistant jetzt --date "$(date +%F)" --dry-run
+run_safe assistant_abend "${PYTHON_BIN}" -m src.eos_cli --json-only assistant abend --date "$(date +%F)" --dry-run
+run_safe assistant_mail "${PYTHON_BIN}" -m src.eos_cli --json-only assistant mail --date "$(date +%F)" --limit 5 --dry-run
 echo "- sensitive_output_printed: no"
 
 exit "${SMOKE_FAILED}"

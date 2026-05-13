@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from datetime import date, datetime, timedelta
+from email.utils import parsedate_to_datetime
 
 from src.eos_mail_actions.types import DeadlineExtraction
 
@@ -88,7 +89,10 @@ def _parse_reference_date(reference_date: date | str | None) -> date:
     try:
         return datetime.fromisoformat(raw).date()
     except ValueError:
-        return date.fromisoformat(raw[:10])
+        try:
+            return parsedate_to_datetime(raw).date()
+        except (TypeError, ValueError):
+            return date.fromisoformat(raw[:10])
 
 
 def _normalize_text(text: str) -> str:

@@ -14,6 +14,13 @@ def test_extracts_relative_deadlines() -> None:
     assert extract_deadline("Please reply within 3 days", REFERENCE_DATE).due == "2026-05-07"
 
 
+def test_accepts_rfc2822_reference_dates() -> None:
+    result = extract_deadline("Please reply by Friday", "Wed, 13 May 2026 13:34:17 +0000 (UTC)")
+
+    assert result.due == "2026-05-15"
+    assert result.reason == "weekday_friday"
+
+
 def test_extracts_weekday_deadlines() -> None:
     friday = extract_deadline("Please reply by Friday", REFERENCE_DATE)
     monday = extract_deadline("Please respond until Monday", date(2026, 5, 5))

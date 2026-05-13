@@ -129,6 +129,67 @@ _REVIEW_REQUEST_KEYWORDS: tuple[str, ...] = (
     "tages review",
 )
 
+_ASSISTANT_COMMAND_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "home": (
+        "eos",
+        "eos home",
+        "home",
+        "hilfe",
+        "help",
+    ),
+    "status": (
+        "eos status",
+        "status",
+        "health",
+        "laeuft eos",
+        "läuft eos",
+        "was kann eos",
+        "was kann der assistant",
+    ),
+    "heute": (
+        "heute",
+        "was steht heute an",
+        "mein tag",
+        "tagesueberblick",
+        "tagesüberblick",
+    ),
+    "jetzt": (
+        "jetzt",
+        "was soll ich jetzt machen",
+        "naechste aktion",
+        "nächste aktion",
+        "next action",
+        "naechster schritt",
+        "nächster schritt",
+    ),
+    "abend": (
+        "abend",
+        "abend review",
+        "morgen vorbereiten",
+        "tagesabschluss",
+    ),
+    "mail": (
+        "mail",
+        "mails",
+        "email",
+        "emails",
+        "inbox",
+        "postfach",
+    ),
+}
+
+_SLASH_ASSISTANT_COMMANDS: dict[str, str] = {
+    "status": "status",
+    "heute": "heute",
+    "jetzt": "jetzt",
+    "abend": "abend",
+    "mail": "mail",
+    "eos": "home",
+    "start": "home",
+    "hilfe": "home",
+    "help": "home",
+}
+
 _HABIT_SCOPE_ALL_KEYWORDS: tuple[str, ...] = (
     "alles",
     "alle habits",
@@ -209,7 +270,7 @@ def _extract_energy_entities(normalized: str) -> dict[str, Any]:
     import re
     entities: dict[str, Any] = {}
     number_pattern = re.compile(r"(\d+)(?:\s*(?:/10|von\s*10))?")
-    tokens = normalized.split()
+    tokens = tokenize(normalized)
     for i, token in enumerate(tokens):
         for keywords, field in _ENERGY_FIELD_PATTERNS:
             if any(kw in token for kw in keywords):
@@ -245,6 +306,23 @@ def _detect_completion_mode(normalized: str) -> str | None:
         return "done_partial"
     if _matches_any(normalized, _HABIT_DONE_KEYWORDS):
         return "done_full"
+    return None
+
+
+def _detect_assistant_command(normalized: str) -> tuple[str, tuple[str, ...]] | None:
+    if normalized.startswith("/"):
+        slash_token = normalized.split()[0][1:].split("@", 1)[0]
+        command = _SLASH_ASSISTANT_COMMANDS.get(slash_token)
+        if command:
+            return command, (f"/{slash_token}",)
+    for command, keywords in _ASSISTANT_COMMAND_KEYWORDS.items():
+        matched = tuple(
+            keyword
+            for keyword in keywords
+            if normalized == keyword or (" " in keyword and keyword in normalized)
+        )
+        if matched:
+            return command, matched
     return None
 
 
@@ -347,25 +425,25 @@ def classify_intent(raw_text: str) -> IntakeResult:
             matched_keywords=matched,
         )
 
-    energy_entities = _extract_energy_entities(normalized)
-    if energy_entities:
+    if detected := _detect_assistant_command(normalized):
+        command, matched = detected
         return IntakeResult(
-            intent="daily_checkin",
-            confidence=0.82,
-            entities=energy_entities,
+            intent="assistant_command",
+            confidence=0.9,
+            entities={"assistant_command": command},
             requires_confirmation=False,
             confirmation_question=None,
             ambiguity=None,
             raw_input=raw,
             normalized_input=normalized,
-            matched_keywords=tuple(energy_entities.keys()),
+            matched_keywords=matched,
         )
 
     if matched := _matches_any(normalized, _CALENDAR_PROPOSAL_KEYWORDS):
         return IntakeResult(
             intent="calendar_proposal_request",
             confidence=0.82,
-            entities={},
+            entities={"raw_text": raw},
             requires_confirmation=True,
             confirmation_question="Ich erzeuge einen Vorschlag, schreibe aber nichts ohne deine Zustimmung. OK?",
             ambiguity=None,
@@ -398,6 +476,33 @@ def classify_intent(raw_text: str) -> IntakeResult:
             raw_input=raw,
             normalized_input=normalized,
             matched_keywords=matched,
+        )
+
+    if matched := _matches_any(normalized, _TASK_CAPTURE_KEYWORDS):
+        return IntakeResult(
+            intent="task_capture",
+            confidence=0.7,
+            entities={"raw_text": raw},
+            requires_confirmation=True,
+            confirmation_question="Soll ich daraus eine Aufgaben-Proposal machen? Ich schreibe noch nichts extern.",
+            ambiguity=None,
+            raw_input=raw,
+            normalized_input=normalized,
+            matched_keywords=matched,
+        )
+
+    energy_entities = _extract_energy_entities(normalized)
+    if energy_entities:
+        return IntakeResult(
+            intent="daily_checkin",
+            confidence=0.82,
+            entities=energy_entities,
+            requires_confirmation=False,
+            confirmation_question=None,
+            ambiguity=None,
+            raw_input=raw,
+            normalized_input=normalized,
+            matched_keywords=tuple(energy_entities.keys()),
         )
 
     skip_match = _matches_any(normalized, _HABIT_SKIP_KEYWORDS)
@@ -442,19 +547,6 @@ def classify_intent(raw_text: str) -> IntakeResult:
             raw_input=raw,
             normalized_input=normalized,
             matched_keywords=tuple(skip_match) if skip_match else (completion or "",),
-        )
-
-    if matched := _matches_any(normalized, _TASK_CAPTURE_KEYWORDS):
-        return IntakeResult(
-            intent="task_capture",
-            confidence=0.7,
-            entities={"raw_text": raw},
-            requires_confirmation=True,
-            confirmation_question="Soll ich das als neue Aufgabe in Google Tasks anlegen?",
-            ambiguity=None,
-            raw_input=raw,
-            normalized_input=normalized,
-            matched_keywords=matched,
         )
 
     return IntakeResult(

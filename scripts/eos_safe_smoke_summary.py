@@ -62,6 +62,8 @@ def classify_error(stdout: str, stderr: str) -> str:
 
     if "attempt to write a readonly database" in combined or "readonly database" in combined:
         return "readonly_database"
+    if "db_not_writable" in combined or "parent_not_writable" in combined:
+        return "readonly_database"
     if "python: command not found" in combined or "python not found on path" in combined:
         return "missing_python_alias"
     if "no such file or directory: 'python'" in combined or 'no such file or directory: "python"' in combined:
@@ -137,6 +139,8 @@ def run_self_test() -> int:
     assert mask_value({"token": raw_secret}) == {"token": f"<masked:{len(raw_secret)}>"}
     assert contains_sensitive_output('{"title": "Private task", "location": "Home"}')
     assert contains_sensitive_output(raw_secret)
+    assert contains_sensitive_output('{"delivery_to": "telegram:123456789"}')
+    assert not contains_sensitive_output('{"delivery_target_configured": true, "delivery_target_type": "telegram"}')
     assert classify_error("", "sqlite3.OperationalError: attempt to write a readonly database") == "readonly_database"
     assert classify_error("", "bash: python: command not found") == "missing_python_alias"
     assert classify_error("", "gog: command not found") == "missing_gog"

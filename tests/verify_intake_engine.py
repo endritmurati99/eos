@@ -134,9 +134,33 @@ def test_supported_intents_complete():
         "task_capture",
         "calendar_proposal_request",
         "review_request",
+        "assistant_command",
+        "habit_relapse",
+        "habit_recovery",
+        "habit_failure",
+        "confirm_response",
         "unknown",
     }
     assert set(SUPPORTED_INTENTS) == expected, f"intent set drifted: {SUPPORTED_INTENTS}"
+
+
+def test_slash_assistant_commands():
+    expected = {
+        "/status": "status",
+        "/heute": "heute",
+        "/jetzt": "jetzt",
+        "/abend": "abend",
+        "/mail": "mail",
+        "/eos": "home",
+        "/start": "home",
+        "/hilfe": "home",
+        "/help": "home",
+    }
+    for raw, command in expected.items():
+        result = classify_intent(raw)
+        assert_eq(result.intent, "assistant_command", raw)
+        assert_eq(result.entities["assistant_command"], command, raw)
+        assert result.requires_confirmation is False
 
 
 def test_intake_does_not_write_state():

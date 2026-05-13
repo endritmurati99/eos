@@ -49,7 +49,11 @@ def main() -> None:
     )
     assert success["status"] == "success"
     assert success["delivery_status"] == "sent"
-    assert success["provider_delivery_refs"] == ["42"]
+    assert success["delivery_target_configured"] is True
+    assert success["delivery_target_type"] == "telegram"
+    assert success["provider_delivery_refs"] == [{"kind": "telegram_message_id", "present": True}]
+    assert "chat_id" not in success
+    assert "123" not in json.dumps(success)
     assert len(calls) == 1
 
     def provider_error_urlopen(_request, timeout):  # noqa: ANN001, ARG001
@@ -63,6 +67,9 @@ def main() -> None:
     )
     assert provider_error["status"] == "failed"
     assert provider_error["error_code"] == "provider_error"
+    assert provider_error["delivery_target_configured"] is True
+    assert "chat_id" not in provider_error
+    assert "123" not in json.dumps(provider_error)
 
     def http_error_urlopen(_request, timeout):  # noqa: ANN001, ARG001
         raise urllib.error.HTTPError(
@@ -92,6 +99,9 @@ def main() -> None:
                 os.environ[name] = value
     assert missing["status"] == "failed"
     assert missing["error_code"] == "config_missing"
+    assert missing["delivery_target_configured"] is True
+    assert "chat_id" not in missing
+    assert "123" not in json.dumps(missing)
 
     print("verify_telegram_gateway: ok")
 

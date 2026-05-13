@@ -65,18 +65,46 @@ run_checked() {
   rm -f "$output_file"
 }
 
+run_safe_summary() {
+  local label="$1"
+  shift
+  local stdout_file
+  local stderr_file
+  local exit_code
+  stdout_file="$(mktemp)"
+  stderr_file="$(mktemp)"
+
+  set +e
+  "$@" >"$stdout_file" 2>"$stderr_file"
+  exit_code=$?
+  set -e
+
+  "$PYTHON_BIN" scripts/eos_safe_smoke_summary.py \
+    --command-name "$label" \
+    --exit-code "$exit_code" \
+    --stdout-file "$stdout_file" \
+    --stderr-file "$stderr_file" \
+    --format line
+  if [ "$exit_code" -ne 0 ]; then
+    SMOKE_FAILURES=$((SMOKE_FAILURES + 1))
+  fi
+  rm -f "$stdout_file" "$stderr_file"
+}
+
 PYTHON_BIN="$(choose_python)"
 TODAY="$(date +%F)"
 SMOKE_FAILURES=0
 
-echo "== EOS DB Doctor =="
-"$PYTHON_BIN" scripts/eos_db_doctor.py
+echo "EOS_DB_SAFE_SMOKE"
+run_safe_summary "db_doctor" "$PYTHON_BIN" scripts/eos_db_doctor.py
 
-run_checked "CLI help" "$PYTHON_BIN" -m src.eos_cli --help
-run_checked "Daily dry-run" "$PYTHON_BIN" -m src.eos_cli --json-only daily-plan --date "$TODAY" --dry-run
-run_checked "Weekly dry-run" "$PYTHON_BIN" -m src.eos_cli --json-only weekly-plan --week-start "$TODAY" --dry-run
-run_checked "Run-job daily_morning dry-run" "$PYTHON_BIN" -m src.eos_cli --json-only run-job daily_morning --date "$TODAY" --dry-run
-run_checked "Run-job weekly_sync dry-run" "$PYTHON_BIN" -m src.eos_cli --json-only run-job weekly_sync --week-start "$TODAY" --dry-run
+run_safe_summary "cli_help" "$PYTHON_BIN" -m src.eos_cli --help
+run_safe_summary "daily_dry_run" "$PYTHON_BIN" -m src.eos_cli --json-only daily-plan --date "$TODAY" --dry-run
+run_safe_summary "weekly_dry_run" "$PYTHON_BIN" -m src.eos_cli --json-only weekly-plan --week-start "$TODAY" --dry-run
+run_safe_summary "run_job_daily_morning_dry_run" "$PYTHON_BIN" -m src.eos_cli --json-only run-job daily_morning --date "$TODAY" --dry-run
+run_safe_summary "run_job_weekly_sync_dry_run" "$PYTHON_BIN" -m src.eos_cli --json-only run-job weekly_sync --week-start "$TODAY" --dry-run
+run_safe_summary "assistant_home" "$PYTHON_BIN" -m src.eos_cli --json-only assistant home --date "$TODAY" --dry-run
+run_safe_summary "assistant_status" "$PYTHON_BIN" -m src.eos_cli --json-only assistant status --dry-run
 
 if [ "$SMOKE_FAILURES" -ne 0 ]; then
   echo "EOS DB smoke completed with $SMOKE_FAILURES failing step(s)."

@@ -32,9 +32,19 @@ def send_telegram_message(
     if not clean_text:
         return _failure("input_empty", "No Telegram message text was provided.")
     if not resolved_token:
-        return _failure("config_missing", "Telegram bot token is not configured.")
+        return _failure(
+            "config_missing",
+            "Telegram bot token is not configured.",
+            delivery_target_configured=bool(resolved_chat_id),
+            delivery_target_type="telegram" if resolved_chat_id else None,
+        )
     if not resolved_chat_id:
-        return _failure("config_missing", "Telegram chat target is not configured.")
+        return _failure(
+            "config_missing",
+            "Telegram chat target is not configured.",
+            delivery_target_configured=False,
+            delivery_target_type="telegram",
+        )
 
     opener = urlopen or _system_urlopen
     messages = _split_message(clean_text)
@@ -56,14 +66,17 @@ def send_telegram_message(
             result["message_count"] = len(messages)
             result["delivered_count"] = index - 1
             result["provider_delivery_refs"] = provider_refs
+            result["delivery_target_configured"] = True
+            result["delivery_target_type"] = "telegram"
             return result
-        provider_refs.append(result.get("provider_delivery_ref"))
+        provider_refs.append(_public_provider_ref(result.get("provider_delivery_ref")))
 
     return {
         "status": "success",
         "provider": "telegram",
         "delivery_status": "sent",
-        "chat_id": resolved_chat_id,
+        "delivery_target_configured": True,
+        "delivery_target_type": "telegram",
         "message_count": len(messages),
         "provider_delivery_refs": provider_refs,
     }
@@ -206,11 +219,20 @@ def _safe_error(raw: str) -> str:
     return str(payload.get("description") or payload)[:500]
 
 
-def _failure(code: str, error: str) -> dict[str, Any]:
+def _public_provider_ref(value: Any) -> dict[str, Any]:
     return {
+        "kind": "telegram_message_id",
+        "present": bool(str(value or "").strip()),
+    }
+
+
+def _failure(code: str, error: str, **extra: Any) -> dict[str, Any]:
+    payload = {
         "status": "failed",
         "provider": "telegram",
         "delivery_status": "failed",
         "error_code": code,
         "error": error,
     }
+    payload.update({key: value for key, value in extra.items() if value is not None})
+    return payload

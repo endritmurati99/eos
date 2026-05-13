@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-DEFAULT_DB_PATH = "./data/eos_v2.db"
+DEFAULT_DB_PATH = "./var/eos_v2.db"
 
 
 def resolve_db_path(db_path: str | None = None) -> Path:

@@ -138,6 +138,10 @@ def main() -> None:
     assert "unexpected_model" in cron_codes
     assert "host_path_in_payload" in cron_codes
     assert "latest_run_summary_error" in cron_codes
+    serialized_cron = json.dumps(cron)
+    assert "telegram:123" not in serialized_cron
+    assert "delivery_to" not in serialized_cron
+    assert any(job.get("delivery_target_configured") is True for job in cron["jobs"])
     assert model["status"] == "warning"
     assert "job_model_missing" in model_codes
     print("verify_cron_audit: ok")

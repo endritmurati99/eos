@@ -13,6 +13,17 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 from scripts import eos_db_doctor  # noqa: E402
 
 
+def test_db_doctor_default_uses_untracked_runtime_db(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("EOS_DB_PATH", raising=False)
+
+    payload = eos_db_doctor.run_doctor(workspace_root=tmp_path)
+
+    assert payload["status"] == "success"
+    assert payload["db_path"] == str((tmp_path / "var" / "eos_v2.db").resolve())
+    assert payload["db_path_source"] == "default_runtime"
+    assert payload["legacy_repo_db_used"] is False
+
+
 def test_db_doctor_success_with_temp_sqlite_path(monkeypatch, tmp_path: Path) -> None:
     db_path = tmp_path / "state" / "eos.db"
     db_path.parent.mkdir()

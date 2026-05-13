@@ -52,6 +52,10 @@ def main() -> None:
             assert payload["status"] == "success"
             assert payload["enabled_count"] == 1
             assert payload["issues"] == []
+            serialized_payload = json.dumps(payload)
+            assert "telegram:123" not in serialized_payload
+            assert "delivery_to" not in serialized_payload
+            assert payload["jobs"][0]["delivery_target_configured"] is True
 
             habit_stdout = io.StringIO()
             with contextlib.redirect_stdout(habit_stdout):

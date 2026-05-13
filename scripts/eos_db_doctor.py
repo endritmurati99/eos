@@ -13,7 +13,8 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_DB_PATH = "data/eos_v2.db"
+DEFAULT_DB_PATH = "var/eos_v2.db"
+LEGACY_REPO_DB_PATH = "data/eos_v2.db"
 SIDECAR_SUFFIXES = ("-wal", "-shm", "-journal")
 
 
@@ -31,6 +32,8 @@ def run_doctor(
         issues.append(issue("warning", "target_identity_unresolved", "Configured target DB owner user/group could not be resolved."))
 
     parent = resolved_db_path.parent
+    if sqlite_probe:
+        parent.mkdir(parents=True, exist_ok=True)
     parent_summary = summarize_path(parent, target_identity=target_identity)
     db_summary = summarize_path(resolved_db_path, target_identity=target_identity)
 
@@ -61,6 +64,8 @@ def run_doctor(
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "db_path": str(resolved_db_path),
         "db_path_source": db_path_source(db_path),
+        "legacy_repo_db_present": (root / LEGACY_REPO_DB_PATH).exists(),
+        "legacy_repo_db_used": resolved_db_path == (root / LEGACY_REPO_DB_PATH).resolve(),
         "exists": resolved_db_path.exists(),
         "parent_writable": parent_summary["writable"],
         "db_writable": db_summary["writable"] if resolved_db_path.exists() else parent_summary["writable"],
@@ -87,7 +92,7 @@ def db_path_source(explicit_path: str | None) -> str:
         return "argument"
     if os.environ.get("EOS_DB_PATH"):
         return "EOS_DB_PATH"
-    return "default"
+    return "default_runtime"
 
 
 def resolve_target_identity() -> dict[str, Any]:
@@ -167,8 +172,10 @@ def mode_allows_write(path: Path, uid: int, gid: int, gids: list[int]) -> bool:
 
 
 def sqlite_write_probe(db_path: Path) -> dict[str, str]:
-    if not db_path.parent.exists():
-        return {"status": "failed", "error": "DB parent directory does not exist."}
+    try:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:  # noqa: BLE001 - diagnostics must classify filesystem setup failures.
+        return {"status": "failed", "error": f"DB parent directory could not be created: {type(exc).__name__}: {exc}"}
     try:
         connection = sqlite3.connect(db_path)
         try:

@@ -15,6 +15,7 @@ SUPPORTED_INTENTS = (
     "task_capture",
     "calendar_proposal_request",
     "review_request",
+    "assistant_command",
     "confirm_response",
     "unknown",
 )
