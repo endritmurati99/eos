@@ -149,69 +149,107 @@ def _render_weekly_output(
     habit_collision_summary: dict[str, list[str]],
     evaluation: dict[str, Any],
 ) -> str:
-    lines = [f"# Wochenplan {week_start.isoformat()} bis {week_end.isoformat()}", ""]
+    lines = [f"🗓️ Wochenblick {week_start.isoformat()} bis {(week_end - timedelta(days=1)).isoformat()}", ""]
 
-    lines.append("## Harte Termine")
-    for day in days:
-        lines.append(f"### {day['date']} ({day['weekday']})")
-        if day["hard_events"]:
-            for event in day["hard_events"]:
-                lines.append(f"- {_event_label(event)}")
-        else:
-            lines.append("- Keine harten Termine live bestaetigt.")
+    lines.append("📌 Fixpunkte")
+    busy_days = [day for day in days if day["hard_events"]]
+    if busy_days:
+        for day in busy_days[:5]:
+            key_events = _important_week_events(day["hard_events"])
+            if key_events:
+                rendered = "; ".join(_event_label(event) for event in key_events[:2])
+                extra = len(key_events) - 2
+                suffix = f" (+{extra})" if extra > 0 else ""
+                lines.append(f"- {day['date']}: {rendered}{suffix}")
+        remaining_days = len(busy_days) - 5
+        if remaining_days > 0:
+            lines.append(f"- + {remaining_days} weitere Tage mit Terminen bleiben im Kalender.")
+    else:
+        lines.append("- Keine harten Termine live bestätigt.")
     lines.append("")
 
-    lines.append("## Offene Aufgaben")
+    lines.append("🎯 Aufgaben")
     if task_result["task_read_status"] != "success":
-        lines.append("- Google Tasks konnte nicht live gelesen werden. Keine erfundenen Aufgaben.")
+        lines.append("- Google Tasks nicht live verfügbar: keine erfundenen Aufgaben.")
     else:
+        shown = 0
         for list_name in CANONICAL_LISTS:
             tasks = task_result["tasks_by_list"].get(list_name, [])
-            lines.append(f"- {list_name}: {len(tasks)} offen")
-            for task in tasks[:3]:
-                due = f" (due {task['due'][:10]})" if task.get("due") else ""
-                lines.append(f"  - {task['title']}{due}")
+            for task in tasks:
+                due = f" ({task['due'][:10]})" if task.get("due") else ""
+                lines.append(f"- {task['title']}{due}")
+                shown += 1
+                if shown >= 5:
+                    break
+            if shown >= 5:
+                break
+        if shown == 0:
+            lines.append("- Keine offenen Aufgaben live bestätigt.")
+        elif task_result.get("open_task_count", shown) > shown:
+            lines.append(f"- + {task_result['open_task_count'] - shown} weitere in Google Tasks.")
     lines.append("")
 
-    lines.append("## Habits")
-    for habit in habit_report["habits"]:
-        collision_days = habit_collision_summary.get(habit["id"], [])
-        collision_note = f", calendar conflicts {len(collision_days)}" if collision_days else ""
-        lines.append(
-            f"- {habit['name']}: full {habit['full_count']}/7, "
-            f"partial {habit['partial_count']}, skipped {habit['skipped_count']}, "
-            f"missed {habit['missed_count']}, streak {habit['current_streak']}{collision_note}"
-        )
+    lines.append("🔁 Gewohnheiten")
+    weak_habits = sorted(
+        habit_report["habits"],
+        key=lambda habit: (habit["missed_count"], habit["partial_count"]),
+        reverse=True,
+    )
+    if weak_habits:
+        for habit in weak_habits[:3]:
+            collision_days = habit_collision_summary.get(habit["id"], [])
+            collision_note = f", {len(collision_days)} Kalenderkonflikte" if collision_days else ""
+            lines.append(
+                f"- {habit['name']}: {habit['full_count']} voll, "
+                f"{habit['partial_count']} teilweise, {habit['missed_count']} verfehlt{collision_note}"
+            )
+        remaining_habits = len(weak_habits) - 3
+        if remaining_habits > 0:
+            lines.append(f"- + {remaining_habits} weitere Habits nur im Log.")
+    else:
+        lines.append("- Keine aktiven Habits konfiguriert.")
     lines.append("")
 
-    lines.append("## Engstellen")
-    if evaluation["risks"]:
-        for risk in evaluation["risks"]:
-            lines.append(f"- {risk}")
+    lines.append("⚠️ Engstelle")
+    if "high_sport_density" in evaluation["risks"]:
+        lines.append("- Viele Sporttage: keine zusätzlichen Sportblöcke erzwingen.")
+    elif "stacked_hard_days" in evaluation["risks"]:
+        lines.append("- Mehrere volle Tage: Deep Work konservativ setzen.")
+    elif "missing_task_basis" in evaluation["risks"]:
+        lines.append("- Aufgabenbasis fehlt: Woche erst nach Task-Sync finalisieren.")
     else:
         lines.append("- Keine harte Engstelle aus Live-Daten erkannt.")
     lines.append("")
 
-    lines.append("## Empfohlene Verteilung")
-    lines.append(f"- Deep Work: {evaluation['recommended_deep_work_blocks']} Block/Blocks konservativ platzieren")
-    lines.append(f"- Gym: {evaluation['recommended_gym_blocks']} flexible Einheit(en)")
-    lines.append(f"- Cardio: {evaluation['recommended_cardio_blocks']} flexible Einheit(en)")
-    lines.append("")
-
-    lines.append("## Gekuerzte oder riskante Punkte")
-    if "high_sport_density" in evaluation["risks"]:
-        lines.append("- Cardio/Gym reduzieren, weil bereits viele Sporttage im Kalender liegen.")
-    elif "stacked_hard_days" in evaluation["risks"]:
-        lines.append("- Zweiten Deep-Work-Block nur setzen, wenn ein echter freier Morgen bleibt.")
-    else:
-        lines.append("- Keine Reduktion aus Live-Daten zwingend.")
-    lines.append("")
-
-    lines.append("## Nicht vergessen")
-    lines.append("- Sonntag 18:00 bleibt der Weekly-Plan-Anker.")
-    lines.append("- Flexible Bloecke erst nach harten Terminen setzen.")
+    lines.append("✅ Eine Entscheidung")
+    lines.append(
+        f"- Deep Work {evaluation['recommended_deep_work_blocks']}x, "
+        f"Gym {evaluation['recommended_gym_blocks']}x, "
+        f"Cardio {evaluation['recommended_cardio_blocks']}x — danach nicht weiter überplanen."
+    )
     return "\n".join(lines).strip() + "\n"
 
+
+def _important_week_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    filtered = []
+    for event in events:
+        title = str(event.get("title") or "")
+        lowered = title.lower()
+        if any(
+            token in lowered
+            for token in (
+                "morgenroutine",
+                "abendroutine",
+                "abfahrt zur uni",
+                "tagesstart",
+                "heimweg",
+                "runterfahren",
+                "happy birthday",
+            )
+        ):
+            continue
+        filtered.append(event)
+    return filtered or events[:2]
 
 def _event_label(event: dict[str, Any]) -> str:
     start = event.get("start_display")
@@ -258,7 +296,20 @@ def _looks_like_sport(title: str) -> bool:
     lowered = title.lower()
     return any(
         keyword in lowered
-        for keyword in ("kickbox", "bjj", "jiu", "gym", "cardio", "calisthenics", "turnen", "workout")
+        for keyword in (
+            "kickbox",
+            "bjj",
+            "jiu",
+            "gym",
+            "cardio",
+            "calisthenics",
+            "turnen",
+            "workout",
+            "sport",
+            "training",
+            "fitness",
+            "plyometrics",
+        )
     )
 
 

@@ -81,7 +81,7 @@ def main() -> None:
     assert result["habit_report"]["status"] == "success"
     assert result["evaluation"]["stacked_days"] == ["2026-05-05"]
     assert "Weekly Test Task" in result["output_markdown"]
-    assert "## Habits" in result["output_markdown"]
+    assert "🔁 Gewohnheiten" in result["output_markdown"]
     print("verify_weekly_plan_dry_run: ok")
 
 

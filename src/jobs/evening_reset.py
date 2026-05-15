@@ -615,70 +615,105 @@ def _render_evening_reset(
     task_bundle: dict[str, Any],
     evaluation: dict[str, Any],
 ) -> str:
+    hard_events = calendar_result.get("hard_events", [])
+    important_events = _important_events(hard_events)
+    sport_events = [event for event in hard_events if _looks_like_sport(event.get("title", ""))]
+
     lines = []
-
-    lines.append("🌙 EOS-Check-in für morgen")
+    lines.append("🌙 Abendbriefing")
     lines.append("")
-    lines.append("📌 Morgen steht fest")
+
+    lines.append("📌 Morgen wichtig")
     if calendar_result["source"] == "stub_file":
-        lines.append(
-            "- Kalenderbasis im Dry-Run aus `data/calendar.json`, nicht aus Live-Calendar-Read."
-        )
-
-    if calendar_result["hard_events"]:
-        for event in calendar_result["hard_events"]:
-            label = _format_event_line(event)
-            lines.append(f"- {label}")
+        lines.append("- Kalenderbasis ist ein Dry-Run-Fallback, nicht live.")
+    if important_events:
+        for event in important_events[:4]:
+            lines.append(f"- {_format_event_line(event)}")
+        remaining = len(important_events) - 4
+        if remaining > 0:
+            lines.append(f"- + {remaining} weitere Kalendereinträge bleiben im Kalender, nicht im Briefing.")
     else:
-        lines.append("- Keine harten Termine bestaetigt.")
+        lines.append("- Keine harten Termine bestätigt.")
 
     lines.append("")
-    lines.append("🧩 Offene Punkte")
-    waiting_tasks = task_bundle["tasks_by_list"].get("Waiting", [])
-    if waiting_tasks:
-        for task in waiting_tasks[:3]:
-            lines.append(f"- {task['title']}")
-    elif task_bundle["task_read_status"] != "success":
-        lines.append("- Aufgabenbasis gerade nicht live verfuegbar.")
+    lines.append("🎒 Vorbereitung")
+    prep_lines = []
+    if sport_events:
+        prep_lines.append("Sporttasche packen")
+    prep_lines.extend(evaluation["prep_items"])
+    if prep_lines:
+        for item in _dedupe_preserve_order(prep_lines)[:5]:
+            lines.append(f"- {item}")
     else:
-        lines.append("- Keine Waiting-Punkte.")
+        lines.append("- Nichts Besonderes vorzubereiten.")
 
     lines.append("")
     lines.append("🎯 Morgenfokus")
     if evaluation["priorities"]:
-        for task in evaluation["priorities"]:
+        for task in evaluation["priorities"][:2]:
             due_suffix = _format_task_due_suffix(task, target_date_berlin)
             lines.append(f"- {task['title']}{due_suffix}")
     elif task_bundle["task_read_status"] != "success":
-        lines.append("- Aufgabenbasis fehlt gerade; morgen nur auf harte Termine und Vorbereitung stuetzen.")
+        lines.append("- Aufgabenbasis fehlt gerade: ein Top-Ziel wählen, Rest nach harten Terminen.")
     else:
-        lines.append("- Noch kein klarer Task-Fokus fuer morgen vorhanden.")
+        lines.append("- Noch kein klarer Task-Fokus: morgen zuerst kurz sortieren.")
 
     lines.append("")
-    lines.append("✅ Hast du das schon vorbereitet?")
-    if evaluation["prep_items"]:
-        for item in evaluation["prep_items"]:
-            lines.append(f"- {item}")
-    else:
-        lines.append("- Keine zusaetzliche Vorbereitung noetig.")
+    lines.append("🔁 Kurz reflektieren")
+    lines.append("- Was ist heute passiert?")
+    lines.append("- Was ist nicht passiert?")
+    lines.append("- Was macht morgen leichter?")
 
-    lines.append("")
-    lines.append("🧠 Meine Einschätzung")
-    lines.append(f"- {evaluation['assessment']}")
-
-    lines.append("")
-    lines.append("➡️ Empfehlung")
-    lines.append(f"- {evaluation['recommendation']}")
-
-    lines.append("")
-    lines.append("⚠️ Warnung")
     if evaluation["warning"]:
+        lines.append("")
+        lines.append("⚠️ Achtung")
         lines.append(f"- {evaluation['warning']}")
-    else:
-        lines.append("- Keine akute Warnung.")
 
     return "\n".join(lines).strip() + "\n"
 
+
+def _important_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    filtered = []
+    for event in events:
+        title = str(event.get("title") or "")
+        lowered = title.lower()
+        if any(token in lowered for token in ("morgenroutine", "abendroutine", "abfahrt zur uni", "tagesstart")):
+            continue
+        filtered.append(event)
+    return filtered or events[:4]
+
+
+def _dedupe_preserve_order(values: list[str]) -> list[str]:
+    seen = set()
+    out = []
+    for value in values:
+        key = value.strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(value)
+    return out
+
+
+def _looks_like_sport(title: str) -> bool:
+    lowered = title.lower()
+    return any(
+        keyword in lowered
+        for keyword in (
+            "kickbox",
+            "bjj",
+            "jiu",
+            "gym",
+            "cardio",
+            "calisthenics",
+            "turnen",
+            "workout",
+            "sport",
+            "training",
+            "fitness",
+            "plyometrics",
+        )
+    )
 
 def _format_event_line(event: dict[str, Any]) -> str:
     if event.get("start_display") and event.get("end_display"):
