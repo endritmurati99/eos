@@ -81,6 +81,7 @@ def run_daily_capacity(
         "target_date_berlin": target_date_berlin.isoformat(),
         "calendar_source": calendar_result["source"],
         "calendar_read_status": calendar_result["calendar_read_status"],
+        "calendar_blocks": calendar_result["calendar_blocks"],
         "task_source": task_result["source"],
         "task_read_status": task_result["task_read_status"],
         "capacity": capacity,

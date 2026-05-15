@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from src.habits import HabitService
+from src.jobs.briefing_render import calendar_shape_line, compact_event_lines, hydration_check_line
 from src.jobs.daily_capacity import run_daily_capacity
 from src.jobs.evening_reset import BERLIN, _load_calendar_events, run_evening_reset
 from src.jobs.weekly_plan import run_weekly_plan
@@ -134,12 +135,20 @@ def run_eos_job(
 
 def _render_daily_morning(result: dict[str, Any]) -> str:
     lines = ["# Morgenbriefing", ""]
-    lines.append("## Status")
-    lines.append(f"- Kalender: {result['calendar_read_status']}")
-    lines.append(f"- Tasks: {result['task_read_status']}")
+    calendar_blocks = result.get("calendar_blocks") or []
+    lines.append("## Heute steht an")
+    if calendar_blocks:
+        lines.append(f"- {calendar_shape_line(calendar_blocks)}")
+        for label in compact_event_lines(calendar_blocks, limit=5):
+            lines.append(f"- {label}")
+    elif result["calendar_read_status"] != "success":
+        lines.append("- Kalenderbasis nicht live verfuegbar.")
+    else:
+        lines.append("- Keine harten Termine bestaetigt.")
     lines.append("")
     lines.append("## Empfehlung")
-    lines.append(f"- {result['recommendation']}")
+    lines.append(f"- {_friendly_daily_recommendation(str(result['recommendation']))}")
+    lines.append(f"- {hydration_check_line()}")
     lines.append("")
     lines.append("## Top Tasks")
     if result["top_tasks"]:
@@ -160,6 +169,18 @@ def _render_daily_morning(result: dict[str, Any]) -> str:
             final_status = habit["today"]["final_status"] or "offen"
             lines.append(f"- {habit['target_time'] or '--:--'} {habit['name']}: {final_status}, streak {habit['current_streak']}")
     return "\n".join(lines).strip() + "\n"
+
+
+def _friendly_daily_recommendation(raw: str) -> str:
+    if raw.startswith("TASK BASIS WEAK"):
+        return "Aufgabenbasis fehlt gerade: heute nach Kalenderstruktur arbeiten und nur einen konservativen Fokus setzen."
+    if raw.startswith("GREEN"):
+        return raw.replace("GREEN:", "Gruen:", 1).strip()
+    if raw.startswith("YELLOW"):
+        return raw.replace("YELLOW:", "Gelb:", 1).strip()
+    if raw.startswith("RED"):
+        return raw.replace("RED:", "Rot:", 1).strip()
+    return raw
 
 
 def _render_sport_prep(day: date, sport_events: list[dict[str, Any]]) -> str:

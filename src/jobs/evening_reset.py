@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 from src.database import init_db
 from src.gateways.google_tasks import CANONICAL_LISTS, TaskGateway
+from src.jobs.briefing_render import calendar_shape_line, compact_event_lines, hydration_check_line
 
 BERLIN = ZoneInfo("Europe/Berlin")
 TARGET_CALENDAR_ROLES = ("primary", "sport")
@@ -626,8 +627,8 @@ def _render_evening_reset(
         )
 
     if calendar_result["hard_events"]:
-        for event in calendar_result["hard_events"]:
-            label = _format_event_line(event)
+        lines.append(f"- {calendar_shape_line(calendar_result['hard_events'], prefix='Morgenkalender')}")
+        for label in compact_event_lines(calendar_result["hard_events"]):
             lines.append(f"- {label}")
     else:
         lines.append("- Keine harten Termine bestaetigt.")
@@ -656,8 +657,9 @@ def _render_evening_reset(
 
     lines.append("")
     lines.append("✅ Hast du das schon vorbereitet?")
-    if evaluation["prep_items"]:
-        for item in evaluation["prep_items"]:
+    prep_lines = [hydration_check_line(), *evaluation["prep_items"]]
+    if prep_lines:
+        for item in prep_lines[:6]:
             lines.append(f"- {item}")
     else:
         lines.append("- Keine zusaetzliche Vorbereitung noetig.")
