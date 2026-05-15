@@ -184,18 +184,45 @@ def _daily_status_summary(day: date, entry: DailyStandEntry) -> str:
 
 
 def _compact_daily_context(content: str) -> str:
-    headings = ("## Tagesstand", "## Heute gemacht", "## Nächste Schritte", "## Aktive Projekte", "## Nicht weiter nutzen")
+    headings = (
+        "## Tagesstand",
+        "## Heute gemacht",
+        "## Nächste Schritte",
+        "## Aktive Projekte",
+        "## Nicht weiter nutzen",
+        # Legacy headings produced by the existing brain-dump writer.
+        "## Day Context",
+        "## Active Projects",
+        "## Active Ideas / Open Loops",
+        "## Verlauf",
+        "## Carry Forward",
+        "## Brain Dumps",
+    )
     lines = [line.rstrip() for line in content.splitlines()]
     keep: list[str] = []
-    active = False
+    active_heading: str | None = None
+    section_lines: list[str] = []
+
+    def flush_section() -> None:
+        if active_heading and section_lines:
+            keep.append(active_heading)
+            keep.extend(section_lines)
+
     for line in lines:
         if line.startswith("## "):
-            active = line in headings
-            if active:
-                keep.append(line)
+            flush_section()
+            active_heading = line if line in headings else None
+            section_lines = []
             continue
-        if active and line.strip():
-            keep.append(line)
+        if active_heading and line.strip() and not _is_template_placeholder(line):
+            section_lines.append(line)
+    flush_section()
+
     if not keep:
         return "Daily Note vorhanden, aber ohne verdichteten Tagesstand."
     return "\n".join(keep[:60])
+
+
+def _is_template_placeholder(line: str) -> bool:
+    text = line.strip()
+    return "<" in text and ">" in text

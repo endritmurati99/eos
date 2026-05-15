@@ -74,3 +74,13 @@ Briefings und Planungsjobs sollen `auth_required`, `config_missing`, `provider_d
 - Tags: grounding, google_tasks, stubs
 
 ---
+## [LRN-20260515-001] best_practice
+
+**Logged**: 2026-05-15T09:08:00+02:00
+**Priority**: medium
+
+Codex CLI review works reliably for EOS when using the dedicated review subcommand against a commit, e.g. `/data/.local/bin/codex-direct review --ignore-user-config --ignore-rules --commit <sha> -o /tmp/review.txt`. The useful output appears in the `-o` last-message file. This caught a real compatibility issue: new Daily Note compaction ignored legacy brain-dump Daily Note headings.
+
+**Pattern-Key**: codex_review_commit_last_message
+
+---

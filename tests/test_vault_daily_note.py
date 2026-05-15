@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from src.vault import DailyStandEntry, read_daily_context, upsert_daily_stand
+from src.vault import DailyStandEntry, capture_brain_dump, read_daily_context, upsert_daily_stand
 
 
 def test_upsert_daily_stand_creates_structured_daily_note(tmp_path) -> None:
@@ -53,6 +53,41 @@ def test_read_daily_context_returns_compact_daily_stand(tmp_path) -> None:
     assert "## Tagesstand" in result["summary_markdown"]
     assert "EOS liest Daily Notes" in result["summary_markdown"]
     assert "Ask-Router nutzt vault_notes" in result["summary_markdown"]
+
+
+def test_read_daily_context_preserves_legacy_brain_dump_daily_sections(tmp_path) -> None:
+    capture_brain_dump(
+        "Alpha Projektstand festhalten.",
+        captured_at=datetime(2026, 5, 15, 9, 0),
+        project_slugs=["Alpha"],
+        idea_slugs=["second-brain-cleanup"],
+        workspace_root=tmp_path,
+    )
+
+    result = read_daily_context(day=date(2026, 5, 15), workspace_root=tmp_path)
+
+    assert result["status"] == "success"
+    assert "## Brain Dumps" in result["summary_markdown"]
+    assert "[[2026-05-15-0900-brain-dump]]" in result["summary_markdown"]
+    assert "## Active Projects" in result["summary_markdown"]
+    assert "[[Alpha]]" in result["summary_markdown"]
+    assert "<key note or decision>" not in result["summary_markdown"]
+    assert "ohne verdichteten Tagesstand" not in result["summary_markdown"]
+
+
+def test_read_daily_context_keeps_brain_dump_link_without_project_slugs(tmp_path) -> None:
+    capture_brain_dump(
+        "Nur ein Rohdump ohne Projektlink.",
+        captured_at=datetime(2026, 5, 15, 9, 30),
+        workspace_root=tmp_path,
+    )
+
+    result = read_daily_context(day=date(2026, 5, 15), workspace_root=tmp_path)
+
+    assert result["status"] == "success"
+    assert "## Brain Dumps" in result["summary_markdown"]
+    assert "[[2026-05-15-0930-brain-dump]]" in result["summary_markdown"]
+    assert "## Active Projects" not in result["summary_markdown"]
 
 
 def test_read_daily_context_uses_latest_note_when_no_date(tmp_path) -> None:
