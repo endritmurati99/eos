@@ -897,10 +897,12 @@ def _split_notes(text: str) -> tuple[str, str | None]:
 
 def _render_daily_summary(result: dict[str, Any]) -> str:
     counts = result["counts"]
+    happened = _habit_names_by_state(result["habits"], {EVENT_DONE_FULL, EVENT_DONE_PARTIAL})
+    not_happened = _habit_names_by_state(result["habits"], {EVENT_SKIPPED, EVENT_MISSED, None})
     lines = [
         f"# Habit-Tagescheck {result['business_date_berlin']}",
         "",
-        "## Status",
+        "## Kurzstatus",
         (
             f"- Voll: {counts[EVENT_DONE_FULL]}, Teil/Recovery: {counts[EVENT_DONE_PARTIAL]}, "
             f"Ausgelassen: {counts[EVENT_SKIPPED]}, Verfehlt: {counts[EVENT_MISSED]}, "
@@ -908,27 +910,37 @@ def _render_daily_summary(result: dict[str, Any]) -> str:
         ),
         f"- Rueckfaelle: {result['relapse_count']}",
         "",
-        "## Habits",
+        "## Was heute passiert ist",
     ]
-    for habit in result["habits"]:
-        state = habit["final_status"] or "offen"
-        time = f"{habit['target_time']} " if habit.get("target_time") else ""
-        lines.append(f"- {time}{habit['name']}: {state}, streak {habit['current_streak']}")
-    lines.extend(["", "## EOS-Einschaetzung"])
-    if counts["pending"]:
-        lines.append("- Heute sind noch Habits offen; erst minimal abschliessen, bevor neue Aufgaben dazukommen.")
-    elif result["relapse_count"]:
-        lines.append("- Heute gab es Rueckfaelle; Trigger notieren und morgen eine konkrete Barriere setzen.")
+    if happened:
+        lines.append(f"- Erledigt/gerettet: {_format_limited_names(happened, limit=4)}")
     else:
-        lines.append("- Habit-Tag ist stabil genug; keine neue Gewohnheit erzwingen.")
+        lines.append("- Noch nichts als erledigt oder Recovery markiert.")
+    lines.extend(["", "## Was heute nicht passiert ist"])
+    if not_happened:
+        lines.append(f"- Offen/ausgelassen/verfehlt: {_format_limited_names(not_happened, limit=5)}")
+    else:
+        lines.append("- Keine offenen oder verfehlten Gewohnheiten im Tagesstand.")
+    lines.extend(["", "## Morgen besser"])
+    if counts["pending"] or counts[EVENT_MISSED] or counts[EVENT_SKIPPED]:
+        focus = not_happened[0] if not_happened else "die wichtigste offene Gewohnheit"
+        lines.append(f"- Nicht alle Gewohnheiten diskutieren: morgen zuerst nur {focus} minimal absichern.")
+        lines.append("- Im Abendgespraech klaeren: Was lief gut? Was ist ausgefallen? Welche eine Barriere macht morgen leichter?")
+    elif result["relapse_count"]:
+        lines.append("- Rueckfall-Trigger notieren und morgen eine konkrete Barriere setzen.")
+    else:
+        lines.append("- Tag stabil halten; keine neue Gewohnheit erzwingen.")
     if result["relapses"]:
         lines.extend(["", "## Rueckfaelle"])
-        for relapse in result["relapses"]:
+        for relapse in result["relapses"][:3]:
             replacement = relapse.get("replacement_used") or "keine Ersatzhandlung"
             lines.append(
                 f"- {relapse.get('name') or relapse['habit_id']}: "
                 f"{relapse['trigger_context']} / {relapse['severity']} / {replacement}"
             )
+        remaining = len(result["relapses"]) - 3
+        if remaining > 0:
+            lines.append(f"- + {remaining} weitere Rueckfaelle im Log.")
     return "\n".join(lines) + "\n"
 
 
@@ -975,6 +987,23 @@ def _select_main_pattern(patterns: list[dict[str, Any]]) -> dict[str, Any] | Non
     if not patterns:
         return None
     return sorted(patterns, key=lambda item: (severity_rank.get(item.get("severity"), 9), item.get("key") or ""))[0]
+
+
+def _habit_names_by_state(habits: list[dict[str, Any]], states: set[str | None]) -> list[str]:
+    names = []
+    for habit in habits:
+        if habit.get("final_status") in states:
+            names.append(str(habit["name"]))
+    return names
+
+
+def _format_limited_names(names: list[str], *, limit: int) -> str:
+    visible = names[:limit]
+    suffix = len(names) - len(visible)
+    rendered = ", ".join(visible)
+    if suffix > 0:
+        return f"{rendered} (+ {suffix} weitere)"
+    return rendered
 
 
 def _utc_now() -> str:

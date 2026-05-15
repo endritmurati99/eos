@@ -282,8 +282,30 @@ def test_daily_summary_renders_habit_state_and_relapses():
             assert_eq(summary["counts"]["done_partial"], 1, "partial count")
             assert_eq(summary["relapse_count"], 1, "relapse count")
             assert "# Habit-Tagescheck 2026-04-30" in summary["output_markdown"]
+            assert "Was heute passiert ist" in summary["output_markdown"]
+            assert "Was heute nicht passiert ist" in summary["output_markdown"]
+            assert "Morgen besser" in summary["output_markdown"]
             assert "Doomscrolling Night" in summary["output_markdown"]
             assert "Rueckfaelle" in summary["output_markdown"]
+        finally:
+            service.close()
+
+
+def test_daily_summary_compacts_many_habits_instead_of_listing_all():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            day = date(2026, 4, 30)
+            for index in range(20):
+                service.add_habit(name=f"Extra Habit {index:02d}", target_time="20:00")
+            summary = service.daily_summary(day)
+            output = summary["output_markdown"]
+            assert "## Habits" not in output
+            assert "Extra Habit 00" in output
+            assert "Extra Habit 19" not in output
+            assert "+ " in output and "weitere" in output
+            assert "Nicht alle Gewohnheiten diskutieren" in output
         finally:
             service.close()
 
