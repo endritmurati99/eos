@@ -1,20 +1,26 @@
 # EOS Daily Note
 
-## Day Context
-- Date: `YYYY-MM-DD`
-- Context: `<main constraints, energy, or important frame>`
+## Tagesstand
+- `HH:mm` `<short current state; what changed today; why it matters>`
+
+## Heute gemacht
+- `<concrete completed or attempted work>`
+
+## Nächste Schritte
+- `<next operational step or tomorrow handoff>`
+
+## Aktive Projekte
+- `[[project-slug]]`
+
+## Nicht weiter nutzen
+- `<folder/source/workstream that should not be treated as active context>`
 
 ## Brain Dumps
 - `[[YYYY-MM-DD-HHmm-brain-dump]]`
 
-## Active Projects
-- `[[project-slug]]`
+## Rohinput
+### HH:mm · chat
 
-## Active Ideas / Open Loops
-- `[[idea-slug]]`
-
-## Verlauf
-- `<key note or decision>`
-
-## Carry Forward
-- `<open loop or next thing to remember>`
+```text
+<optional raw user wording, preserved for context>
+```

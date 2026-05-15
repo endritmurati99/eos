@@ -6,6 +6,7 @@ from typing import Callable
 
 from src.eos_assistant import run_assistant_command
 from src.eos_intake_v2.models import AskIntent, SourceRequest, SourceSnapshot
+from src.vault import read_daily_context
 
 
 def build_context(
@@ -33,7 +34,15 @@ def build_context(
 
     selected_names = {source.name for source in sources}
     if "vault_notes" in selected_names:
-        snapshots.append(SourceSnapshot(name="vault_notes", status="not_implemented", error="vault note retrieval is not part of ask_router_v1"))
+        payload = read_daily_context(day=target_date, workspace_root=workspace_root)
+        snapshots.append(
+            SourceSnapshot(
+                name="vault_notes",
+                status=str(payload.get("status", "unknown")),
+                payload=_compact_vault_payload(payload),
+                error=None if payload.get("status") == "success" else str(payload.get("summary_markdown", "vault note unavailable")),
+            )
+        )
     if "calendar_history" in selected_names:
         snapshots.append(SourceSnapshot(name="calendar_history", status="not_implemented", error="historical meeting lookup is not part of ask_router_v1"))
     if "calendar_week" in selected_names:
@@ -68,4 +77,14 @@ def _compact_payload(payload: dict) -> dict:
         "actions": payload.get("actions", [])[:3] if isinstance(payload.get("actions"), list) else [],
         "source_status": payload.get("source_status", {}),
         "privacy": payload.get("privacy", {}),
+    }
+
+
+def _compact_vault_payload(payload: dict) -> dict:
+    return {
+        "status": payload.get("status"),
+        "daily_note": payload.get("daily_note"),
+        "day": payload.get("day"),
+        "summary_markdown": payload.get("summary_markdown"),
+        "external_mutations": payload.get("external_mutations", []),
     }

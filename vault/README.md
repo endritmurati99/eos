@@ -103,12 +103,41 @@ Use `docs/` to:
 
 Do not treat workflow descriptions in this file as proof that the automation is already live.
 
+## Daily Notes operating model
+
+`11 Daily Notes/YYYY-MM-DD.md` is the first place EOS should read for the human daily stand.
+
+Use it for:
+- "what did we do today?" / Tagesstand
+- concrete project progress and failed attempts
+- tomorrow handoffs and next steps
+- links to active projects such as [[Solara]] or [[EOS Morning and Evening Booklet]]
+- notes about context that should not be treated as active
+
+Do not use it as:
+- the canonical calendar (Google Calendar stays source of truth)
+- the canonical active task list (Google Tasks stays source of truth when live)
+- a dump for every raw chat line
+- a replacement for technical specs in `docs/`
+
+Active write targets for now:
+- `10 Inbox/` for raw brain dumps before triage
+- `11 Daily Notes/` for daily stand and session continuity
+- `12 Projects/` only for committed projects
+- `02 Decisions/` only for stable ADRs
+
+Avoid by default:
+- `13 Areas/` until a stable responsibility area exists
+- `15 Ideas/` unless the idea is explicitly exploratory and not committed
+- `14 Knowledge/` for daily logs; use it only for durable reference material
+
 ## Workflow maturity levels
 
 ### Live now
 - Manual planning via Telegram
 - Manual task intake via chat
 - Brain dump capture into the vault structure
+- Daily stand write/read via `vault daily-stand` and `vault_notes` ask context
 - Human navigation through dashboard, status, issues, and MOCs
 
 ### Defined, but not yet fully live

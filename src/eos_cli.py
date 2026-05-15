@@ -22,6 +22,7 @@ from src.energy import EnergyService, parse_energy_text
 from src.database.models import init_db
 from src.eos_assistant import run_assistant_command
 from src.eos_intake_v2 import ask as run_ask_query, route_query
+from src.vault import DailyStandEntry, read_daily_context, upsert_daily_stand
 from src.eos_mail.auth_preflight import run_gmail_auth_preflight
 from src.eos_mail.digest import digest_payload, render_shadow_digest
 from src.eos_mail.gmail_client import GogGmailReadOnlyClient, gmail_scope_guidance
@@ -58,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
         result = command_energy(args)
     elif args.command == "mail":
         result = command_mail(args)
+    elif args.command == "vault":
+        result = command_vault(args)
     elif args.command == "assistant":
         result = command_assistant(args)
     elif args.command == "cron-audit":
@@ -351,6 +354,25 @@ def command_mail(args: argparse.Namespace) -> dict[str, Any]:
     return {"status": "not_found", "error": f"Unknown mail command: {args.mail_command}"}
 
 
+def command_vault(args: argparse.Namespace) -> dict[str, Any]:
+    target_day = _parse_optional_date(getattr(args, "date", None)) or date.today()
+    if args.vault_command == "daily-stand":
+        entry = DailyStandEntry(
+            captured_at=datetime.now(),
+            summary=args.summary,
+            done=tuple(args.done or ()),
+            next_steps=tuple(args.next_step or ()),
+            projects=tuple(args.project or ()),
+            irrelevant=tuple(args.irrelevant or ()),
+            raw_text=args.raw,
+            source="cli",
+        )
+        return upsert_daily_stand(day=target_day, entry=entry, workspace_root=WORKSPACE_ROOT)
+    if args.vault_command == "daily-read":
+        return read_daily_context(day=target_day, workspace_root=WORKSPACE_ROOT)
+    return {"status": "not_found", "error": f"Unknown vault command: {args.vault_command}"}
+
+
 def command_assistant(args: argparse.Namespace) -> dict[str, Any]:
     return run_assistant_command(
         args.assistant_command,
@@ -586,6 +608,19 @@ def _build_parser() -> argparse.ArgumentParser:
     mail_auth_check = mail_subparsers.add_parser("auth-check")
     mail_auth_check.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
     mail_auth_check.add_argument("--json-only", action="store_true", default=argparse.SUPPRESS)
+
+    vault = subparsers.add_parser("vault")
+    vault_subparsers = vault.add_subparsers(dest="vault_command", required=True)
+    vault_stand = vault_subparsers.add_parser("daily-stand")
+    vault_stand.add_argument("--date")
+    vault_stand.add_argument("--summary")
+    vault_stand.add_argument("--done", action="append", default=[])
+    vault_stand.add_argument("--next-step", action="append", default=[])
+    vault_stand.add_argument("--project", action="append", default=[])
+    vault_stand.add_argument("--irrelevant", action="append", default=[])
+    vault_stand.add_argument("--raw")
+    vault_read = vault_subparsers.add_parser("daily-read")
+    vault_read.add_argument("--date")
 
     assistant = subparsers.add_parser("assistant")
     assistant_subparsers = assistant.add_subparsers(dest="assistant_command", required=True)

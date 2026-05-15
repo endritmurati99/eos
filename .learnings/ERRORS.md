@@ -174,3 +174,26 @@ Use configured GitHub auth helper/`gh-photon` credentials if valid, or set a rep
 - Tags: git, github, auth, eos
 
 ---
+## [ERR-20260515-005] claude_code_subscription_limit_during_review
+
+**Logged**: 2026-05-15T08:55:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Claude Code review lane could not run for the EOS Daily Notes iteration because the Claude subscription quota was exhausted until reset.
+
+### Error
+```
+You've hit your limit · resets 1:10pm (Europe/Berlin)
+```
+
+### Suggested Fix
+Retry Claude Code review after reset, or continue only with explicit note that Claude review was blocked by quota and another review lane/test evidence was used.
+
+### Metadata
+- Reproducible: transient
+- Tags: claude-code, quota, review
+
+---

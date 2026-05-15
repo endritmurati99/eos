@@ -37,6 +37,14 @@ def fake_assistant_runner(command: str, **_: object) -> dict[str, object]:
     }
 
 
+def test_daily_status_selects_vault_notes_for_second_brain_context() -> None:
+    intent = route_ask_intent("Was haben wir heute gemacht?")
+
+    assert intent.intent == "daily_status"
+    sources = select_sources(intent)
+    assert any(source.name == "vault_notes" for source in sources)
+
+
 def test_routes_next_best_action_from_free_text() -> None:
     intent = route_ask_intent("Was soll ich jetzt machen?")
 
@@ -73,6 +81,36 @@ def test_ask_renders_operational_answer_contract() -> None:
     assert "Nächste Aktion:" in result["summary_markdown"]
     assert "Unsicherheit:" in result["summary_markdown"]
     assert "45 Minuten Fokusblock" in result["next_action"]
+    assert result["privacy"]["external_writes_performed"] is False
+
+
+def test_ask_can_use_daily_note_context(tmp_path) -> None:
+    from datetime import date, datetime
+
+    from src.vault import DailyStandEntry, upsert_daily_stand
+
+    upsert_daily_stand(
+        day=date(2026, 5, 15),
+        entry=DailyStandEntry(
+            captured_at=datetime(2026, 5, 15, 8, 45),
+            summary="Solara-Weitergabe an 5 Testklienten ist der aktuelle Tagesstand.",
+            done=("Solara Profile vorbereitet",),
+            next_steps=("Morgen 5 Klienten onboarden",),
+            projects=("Solara",),
+        ),
+        workspace_root=tmp_path,
+    )
+
+    result = ask(
+        "Was haben wir heute gemacht?",
+        target_date=date(2026, 5, 15),
+        workspace_root=tmp_path,
+        assistant_runner=fake_assistant_runner,
+    )
+
+    assert result["status"] == "success"
+    assert result["source_status"]["vault_notes"]["status"] == "success"
+    assert "Solara-Weitergabe" in result["answer"]
     assert result["privacy"]["external_writes_performed"] is False
 
 

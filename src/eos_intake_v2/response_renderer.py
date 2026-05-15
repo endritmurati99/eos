@@ -15,7 +15,8 @@ def render_answer(
     status = _overall_status(snapshots)
     why = _why_lines(intent, sources, snapshots)
     uncertainty = _uncertainty_lines(intent, snapshots)
-    answer = _answer_line(intent, primary, action)
+    vault = _vault_payload(snapshots)
+    answer = _answer_line(intent, primary, action, vault)
     next_action = _next_action_line(intent, action)
     return AskAnswer(
         status=status,
@@ -59,7 +60,7 @@ def _overall_status(snapshots: list[SourceSnapshot]) -> str:
     return "success"
 
 
-def _answer_line(intent: AskIntent, payload: dict, action: dict) -> str:
+def _answer_line(intent: AskIntent, payload: dict, action: dict, vault: dict) -> str:
     if intent.intent == "next_best_action" and action.get("label"):
         return f"Jetzt ist am sinnvollsten: {action['label']}."
     if intent.intent == "mail_review":
@@ -69,6 +70,8 @@ def _answer_line(intent: AskIntent, payload: dict, action: dict) -> str:
         return f"Meeting-Lookup für '{search}' ist erkannt, aber historische Kalender/Vault-Suche ist in v1 noch nicht live verdrahtet."
     if intent.intent == "system_health":
         return _first_summary_line(payload) or "EOS-Status wurde geprüft."
+    if intent.intent in {"daily_status", "journal_reflection"} and vault.get("summary_markdown"):
+        return _first_summary_line(vault) or _first_summary_line(payload) or "EOS hat den Tagesstand aus der Daily Note gelesen."
     if intent.intent == "weekly_review":
         return "Wochen-/Overload-Frage erkannt; v1 nutzt vorerst Status und Tageskontext, noch keine vollständige Wochenlastanalyse."
     return _first_summary_line(payload) or "EOS hat die Frage operativ eingeordnet."
@@ -91,6 +94,9 @@ def _why_lines(intent: AskIntent, sources: list[SourceRequest], snapshots: list[
     for snapshot in snapshots:
         if snapshot.name.startswith("assistant:"):
             lines.append(f"{snapshot.name} lieferte Status {snapshot.status}.")
+        if snapshot.name == "vault_notes" and snapshot.status == "success":
+            note = snapshot.payload.get("daily_note") if snapshot.payload else None
+            lines.append(f"vault_notes lieferte Daily-Note-Kontext{f' aus {note}' if note else ''}.")
     return lines[:6]
 
 
@@ -106,4 +112,17 @@ def _uncertainty_lines(intent: AskIntent, snapshots: list[SourceSnapshot]) -> li
 
 def _first_summary_line(payload: dict) -> str:
     summary = str(payload.get("summary_markdown") or "").strip()
-    return summary.splitlines()[0].strip() if summary else ""
+    if not summary:
+        return ""
+    for line in summary.splitlines():
+        cleaned = line.strip()
+        if cleaned and not cleaned.startswith("## "):
+            return cleaned.removeprefix("- ").strip()
+    return ""
+
+
+def _vault_payload(snapshots: list[SourceSnapshot]) -> dict:
+    for snapshot in snapshots:
+        if snapshot.name == "vault_notes" and snapshot.payload:
+            return snapshot.payload
+    return {}

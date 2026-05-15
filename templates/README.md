@@ -23,7 +23,7 @@ Vault / second-brain templates:
 Important separation:
 - `daily-output.md` = operational daily planning response
 - `evening-reset-output.md` = proactive evening message for tomorrow
-- `daily-note.md` = durable vault note for hub + Verlauf
+- `daily-note.md` = durable vault note for Tagesstand, session continuity, and Verlauf
 - `weekly-output.md` = interactive weekly planning response
 - `weekly-review-output.md` = Sunday combined review + next-week sync output
 

@@ -8,6 +8,7 @@ _SOURCE_MAP: dict[str, tuple[SourceRequest, ...]] = {
         SourceRequest("calendar_today", required=True, reason="hard events and focus windows"),
         SourceRequest("tasks_open", reason="open operational work"),
         SourceRequest("energy_today", reason="capacity check"),
+        SourceRequest("vault_notes", reason="durable daily stand and project context"),
     ),
     "next_best_action": (
         SourceRequest("calendar_today", required=True, reason="available window"),
@@ -40,6 +41,7 @@ _SOURCE_MAP: dict[str, tuple[SourceRequest, ...]] = {
         SourceRequest("daily_review", reason="evening review surface"),
         SourceRequest("habits_today", reason="what happened"),
         SourceRequest("energy_today", reason="energy drain"),
+        SourceRequest("vault_notes", reason="daily note Verlauf and current stand"),
     ),
     "system_health": (
         SourceRequest("system_status", required=True, reason="runtime readiness"),

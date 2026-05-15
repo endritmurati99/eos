@@ -15,6 +15,32 @@ def test_cli_intake_route_outputs_source_selection(capsys) -> None:
     assert payload["safety"]["external_writes_performed"] is False
 
 
+def test_cli_vault_daily_stand_writes_daily_note(monkeypatch, tmp_path, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(eos_cli, "WORKSPACE_ROOT", tmp_path)
+
+    code = eos_cli.main([
+        "--json-only",
+        "vault",
+        "daily-stand",
+        "--date",
+        "2026-05-15",
+        "--summary",
+        "Solara soll morgen an 5 Klienten gehen.",
+        "--done",
+        "Solara Profile vorbereitet",
+        "--next-step",
+        "Testklienten onboarden",
+        "--project",
+        "Solara",
+    ])
+
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["status"] == "success"
+    assert "Solara" in (tmp_path / "vault" / "11 Daily Notes" / "2026-05-15.md").read_text(encoding="utf-8")
+
+
 def test_cli_ask_uses_ask_service(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         eos_cli,
