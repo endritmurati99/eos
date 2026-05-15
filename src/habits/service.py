@@ -76,24 +76,11 @@ class HabitService:
                     id, name, status, frequency, target_time, routine_ref,
                     minimum_version_json, full_version_json, aliases_json,
                     habit_type, failure_modes_json, replacement_actions_json,
-                    recovery_rule_json, trigger_window_json,
-                    created_at_utc, updated_at_utc
+                    recovery_rule_json, trigger_window_json, schedule_rule_json,
+                    category, salience, briefing_policy_json, created_at_utc, updated_at_utc
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    name = excluded.name,
-                    frequency = excluded.frequency,
-                    target_time = excluded.target_time,
-                    routine_ref = excluded.routine_ref,
-                    minimum_version_json = excluded.minimum_version_json,
-                    full_version_json = excluded.full_version_json,
-                    aliases_json = excluded.aliases_json,
-                    habit_type = excluded.habit_type,
-                    failure_modes_json = excluded.failure_modes_json,
-                    replacement_actions_json = excluded.replacement_actions_json,
-                    recovery_rule_json = excluded.recovery_rule_json,
-                    trigger_window_json = excluded.trigger_window_json,
-                    updated_at_utc = excluded.updated_at_utc
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO NOTHING
                 """,
                 (
                     habit["id"],
@@ -110,6 +97,10 @@ class HabitService:
                     json.dumps(replacement_actions, ensure_ascii=False) if replacement_actions is not None else None,
                     json.dumps(recovery_rule, ensure_ascii=False) if recovery_rule is not None else None,
                     json.dumps(trigger_window, ensure_ascii=False) if trigger_window is not None else None,
+                    json.dumps(habit.get("schedule_rule"), ensure_ascii=False) if habit.get("schedule_rule") else None,
+                    habit.get("category"),
+                    int(habit.get("salience", 3)),
+                    json.dumps(habit.get("briefing_policy"), ensure_ascii=False) if habit.get("briefing_policy") else None,
                     now,
                     now,
                 ),
@@ -167,6 +158,10 @@ class HabitService:
         replacement_actions: list[str] | None = None,
         recovery_rule: dict[str, Any] | None = None,
         trigger_window: dict[str, Any] | None = None,
+        schedule_weekdays: list[int] | None = None,
+        category: str | None = None,
+        salience: int = 3,
+        briefing_policy: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         clean_name = name.strip()
         if not clean_name:
@@ -175,8 +170,10 @@ class HabitService:
             return {"status": "config_missing", "error": "frequency must be daily or weekly."}
         if target_time and not re.fullmatch(r"\d{2}:\d{2}", target_time):
             return {"status": "config_missing", "error": "target_time must use HH:MM."}
-
         try:
+            schedule_rule = _schedule_rule_from_weekdays(schedule_weekdays)
+            if not 1 <= int(salience) <= 5:
+                return {"status": "config_missing", "error": "salience must be between 1 and 5."}
             resolved_type = coerce_habit_type(habit_type)
         except ValueError as error:
             return {"status": "config_missing", "error": str(error)}
@@ -192,10 +189,10 @@ class HabitService:
                 id, name, status, frequency, target_time, routine_ref,
                 minimum_version_json, full_version_json, aliases_json,
                 habit_type, failure_modes_json, replacement_actions_json,
-                recovery_rule_json, trigger_window_json,
-                created_at_utc, updated_at_utc
+                recovery_rule_json, trigger_window_json, schedule_rule_json,
+                category, salience, briefing_policy_json, created_at_utc, updated_at_utc
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 habit_id,
@@ -212,6 +209,10 @@ class HabitService:
                 json.dumps(replacement_actions, ensure_ascii=False) if replacement_actions else None,
                 json.dumps(recovery_rule, ensure_ascii=False) if recovery_rule else None,
                 json.dumps(trigger_window, ensure_ascii=False) if trigger_window else None,
+                json.dumps(schedule_rule, ensure_ascii=False) if schedule_rule else None,
+                category,
+                int(salience),
+                json.dumps(briefing_policy, ensure_ascii=False) if briefing_policy else None,
                 now,
                 now,
             ),
@@ -604,6 +605,8 @@ class HabitService:
                     "name": habit["name"],
                     "status": habit["status"],
                     "target_time": habit["target_time"],
+                    "salience": habit.get("salience", 3),
+                    "category": habit.get("category"),
                     "current_streak": self._streak_through(habit["id"], streak_date),
                     "full_count": full_count,
                     "partial_count": partial_count,
@@ -897,6 +900,27 @@ def _is_scheduled_for_day(habit: dict[str, Any], day: date) -> bool:
         return False
     return True
 
+
+def _schedule_rule_from_weekdays(schedule_weekdays: list[int] | None) -> dict[str, Any] | None:
+    if schedule_weekdays is None:
+        return None
+    weekdays = sorted({int(day) for day in schedule_weekdays})
+    if any(day < 0 or day > 6 for day in weekdays):
+        raise ValueError("schedule_weekdays must contain integers 0..6 where Monday=0.")
+    return {"weekdays": weekdays}
+
+
+def _select_weekly_review_habits(habits: list[dict[str, Any]], *, limit: int) -> list[dict[str, Any]]:
+    return sorted(
+        habits,
+        key=lambda habit: (
+            -(habit.get("missed_count", 0) + habit.get("skipped_count", 0)),
+            -habit.get("partial_count", 0),
+            -habit.get("salience", 3),
+            habit.get("name", ""),
+        ),
+    )[:limit]
+
 def _unique_habit_id(connection: sqlite3.Connection, name: str) -> str:
     base = "habit-" + re.sub(r"[^a-z0-9]+", "-", _normalize(name)).strip("-")
     candidate = base or "habit-custom"
@@ -1000,15 +1024,21 @@ def _render_weekly_review(result: dict[str, Any]) -> str:
         ),
         f"- Gewichtete Erfuellungsrate: {round(totals['completion_rate'] * 100)}%",
         "",
-        "## Pro Habit",
+        "## Auffaellige Gewohnheiten",
     ]
-    for habit in result["habits"]:
-        lines.append(
-            f"- {habit['name']}: {round(habit['completion_rate'] * 100)}% "
-            f"({habit['full_count']} voll, {habit['partial_count']} teil, "
-            f"{habit['skipped_count']} ausgelassen, {habit['missed_count']} verfehlt, "
-            f"{habit['trackable_day_count']} trackable Tage)"
-        )
+    visible_habits = _select_weekly_review_habits(result["habits"], limit=5)
+    if visible_habits:
+        for habit in visible_habits:
+            lines.append(
+                f"- {habit['name']}: {round(habit['completion_rate'] * 100)}% "
+                f"({habit['full_count']} voll, {habit['partial_count']} teil, "
+                f"{habit['skipped_count']} ausgelassen, {habit['missed_count']} verfehlt)"
+            )
+        remaining = len(result["habits"]) - len(visible_habits)
+        if remaining > 0:
+            lines.append(f"- + {remaining} weitere Gewohnheiten bleiben im Log.")
+    else:
+        lines.append("- Keine auffaellige Gewohnheit im Wochenfenster.")
     lines.extend(["", "## Wichtigstes Muster"])
     main_pattern = result.get("main_pattern")
     if main_pattern:
