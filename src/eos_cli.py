@@ -21,6 +21,7 @@ from src.confirmations import ConfirmationService
 from src.energy import EnergyService, parse_energy_text
 from src.database.models import init_db
 from src.eos_assistant import run_assistant_command
+from src.eos_intake_v2 import ask as run_ask_query, route_query
 from src.eos_mail.auth_preflight import run_gmail_auth_preflight
 from src.eos_mail.digest import digest_payload, render_shadow_digest
 from src.eos_mail.gmail_client import GogGmailReadOnlyClient, gmail_scope_guidance
@@ -41,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
         result = command_habits(args)
     elif args.command == "intake":
         result = command_intake(args)
+    elif args.command == "ask":
+        result = command_ask(args)
     elif args.command == "daily-plan":
         result = run_daily_capacity(_parse_date(args.date), dry_run=args.dry_run)
     elif args.command == "weekly-plan":
@@ -216,7 +219,21 @@ def command_intake(args: argparse.Namespace) -> dict[str, Any]:
         payload = result.to_dict()
         payload["status"] = "success"
         return payload
+    if args.intake_command == "route":
+        return route_query(args.text)
+    if args.intake_command == "explain":
+        payload = route_query(args.text)
+        payload["explanation"] = {
+            "pipeline": ["intent", "sources", "safety", "context", "answer"],
+            "writes_performed": False,
+            "note": "EOS Intake v2 routes the question but does not perform external writes.",
+        }
+        return payload
     return {"status": "not_found", "error": f"Unknown intake command: {args.intake_command}"}
+
+
+def command_ask(args: argparse.Namespace) -> dict[str, Any]:
+    return run_ask_query(args.text, target_date=_parse_optional_date(getattr(args, "date", None)))
 
 
 def command_dispatch(args: argparse.Namespace) -> dict[str, Any]:
@@ -518,6 +535,14 @@ def _build_parser() -> argparse.ArgumentParser:
     intake_subparsers = intake.add_subparsers(dest="intake_command", required=True)
     intake_parse = intake_subparsers.add_parser("parse")
     intake_parse.add_argument("text")
+    intake_route = intake_subparsers.add_parser("route")
+    intake_route.add_argument("text")
+    intake_explain = intake_subparsers.add_parser("explain")
+    intake_explain.add_argument("text")
+
+    ask = subparsers.add_parser("ask")
+    ask.add_argument("text")
+    ask.add_argument("--date")
 
     dispatch = subparsers.add_parser("dispatch")
     dispatch_subparsers = dispatch.add_subparsers(dest="dispatch_command", required=True)
@@ -622,6 +647,8 @@ def _summary(result: dict[str, Any]) -> str:
     job = result.get("job") or "EOS"
     if "output_markdown" in result:
         return f"{job}: {status}\n\n{result['output_markdown'].strip()}"
+    if result.get("command") == "ask" and "summary_markdown" in result:
+        return f"ask: {status} | intent={result.get('intent')}\n\n{result['summary_markdown'].strip()}"
     if "summary_markdown" in result and "cards" in result:
         return f"assistant {result.get('command', '')}: {status}\n\n{result['summary_markdown'].strip()}"
     if "checks" in result:

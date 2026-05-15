@@ -117,3 +117,31 @@ Cron job daily-briefing-morning-0600 was also disabled when Endrit asked where t
 Install/sync Python dependencies for EOS and re-enable the daily briefing cron after verification.
 
 ---
+## [ERR-20260515-001] python_binary_missing
+
+**Logged**: 2026-05-15T07:50:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+EOS verification command failed because `python` is not available in this runtime; use `python3` explicitly.
+
+### Error
+```
+/usr/bin/sh: 1: python: not found
+```
+
+### Context
+- Attempted: `python -m pytest tests/eos_intake_v2 tests/verify_eos_core.py tests/verify_eos_cli.py tests/verify_eos_state.py`
+- Runtime has Python under `python3`.
+
+### Suggested Fix
+Use `python3 -m pytest` for EOS verification commands in this container.
+
+### Metadata
+- Reproducible: yes
+- Related Files: pytest.ini
+- Tags: python, pytest, runtime
+
+---
