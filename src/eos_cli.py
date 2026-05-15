@@ -169,6 +169,9 @@ def command_habits(args: argparse.Namespace) -> dict[str, Any]:
                 target_time=args.time,
                 frequency=args.frequency,
                 habit_type=getattr(args, "habit_type", None),
+                schedule_weekdays=getattr(args, "weekday", None),
+                category=getattr(args, "category", None),
+                salience=getattr(args, "salience", 3),
             )
         if args.habit_command == "pause":
             return service.pause_habit(args.habit, source="cli", notes=args.reason)
@@ -479,6 +482,16 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("build", "reduce", "maintain", "recovery"),
         default=None,
     )
+    habit_add.add_argument(
+        "--weekday",
+        action="append",
+        type=int,
+        choices=range(0, 7),
+        metavar="0-6",
+        help="Scheduled weekday, Monday=0. Can be repeated.",
+    )
+    habit_add.add_argument("--category")
+    habit_add.add_argument("--salience", type=int, choices=range(1, 6), default=3)
     habit_pause = habit_subparsers.add_parser("pause")
     habit_pause.add_argument("habit")
     habit_pause.add_argument("--reason")

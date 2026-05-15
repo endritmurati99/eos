@@ -465,10 +465,15 @@ def test_init_db_idempotent():
                 "replacement_actions_json",
                 "recovery_rule_json",
                 "trigger_window_json",
+                "timezone",
+                "schedule_rule_json",
+                "category",
+                "salience",
+                "briefing_policy_json",
             ):
                 assert col in cols, f"column {col} missing after re-init"
             event_cols = {row["name"] for row in second.connection.execute("PRAGMA table_info(habit_events)").fetchall()}
-            for col in ("failure_mode", "recovery_used"):
+            for col in ("failure_mode", "recovery_used", "event_uuid", "idempotency_key", "recorded_at_utc"):
                 assert col in event_cols, f"event column {col} missing"
             relapse_cols = {row["name"] for row in second.connection.execute("PRAGMA table_info(habit_relapses)").fetchall()}
             assert "trigger_context" in relapse_cols
@@ -543,6 +548,76 @@ def test_habit_events_get_audit_uuid_metadata():
             service.close()
 
 
+
+def test_seed_from_state_does_not_overwrite_sqlite_edits():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        first = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            changed = first.set_habit_type("morgenroutine", "maintain")
+            assert_eq(changed["status"], "success", "set type before reseed")
+            assert_eq(changed["habit"]["habit_type"], "maintain", "type changed")
+        finally:
+            first.close()
+
+        second = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            habit = second.get_definition("habit-morning-routine")
+            assert_eq(habit["habit_type"], "maintain", "reseed must not overwrite sqlite-managed fields")
+        finally:
+            second.close()
+
+
+def test_add_habit_writes_schedule_category_and_salience():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            result = service.add_habit(
+                name="Sunday Weekly Review",
+                frequency="weekly",
+                target_time="18:00",
+                schedule_weekdays=[6],
+                category="review",
+                salience=5,
+            )
+            assert_eq(result["status"], "success", "scheduled weekly add")
+            habit = result["habit"]
+            assert_eq(habit["schedule_rule"], {"weekdays": [6]}, "schedule rule")
+            assert_eq(habit["category"], "review", "category")
+            assert_eq(habit["salience"], 5, "salience")
+
+            monday = service.status(date(2026, 4, 27))
+            scheduled = next(h for h in monday["habits"] if h["name"] == "Sunday Weekly Review")
+            assert scheduled["scheduled_today"] is False
+            assert scheduled["pending"] is False
+
+            sunday = service.status(date(2026, 5, 3))
+            scheduled = next(h for h in sunday["habits"] if h["name"] == "Sunday Weekly Review")
+            assert scheduled["scheduled_today"] is True
+            assert scheduled["pending"] is True
+        finally:
+            service.close()
+
+
+def test_weekly_review_caps_visible_habits():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            week_start = date(2026, 4, 20)
+            for index in range(12):
+                added = service.add_habit(name=f"Weekly Noise {index:02d}", target_time="20:00")
+                service.skip_habit(added["habit"]["id"], target_date=week_start + timedelta(days=index % 5))
+            review = service.weekly_review(week_start)
+            output = review["output_markdown"]
+            assert "Auffaellige Gewohnheiten" in output
+            assert "Weekly Noise 00" in output
+            assert "Weekly Noise 11" not in output
+            assert "weitere Gewohnheiten bleiben im Log" in output
+        finally:
+            service.close()
+
 def main():
     test_default_habit_type_migration()
     test_add_reduce_habit_with_metadata()
@@ -561,6 +636,9 @@ def main():
     test_default_habit_types_constant()
     test_weekly_habit_without_schedule_is_not_auto_missed_daily()
     test_habit_events_get_audit_uuid_metadata()
+    test_seed_from_state_does_not_overwrite_sqlite_edits()
+    test_add_habit_writes_schedule_category_and_salience()
+    test_weekly_review_caps_visible_habits()
     print("verify_habit_coaching: ok")
 
 
