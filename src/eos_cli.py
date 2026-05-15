@@ -180,6 +180,10 @@ def command_habits(args: argparse.Namespace) -> dict[str, Any]:
             return service.pause_habit(args.habit, source="cli", notes=args.reason)
         if args.habit_command == "weekly-report":
             return service.weekly_report(_parse_date(args.week_start))
+        if args.habit_command == "daily-summary":
+            return service.daily_summary(_parse_optional_date(args.date))
+        if args.habit_command == "weekly-review":
+            return service.weekly_review(_parse_date(args.week_start))
         if args.habit_command == "handle":
             return service.handle_text(args.text, target_date=_parse_optional_date(args.date), source="telegram")
         if args.habit_command == "set-type":
@@ -519,6 +523,10 @@ def _build_parser() -> argparse.ArgumentParser:
     habit_pause.add_argument("--reason")
     habit_weekly = habit_subparsers.add_parser("weekly-report")
     habit_weekly.add_argument("--week-start", required=True)
+    habit_daily_summary = habit_subparsers.add_parser("daily-summary")
+    habit_daily_summary.add_argument("--date")
+    habit_weekly_review = habit_subparsers.add_parser("weekly-review")
+    habit_weekly_review.add_argument("--week-start", required=True)
     habit_handle = habit_subparsers.add_parser("handle")
     habit_handle.add_argument("text")
     habit_handle.add_argument("--date")
@@ -652,6 +660,8 @@ def _build_parser() -> argparse.ArgumentParser:
             "daily_hang_reminder",
             "habit_checkin_morning",
             "habit_checkin_evening",
+            "habit_daily_summary",
+            "habit_weekly_review",
         ),
     )
     run_job.add_argument("--date")

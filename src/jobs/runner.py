@@ -125,6 +125,39 @@ def run_eos_job(
             "output_markdown": _render_habit_checkin(job, habit_result),
         }
 
+    if job == "habit_daily_summary":
+        day = target_date or datetime.now(BERLIN).date()
+        service = HabitService(workspace_root=root)
+        try:
+            habit_result = service.daily_summary(day)
+        finally:
+            service.close()
+        return {
+            "status": "success",
+            "job": job,
+            "run_id": run_id,
+            "dry_run": dry_run,
+            "delivery_status": "not_attempted" if dry_run else "delivery_disabled",
+            "target_date_berlin": day.isoformat(),
+            **habit_result,
+        }
+
+    if job == "habit_weekly_review":
+        selected_week_start = week_start or _week_start(datetime.now(BERLIN).date())
+        service = HabitService(workspace_root=root)
+        try:
+            habit_result = service.weekly_review(selected_week_start)
+        finally:
+            service.close()
+        return {
+            "status": "success",
+            "job": job,
+            "run_id": run_id,
+            "dry_run": dry_run,
+            "delivery_status": "not_attempted" if dry_run else "delivery_disabled",
+            **habit_result,
+        }
+
     return {
         "status": "not_found",
         "job": job,
@@ -227,3 +260,7 @@ def _looks_like_sport(title: str) -> bool:
         keyword in lowered
         for keyword in ("kickbox", "bjj", "jiu", "gym", "cardio", "calisthenics", "turnen", "workout")
     )
+
+
+def _week_start(day: date) -> date:
+    return day - timedelta(days=day.weekday())

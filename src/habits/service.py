@@ -430,6 +430,91 @@ class HabitService:
             "patterns": [signal.to_dict() for signal in signals],
         }
 
+    def daily_summary(self, target_date: date | None = None) -> dict[str, Any]:
+        day = target_date or date.today()
+        status = self.status(day)
+        habits = []
+        counts = {
+            EVENT_DONE_FULL: 0,
+            EVENT_DONE_PARTIAL: 0,
+            EVENT_SKIPPED: 0,
+            EVENT_MISSED: 0,
+            "pending": 0,
+        }
+        for habit in status["habits"]:
+            final_status = habit["today"]["final_status"]
+            pending = habit["pending"]
+            first_trackable_day = _date_from_iso(habit["created_at_utc"]) or day
+            if habit["status"] == "active" and final_status is None and first_trackable_day <= day < date.today():
+                final_status = EVENT_MISSED
+                pending = False
+            if final_status in counts:
+                counts[final_status] += 1
+            elif pending:
+                counts["pending"] += 1
+            habits.append(
+                {
+                    "id": habit["id"],
+                    "name": habit["name"],
+                    "habit_type": habit["habit_type"],
+                    "target_time": habit["target_time"],
+                    "final_status": final_status,
+                    "pending": pending,
+                    "current_streak": habit["current_streak"],
+                    "minimum_version": habit["minimum_version"],
+                    "notes": habit["today"].get("notes"),
+                }
+            )
+        relapses = self._relapses_for_day(day)
+        result = {
+            "status": "success",
+            "business_date_berlin": day.isoformat(),
+            "counts": counts,
+            "relapse_count": len(relapses),
+            "relapses": relapses,
+            "habits": habits,
+        }
+        result["output_markdown"] = _render_daily_summary(result)
+        return result
+
+    def weekly_review(self, week_start: date) -> dict[str, Any]:
+        report = self.weekly_report(week_start)
+        week_end = week_start + timedelta(days=7)
+        reference_day = week_end - timedelta(days=1)
+        patterns = self.week_patterns(reference_day)
+        habits = []
+        total_full = 0
+        total_partial = 0
+        total_skipped = 0
+        total_missed = 0
+        for habit in report["habits"]:
+            total_full += habit["full_count"]
+            total_partial += habit["partial_count"]
+            total_skipped += habit["skipped_count"]
+            total_missed += habit["missed_count"]
+            trackable_days = max(int(habit.get("trackable_day_count") or 0), 1)
+            completion_rate = round((habit["full_count"] + 0.5 * habit["partial_count"]) / trackable_days, 3)
+            habits.append({**habit, "completion_rate": completion_rate})
+        total_slots = max(sum(int(habit.get("trackable_day_count") or 0) for habit in habits), 1)
+        result = {
+            "status": "success",
+            "week_start_berlin": week_start.isoformat(),
+            "week_end_berlin": week_end.isoformat(),
+            "week_end_inclusive_berlin": reference_day.isoformat(),
+            "totals": {
+                "full": total_full,
+                "partial": total_partial,
+                "skipped": total_skipped,
+                "missed": total_missed,
+                "completion_rate": round((total_full + 0.5 * total_partial) / total_slots, 3),
+            },
+            "habits": habits,
+            "patterns": patterns["patterns"],
+            "main_pattern": _select_main_pattern(patterns["patterns"]),
+        }
+        result["output_markdown"] = _render_weekly_review(result)
+        return result
+
     def pause_habit(self, query: str, *, source: str = "cli", notes: str | None = None) -> dict[str, Any]:
         resolved = self.resolve_habit(query)
         if resolved["status"] != "success":
@@ -492,6 +577,20 @@ class HabitService:
             partial_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_DONE_PARTIAL)
             skipped_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_SKIPPED)
             missed_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_MISSED)
+            latest_trackable_day = min(week_end - timedelta(days=1), date.today())
+            if habit["status"] == "active":
+                trackable_day_count = 0
+                for item in day_statuses:
+                    item_day = date.fromisoformat(item["date"])
+                    if item["final_status"] is not None:
+                        trackable_day_count += 1
+                        continue
+                    if item_day < first_trackable_day:
+                        continue
+                    if item_day <= latest_trackable_day:
+                        trackable_day_count += 1
+            else:
+                trackable_day_count = sum(1 for item in day_statuses if item["final_status"] is not None)
             streak_date = self._weekly_streak_anchor(habit["id"], week_start, min(week_end - timedelta(days=1), date.today()))
             habits.append(
                 {
@@ -504,7 +603,8 @@ class HabitService:
                     "partial_count": partial_count,
                     "skipped_count": skipped_count,
                     "missed_count": missed_count,
-                    "full_rate": round(full_count / 7, 3),
+                    "trackable_day_count": trackable_day_count,
+                    "full_rate": round(full_count / max(trackable_day_count, 1), 3),
                     "days": day_statuses,
                 }
             )
@@ -670,6 +770,19 @@ class HabitService:
             }
         return dict(row)
 
+    def _relapses_for_day(self, target_date: date) -> list[dict[str, Any]]:
+        rows = self.connection.execute(
+            """
+            SELECT r.habit_id, h.name, r.trigger_context, r.replacement_used, r.severity, r.notes
+            FROM habit_relapses r
+            LEFT JOIN habit_definitions h ON h.id = r.habit_id
+            WHERE r.business_date_berlin = ?
+            ORDER BY h.target_time IS NULL, h.target_time, h.name
+            """,
+            (target_date.isoformat(),),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     def _streak_through(self, habit_id: str, target_date: date) -> int:
         streak = 0
         cursor = target_date
@@ -780,6 +893,88 @@ def _split_notes(text: str) -> tuple[str, str | None]:
         return text.strip(), None
     query, notes = text.split(",", 1)
     return query.strip(), notes.strip() or None
+
+
+def _render_daily_summary(result: dict[str, Any]) -> str:
+    counts = result["counts"]
+    lines = [
+        f"# Habit-Tagescheck {result['business_date_berlin']}",
+        "",
+        "## Status",
+        (
+            f"- Voll: {counts[EVENT_DONE_FULL]}, Teil/Recovery: {counts[EVENT_DONE_PARTIAL]}, "
+            f"Ausgelassen: {counts[EVENT_SKIPPED]}, Verfehlt: {counts[EVENT_MISSED]}, "
+            f"Offen: {counts['pending']}"
+        ),
+        f"- Rueckfaelle: {result['relapse_count']}",
+        "",
+        "## Habits",
+    ]
+    for habit in result["habits"]:
+        state = habit["final_status"] or "offen"
+        time = f"{habit['target_time']} " if habit.get("target_time") else ""
+        lines.append(f"- {time}{habit['name']}: {state}, streak {habit['current_streak']}")
+    lines.extend(["", "## EOS-Einschaetzung"])
+    if counts["pending"]:
+        lines.append("- Heute sind noch Habits offen; erst minimal abschliessen, bevor neue Aufgaben dazukommen.")
+    elif result["relapse_count"]:
+        lines.append("- Heute gab es Rueckfaelle; Trigger notieren und morgen eine konkrete Barriere setzen.")
+    else:
+        lines.append("- Habit-Tag ist stabil genug; keine neue Gewohnheit erzwingen.")
+    if result["relapses"]:
+        lines.extend(["", "## Rueckfaelle"])
+        for relapse in result["relapses"]:
+            replacement = relapse.get("replacement_used") or "keine Ersatzhandlung"
+            lines.append(
+                f"- {relapse.get('name') or relapse['habit_id']}: "
+                f"{relapse['trigger_context']} / {relapse['severity']} / {replacement}"
+            )
+    return "\n".join(lines) + "\n"
+
+
+def _render_weekly_review(result: dict[str, Any]) -> str:
+    totals = result["totals"]
+    lines = [
+        f"# Habit-Wochenreview {result['week_start_berlin']} bis {result['week_end_inclusive_berlin']}",
+        "",
+        "## Woche in Zahlen",
+        (
+            f"- Voll: {totals['full']}, Teil/Recovery: {totals['partial']}, "
+            f"Ausgelassen: {totals['skipped']}, Verfehlt: {totals['missed']}"
+        ),
+        f"- Gewichtete Erfuellungsrate: {round(totals['completion_rate'] * 100)}%",
+        "",
+        "## Pro Habit",
+    ]
+    for habit in result["habits"]:
+        lines.append(
+            f"- {habit['name']}: {round(habit['completion_rate'] * 100)}% "
+            f"({habit['full_count']} voll, {habit['partial_count']} teil, "
+            f"{habit['skipped_count']} ausgelassen, {habit['missed_count']} verfehlt, "
+            f"{habit['trackable_day_count']} trackable Tage)"
+        )
+    lines.extend(["", "## Wichtigstes Muster"])
+    main_pattern = result.get("main_pattern")
+    if main_pattern:
+        lines.append(f"- {main_pattern['implication']}")
+    else:
+        lines.append("- Kein starkes Muster erkannt; System stabil halten und weiter Daten sammeln.")
+    lines.extend(
+        [
+            "",
+            "## Empfehlung fuer naechste Woche",
+            "- Maximal eine Gewohnheit veraendern oder eine Barriere fuer ein wiederkehrendes Muster setzen.",
+            "- Keine neuen Habits hinzufuegen, wenn offene/missed Tage dominieren.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _select_main_pattern(patterns: list[dict[str, Any]]) -> dict[str, Any] | None:
+    severity_rank = {"major": 0, "moderate": 1, "info": 2}
+    if not patterns:
+        return None
+    return sorted(patterns, key=lambda item: (severity_rank.get(item.get("severity"), 9), item.get("key") or ""))[0]
 
 
 def _utc_now() -> str:
