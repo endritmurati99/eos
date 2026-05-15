@@ -221,6 +221,13 @@ def init_db(db_path: str | None = None) -> sqlite3.Connection:
             "replacement_actions_json": "TEXT",
             "recovery_rule_json": "TEXT",
             "trigger_window_json": "TEXT",
+            "timezone": "TEXT NOT NULL DEFAULT 'Europe/Berlin'",
+            "start_date_berlin": "TEXT",
+            "end_date_berlin": "TEXT",
+            "schedule_rule_json": "TEXT",
+            "category": "TEXT",
+            "salience": "INTEGER NOT NULL DEFAULT 3",
+            "briefing_policy_json": "TEXT",
         },
     )
 
@@ -230,7 +237,21 @@ def init_db(db_path: str | None = None) -> sqlite3.Connection:
         {
             "failure_mode": "TEXT",
             "recovery_used": "INTEGER NOT NULL DEFAULT 0",
+            "event_uuid": "TEXT",
+            "idempotency_key": "TEXT",
+            "recorded_at_utc": "TEXT",
+            "effective_at_local": "TEXT",
+            "actor": "TEXT",
+            "confidence": "REAL",
+            "input_text_hash": "TEXT",
         },
+    )
+
+    connection.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_events_event_uuid ON habit_events(event_uuid) WHERE event_uuid IS NOT NULL"
+    )
+    connection.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_habit_events_idempotency ON habit_events(idempotency_key) WHERE idempotency_key IS NOT NULL"
     )
 
     connection.commit()
