@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from src.eos_journal.calendar_briefing import CalendarBriefingContext
 from src.eos_journal.morning_prompt import generate_morning_prompt
 from src.eos_journal.types import DailySignalInput
 
@@ -46,3 +47,23 @@ def test_morning_prompt_uses_unattributed_placeholder_quote() -> None:
     assert "Zitat:" in output.message
     assert "Marcus" not in output.message
     assert "Seneca" not in output.message
+
+
+def test_morning_prompt_can_include_calendar_shape_without_raw_dump() -> None:
+    output = generate_morning_prompt(
+        load_signal("normal_workday"),
+        calendar_context=CalendarBriefingContext(
+            fixed_event_count=4,
+            deep_session_count=2,
+            reminder_count=1,
+            first_event="08:00 Arbeit",
+            last_event="18:00 Kickboxen",
+            load_label="hoch",
+            carry_items=("Sporttasche", "Laptop"),
+        ),
+    )
+
+    assert "Kalender: 4 feste Termine, 2 Deep-Sessions, 1 Erinnerung, Last: hoch." in output.message
+    assert "Rahmen: Start mit 08:00 Arbeit; Ende mit 18:00 Kickboxen." in output.message
+    assert "Mitnehmen: Sporttasche, Laptop." in output.message
+    assert len(output.message) <= 520

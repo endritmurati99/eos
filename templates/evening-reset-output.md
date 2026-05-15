@@ -16,6 +16,7 @@ This is not a full daily plan and not a motivational wrap-up.
 ## Output Format
 ### Morgen steht fest
 - confirmed hard events for tomorrow
+- compact tomorrow calendar shape: fixed events, Deep Sessions, reminders, first/last hard anchor
 
 ### Offene Punkte
 - open loops that directly matter for tomorrow
@@ -37,6 +38,8 @@ This is not a full daily plan and not a motivational wrap-up.
 - exactly 1 warning only when tomorrow is overloaded, fragile, or underspecified
 
 ## Rules
+- Start with a short tomorrow calendar-shape line when calendar data is available: `Morgenkalender: X feste Termine, Y Deep-Sessions, Z Erinnerungen.`
+- Mention first and last hard anchor when it changes preparation or shutdown timing.
 - Calendar stays the source of truth for tomorrow's hard events
 - Google Tasks stays the source of truth for open tasks when available
 - if tasks are unavailable, say that explicitly and do not invent priorities

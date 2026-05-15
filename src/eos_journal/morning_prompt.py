@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from src.eos_journal.calendar_briefing import CalendarBriefingContext, summarize_calendar_context
 from src.eos_journal.minimum_day import recommend_minimum_day
 from src.eos_journal.signal_interpreter import (
     STATUS_OVERLOADED,
@@ -10,16 +11,21 @@ from src.eos_journal.signal_interpreter import (
 from src.eos_journal.types import DailySignalInput, JournalCoachOutput
 
 
-def generate_morning_prompt(signal: DailySignalInput) -> JournalCoachOutput:
+def generate_morning_prompt(
+    signal: DailySignalInput,
+    calendar_context: CalendarBriefingContext | None = None,
+) -> JournalCoachOutput:
     interpretation = interpret_daily_signals(signal)
     actions = recommend_minimum_day(signal)
     focus = _focus_for_status(interpretation.status)
     risk = interpretation.reasons[0] if interpretation.reasons else "Keine harte Gegenkraft sichtbar."
     minimum = actions[0]
     headline = _headline_for_status(interpretation.status)
+    calendar_lines = summarize_calendar_context(calendar_context)
     message = "\n".join(
         [
             f"Fokus: {focus}",
+            *calendar_lines,
             f"Minimum: {minimum}.",
             f"Risiko: {risk}",
             "Zitat: Klein halten, klar bleiben.",

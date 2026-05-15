@@ -20,6 +20,7 @@ Do not drift into generic productivity advice.
 ## Output Format
 ### Heute steht an
 - aggregated live events from relevant calendars
+- compact calendar shape: fixed events, Deep Sessions, reminders, first/last hard anchor
 
 ### Wichtig heute
 - top 3 operational priorities only
@@ -39,6 +40,8 @@ Do not drift into generic productivity advice.
 - exactly 1 warning only when schedule is unrealistic, fragmented, or overloaded
 
 ## Rules
+- Start with a short calendar-shape line when calendar data is available: `Kalender: X feste Termine, Y Deep-Sessions, Z Erinnerungen.`
+- Name the first and last hard anchor when useful for transitions.
 - Live Google Calendar events override everything else
 - Aggregate at least `primary` and `Sport`
 - `data/calendar.json` is not a primary source

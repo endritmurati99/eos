@@ -40,6 +40,8 @@ Operator cockpit — real state at a glance.
 
 → **[[EOS Current Status]]** — Phase breakdown and system readiness  
 → **[[EOS Open Issues]]** — All blockers and pending decisions  
+→ **[[MOC - Daily Operating Loop]]** — Morning/day/evening operating loop
+→ **[[EOS Morning and Evening Booklet]]** — Current booklet contract and iteration notes
 → **[Daily Notes](../11%20Daily%20Notes/)** — Daily hubs  
 → **[[MOC - Architecture]]** — System overview  
 → **Decisions** — [[ADR - Calendar as Source of Truth]] · [[ADR - Tasks as Source of Truth]]  

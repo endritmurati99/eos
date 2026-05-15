@@ -1,17 +1,24 @@
 from __future__ import annotations
 
+from src.eos_journal.calendar_briefing import CalendarBriefingContext, summarize_calendar_context
 from src.eos_journal.minimum_day import recommend_minimum_day
 from src.eos_journal.signal_interpreter import interpret_daily_signals
 from src.eos_journal.types import DailySignalInput, JournalCoachOutput
 
 
-def generate_evening_review(signal: DailySignalInput) -> JournalCoachOutput:
+def generate_evening_review(
+    signal: DailySignalInput,
+    tomorrow_calendar: CalendarBriefingContext | None = None,
+) -> JournalCoachOutput:
     interpretation = interpret_daily_signals(signal)
     actions = recommend_minimum_day(signal)
+    calendar_lines = summarize_calendar_context(tomorrow_calendar)
     message = "\n".join(
         [
             f"Stabil: {_stable_line(signal)}",
             f"Offen: {_open_line(signal)}",
+            *[f"Morgenkalender: {line.removeprefix('Kalender: ')}" for line in calendar_lines[:1]],
+            *calendar_lines[1:],
             f"Energieverlust: {_energy_loss_line(interpretation.risk_flags)}",
             f"Morgen: {actions[0]}.",
         ]

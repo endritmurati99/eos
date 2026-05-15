@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from src.eos_journal.calendar_briefing import CalendarBriefingContext
 from src.eos_journal.evening_review import generate_evening_review
 from src.eos_journal.types import DailySignalInput
 
@@ -32,3 +33,22 @@ def test_evening_review_has_no_guilt_or_therapy_language() -> None:
     for forbidden in FORBIDDEN_LANGUAGE:
         assert forbidden not in rendered
     assert "Abend Review" in output.headline
+
+
+def test_evening_review_can_preview_tomorrow_calendar_shape() -> None:
+    output = generate_evening_review(
+        load_signal("overloaded_calendar_day"),
+        tomorrow_calendar=CalendarBriefingContext(
+            fixed_event_count=3,
+            deep_session_count=1,
+            reminder_count=2,
+            first_event="07:30 Uni",
+            last_event="20:00 Abendroutine",
+            load_label="mittel",
+            carry_items=("Uni-Sachen",),
+        ),
+    )
+
+    assert "Morgenkalender: 3 feste Termine, 1 Deep-Session, 2 Erinnerungen, Last: mittel." in output.message
+    assert "Rahmen: Start mit 07:30 Uni; Ende mit 20:00 Abendroutine." in output.message
+    assert "Mitnehmen: Uni-Sachen." in output.message

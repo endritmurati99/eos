@@ -145,3 +145,32 @@ Use `python3 -m pytest` for EOS verification commands in this container.
 - Tags: python, pytest, runtime
 
 ---
+## [ERR-20260515-002] git_push_https_auth_missing
+
+**Logged**: 2026-05-15T08:18:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: git
+
+### Summary
+Pushing EOS branch `agent/eos-ask-router-v1` to GitHub failed because HTTPS Git could not read credentials in the non-interactive OpenClaw runtime.
+
+### Error
+```
+fatal: could not read Username for 'https://github.com': No such device or address
+```
+
+### Context
+- Commit succeeded locally: `40e9098 feat: add EOS source-aware ask router`
+- Remote: `https://github.com/endritmurati99/eos.git`
+- Need configured non-interactive auth or alternate GitHub CLI/token path before push.
+
+### Suggested Fix
+Use configured GitHub auth helper/`gh-photon` credentials if valid, or set a repository remote/auth method that works non-interactively. Do not prompt for credentials in chat.
+
+### Metadata
+- Reproducible: yes
+- Related Files: git remote config
+- Tags: git, github, auth, eos
+
+---
