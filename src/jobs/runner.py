@@ -167,40 +167,51 @@ def run_eos_job(
 
 
 def _render_daily_morning(result: dict[str, Any]) -> str:
-    lines = ["# Morgenbriefing", ""]
+    lines = ["☀️ Morgenbriefing", ""]
     calendar_blocks = result.get("calendar_blocks") or []
-    lines.append("## Heute steht an")
-    if calendar_blocks:
-        lines.append(f"- {calendar_shape_line(calendar_blocks)}")
-        for label in compact_event_lines(calendar_blocks, limit=5):
-            lines.append(f"- {label}")
-    elif result["calendar_read_status"] != "success":
-        lines.append("- Kalenderbasis nicht live verfuegbar.")
-    else:
-        lines.append("- Keine harten Termine bestaetigt.")
-    lines.append("")
-    lines.append("## Empfehlung")
-    lines.append(f"- {_friendly_daily_recommendation(str(result['recommendation']))}")
-    lines.append(f"- {hydration_check_line()}")
-    lines.append("")
-    lines.append("## Top Tasks")
+
+    lines.append("🎯 Fokus")
     if result["top_tasks"]:
         for task in result["top_tasks"]:
             lines.append(f"- {task['title']}")
     elif result["task_read_status"] != "success":
-        lines.append("- Aufgabenbasis nicht live verfuegbar.")
+        lines.append("- Aufgaben gerade nicht live verfügbar: heute nur harte Termine + ein konservatives Top-Ziel.")
     else:
-        lines.append("- Noch keine Top-Tasks, erst triagieren.")
+        lines.append("- Noch kein klarer Top-Task: erst kurz sortieren, dann starten.")
     lines.append("")
-    lines.append("## Habits")
+
+    if calendar_blocks:
+        lines.append("📌 Fix")
+        lines.append(f"- {calendar_shape_line(calendar_blocks)}")
+        for label in compact_event_lines(calendar_blocks, limit=3):
+            lines.append(f"- {label}")
+        lines.append("")
+    elif result["calendar_read_status"] != "success":
+        lines.append("📌 Fix")
+        lines.append("- Kalenderbasis gerade nicht live verfügbar.")
+        lines.append("")
+
+    lines.append("🔁 Heute sichern")
     habit_status = result.get("habit_status") or {}
     habits = habit_status.get("habits", [])
-    if not habits:
-        lines.append("- Keine aktiven Habits konfiguriert.")
+    pending = [habit for habit in habits if habit.get("pending")]
+    if not pending:
+        lines.append("- Alle heutigen Gewohnheiten sind abgehakt.")
+    elif len(pending) > 5:
+        first = pending[0]
+        lines.append(f"- {first['name']} zuerst minimal absichern; {len(pending) - 1} weitere bleiben im Log.")
     else:
-        for habit in habits:
-            final_status = habit["today"]["final_status"] or "offen"
-            lines.append(f"- {habit['target_time'] or '--:--'} {habit['name']}: {final_status}, streak {habit['current_streak']}")
+        for habit in pending[:3]:
+            time_label = habit["target_time"] or "heute"
+            lines.append(f"- {time_label}: {habit['name']} minimal erledigen oder bewusst skippen.")
+        remaining = len(pending) - 3
+        if remaining > 0:
+            lines.append(f"- + {remaining} weitere nur bei Luft.")
+
+    lines.append("")
+    lines.append("🧭 Minimum")
+    lines.append(f"- {hydration_check_line()}")
+    lines.append("- Wenn der Tag voll wird: ein Fokus, eine saubere Vorbereitung, keine Perfektion.")
     return "\n".join(lines).strip() + "\n"
 
 
@@ -270,7 +281,20 @@ def _looks_like_sport(title: str) -> bool:
     lowered = title.lower()
     return any(
         keyword in lowered
-        for keyword in ("kickbox", "bjj", "jiu", "gym", "cardio", "calisthenics", "turnen", "workout")
+        for keyword in (
+            "kickbox",
+            "bjj",
+            "jiu",
+            "gym",
+            "cardio",
+            "calisthenics",
+            "turnen",
+            "workout",
+            "sport",
+            "training",
+            "fitness",
+            "plyometrics",
+        )
     )
 
 

@@ -197,3 +197,28 @@ Retry Claude Code review after reset, or continue only with explicit note that C
 - Tags: claude-code, quota, review
 
 ---
+
+## [ERR-20260515-briefing-patch-env] feature_branch_test_env
+
+**Logged**: 2026-05-15T11:21:42+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Feature worktree test run with system python failed because jsonschema is not installed there.
+
+### Error
+`python3 -m pytest ...` failed during collection with `ModuleNotFoundError: No module named 'jsonschema'`.
+
+### Context
+The productive personal-assistant workspace has a working venv. Re-running the feature worktree tests with  passed.
+
+### Suggested Fix
+For this EOS worktree, use the personal-assistant venv or create a local venv before running pytest.
+
+### Metadata
+- Reproducible: yes
+- Related Files: tests/verify_daily_capacity.py
+
+---

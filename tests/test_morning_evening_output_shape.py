@@ -25,9 +25,11 @@ def test_evening_reset_output_is_compact_deduped_and_has_water_check() -> None:
         },
     )
 
-    assert output.count("21:30-22:00 Abendroutine") == 1
-    assert "Morgenkalender: 2 feste Termine" in output
+    assert "🌙 Abendbriefing" in output
+    assert "Abendroutine" not in output
+    assert "Morgenkalender: 1 feste Termine" in output
     assert "Wasser: Flasche sichtbar" in output
+    assert "Was ist heute passiert?" in output
 
 
 def test_daily_morning_output_includes_calendar_shape_and_water_check() -> None:
@@ -45,7 +47,8 @@ def test_daily_morning_output_includes_calendar_shape_and_water_check() -> None:
         }
     )
 
-    assert "## Heute steht an" in output
+    assert "☀️ Morgenbriefing" in output
+    assert "📌 Fix" in output
     assert "Kalender: 2 feste Termine" in output
     assert "Wasser: Flasche sichtbar" in output
 
