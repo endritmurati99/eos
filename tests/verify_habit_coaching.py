@@ -259,6 +259,139 @@ def test_pattern_detection_finds_multiple_classes():
             service.close()
 
 
+def test_daily_summary_renders_habit_state_and_relapses():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            service.add_habit(name="Doomscrolling Night", target_time="22:00", habit_type="reduce")
+            day = date(2026, 4, 30)
+            service.mark_done("morgenroutine", target_date=day, mode="full")
+            service.log_recovery("abendroutine", target_date=day, notes="minimum")
+            service.log_relapse(
+                "Doomscrolling Night",
+                trigger="muede",
+                replacement="handy weglegen",
+                severity="moderate",
+                target_date=day,
+            )
+
+            summary = service.daily_summary(day)
+            assert_eq(summary["status"], "success", "daily summary status")
+            assert_eq(summary["counts"]["done_full"], 1, "full count")
+            assert_eq(summary["counts"]["done_partial"], 1, "partial count")
+            assert_eq(summary["relapse_count"], 1, "relapse count")
+            assert "# Habit-Tagescheck 2026-04-30" in summary["output_markdown"]
+            assert "Doomscrolling Night" in summary["output_markdown"]
+            assert "Rueckfaelle" in summary["output_markdown"]
+        finally:
+            service.close()
+
+
+def test_weekly_review_selects_main_pattern_and_renders_rates():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            week_start = date(2026, 4, 20)
+            for offset in range(5):
+                service.skip_habit("morgenroutine", target_date=week_start + timedelta(days=offset))
+            review = service.weekly_review(week_start)
+            assert_eq(review["status"], "success", "weekly review status")
+            assert review["totals"]["skipped"] >= 5
+            assert review["main_pattern"] is not None
+            assert "# Habit-Wochenreview 2026-04-20" in review["output_markdown"]
+            assert "Wichtigstes Muster" in review["output_markdown"]
+        finally:
+            service.close()
+
+
+def test_daily_summary_counts_past_unlogged_habits_as_missed():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            service.connection.execute("UPDATE habit_definitions SET created_at_utc = ?", ("2026-04-24T08:00:00+00:00",))
+            service.connection.commit()
+            past_day = date(2026, 4, 30)
+            summary = service.daily_summary(past_day)
+            assert_eq(summary["counts"]["missed"], 3, "past unlogged habits missed")
+            assert_eq(summary["counts"]["pending"], 0, "past unlogged habits not pending")
+            assert "Verfehlt: 3" in summary["output_markdown"]
+        finally:
+            service.close()
+
+
+def test_weekly_review_uses_trackable_day_denominator():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            week_start = date(2026, 4, 20)
+            added = service.add_habit(name="Late Week Habit", target_time="18:00")
+            # Simulate a habit created on Saturday of the reviewed week.
+            service.connection.execute(
+                "UPDATE habit_definitions SET created_at_utc = ? WHERE id = ?",
+                ("2026-04-25T08:00:00+00:00", added["habit"]["id"]),
+            )
+            service.connection.commit()
+            service.mark_done("Late Week Habit", target_date=date(2026, 4, 25), mode="full")
+
+            review = service.weekly_review(week_start)
+            late = next(habit for habit in review["habits"] if habit["id"] == added["habit"]["id"])
+            assert_eq(late["trackable_day_count"], 2, "late habit trackable days")
+            assert_eq(late["completion_rate"], 0.5, "late habit rate")
+            assert "bis 2026-04-26" in review["output_markdown"]
+        finally:
+            service.close()
+
+
+def test_weekly_review_denominator_includes_logged_future_statuses():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            week_start = date(2026, 5, 11)
+            service.connection.execute(
+                "UPDATE habit_definitions SET created_at_utc = ? WHERE id = ?",
+                ("2026-05-15T08:00:00+00:00", "habit-morning-routine"),
+            )
+            service.connection.commit()
+            service.mark_done("morgenroutine", target_date=date(2026, 5, 15), mode="full")
+            service.mark_done("morgenroutine", target_date=date(2026, 5, 16), mode="full")
+            service.mark_done("morgenroutine", target_date=date(2026, 5, 17), mode="full")
+
+            review = service.weekly_review(week_start)
+            morning = next(habit for habit in review["habits"] if habit["id"] == "habit-morning-routine")
+            assert_eq(morning["trackable_day_count"], 3, "future logged days are trackable")
+            assert morning["completion_rate"] <= 1.0
+            assert_eq(morning["completion_rate"], 1.0, "future logged denominator aligned")
+        finally:
+            service.close()
+
+
+def test_weekly_review_denominator_includes_backfilled_statuses_before_creation():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            week_start = date(2026, 5, 11)
+            service.connection.execute(
+                "UPDATE habit_definitions SET created_at_utc = ? WHERE id = ?",
+                ("2026-05-15T08:00:00+00:00", "habit-morning-routine"),
+            )
+            service.connection.commit()
+            service.mark_done("morgenroutine", target_date=date(2026, 5, 12), mode="full")
+            service.mark_done("morgenroutine", target_date=date(2026, 5, 13), mode="full")
+
+            review = service.weekly_review(week_start)
+            morning = next(habit for habit in review["habits"] if habit["id"] == "habit-morning-routine")
+            assert_eq(morning["trackable_day_count"], 3, "backfilled days plus current creation day")
+            assert morning["completion_rate"] <= 1.0
+        finally:
+            service.close()
+
+
 def test_trigger_classifier():
     assert_eq(classify_trigger("ich war richtig muede"), "muede", "trigger muede")
     assert_eq(classify_trigger("Stress in der Arbeit"), "stress", "trigger stress")
