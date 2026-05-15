@@ -236,12 +236,24 @@ def _render_habit_checkin(job: str, result: dict[str, Any]) -> str:
     if not pending:
         lines.append("✅ Für heute ist alles abgehakt. Wenn sich etwas anders anfühlt, sag’s mir kurz.")
         return "\n".join(lines).strip() + "\n"
-    lines.append("Hast du das schon gemacht?")
-    for habit in pending:
+    is_evening = job == "habit_checkin_evening"
+    if len(pending) > 5:
+        lines.append(f"Es sind noch {len(pending)} Gewohnheiten offen — ich zähle die jetzt nicht alle runter.")
+        lines.append("Lass uns nur die wichtigsten durchgehen:")
+    else:
+        lines.append("Hast du das schon gemacht?")
+    for habit in pending[:5]:
         time_label = habit["target_time"] or "heute"
         lines.append(f"- {time_label}: {habit['name']} — erledigt, teilweise oder skip?")
+    remaining = len(pending) - 5
+    if remaining > 0:
+        briefing_label = "Abendbriefing" if is_evening else "Check-in"
+        lines.append(f"- + {remaining} weitere bleiben im Log, aber nicht in diesem {briefing_label}.")
     lines.append("")
-    lines.append("Antworte einfach menschlich, z.B. „erledigt“, „teilweise“ oder „heute skip, weil …“.")
+    if is_evening:
+        lines.append("Danach kurz: Was ist heute passiert? Was nicht? Was macht morgen leichter?")
+    else:
+        lines.append("Für jetzt reicht: Was ist wichtig, was ist optional, was ist die Minimum-Version?")
     return "\n".join(lines).strip() + "\n"
 
 

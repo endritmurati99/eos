@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.jobs.evening_reset import _render_evening_reset
-from src.jobs.runner import _render_daily_morning
+from src.jobs.runner import _render_daily_morning, _render_habit_checkin
 
 
 def test_evening_reset_output_is_compact_deduped_and_has_water_check() -> None:
@@ -48,3 +48,23 @@ def test_daily_morning_output_includes_calendar_shape_and_water_check() -> None:
     assert "## Heute steht an" in output
     assert "Kalender: 2 feste Termine" in output
     assert "Wasser: Flasche sichtbar" in output
+
+
+def test_habit_checkin_many_habits_uses_time_appropriate_compaction() -> None:
+    habits = [
+        {"pending": True, "target_time": "20:00", "name": f"Habit {index:02d}"}
+        for index in range(8)
+    ]
+    base = {"business_date_berlin": "2026-05-15", "habits": habits}
+
+    evening = _render_habit_checkin("habit_checkin_evening", base)
+    morning = _render_habit_checkin("habit_checkin_morning", base)
+
+    assert "Habit 00" in evening
+    assert "Habit 07" not in evening
+    assert "+ 3 weitere" in evening
+    assert "Abendbriefing" in evening
+    assert "Was ist heute passiert?" in evening
+
+    assert "Abendbriefing" not in morning
+    assert "Minimum-Version" in morning
