@@ -495,6 +495,54 @@ def test_default_habit_types_constant():
     assert_eq(DEFAULT_HABIT_TYPE, "build", "default constant")
 
 
+def test_weekly_habit_without_schedule_is_not_auto_missed_daily():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            result = service.add_habit(
+                name="Weekly Review Custom",
+                frequency="weekly",
+                target_time="18:00",
+            )
+            assert_eq(result["status"], "success", "weekly habit add status")
+            summary = service.daily_summary(date(2026, 4, 30))
+            weekly = next(habit for habit in summary["habits"] if habit["name"] == "Weekly Review Custom")
+            assert weekly["final_status"] is None
+            assert weekly["pending"] is False
+
+            report = service.weekly_report(date(2026, 4, 27))
+            weekly_report = next(habit for habit in report["habits"] if habit["name"] == "Weekly Review Custom")
+            assert_eq(weekly_report["missed_count"], 0, "weekly unscheduled missed count")
+            assert_eq(weekly_report["trackable_day_count"], 0, "weekly unscheduled denominator")
+        finally:
+            service.close()
+
+
+def test_habit_events_get_audit_uuid_metadata():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = str(Path(tmp) / "habits.db")
+        service = HabitService(workspace_root=WORKSPACE_ROOT, db_path=db_path)
+        try:
+            service.mark_done("morgenroutine", target_date=date(2026, 4, 30), mode="full", source="telegram")
+            row = service.connection.execute(
+                """
+                SELECT event_uuid, recorded_at_utc, effective_at_local, actor
+                FROM habit_events
+                WHERE habit_id = 'habit-morning-routine'
+                ORDER BY id DESC
+                LIMIT 1
+                """
+            ).fetchone()
+            assert row is not None
+            assert row["event_uuid"], "event_uuid must be populated"
+            assert row["recorded_at_utc"], "recorded_at_utc must be populated"
+            assert_eq(row["effective_at_local"], "2026-04-30", "effective local date")
+            assert_eq(row["actor"], "telegram", "actor/source")
+        finally:
+            service.close()
+
+
 def main():
     test_default_habit_type_migration()
     test_add_reduce_habit_with_metadata()
@@ -511,6 +559,8 @@ def main():
     test_init_db_idempotent()
     test_pattern_keys_complete()
     test_default_habit_types_constant()
+    test_weekly_habit_without_schedule_is_not_auto_missed_daily()
+    test_habit_events_get_audit_uuid_metadata()
     print("verify_habit_coaching: ok")
 
 

@@ -4,7 +4,9 @@ import json
 import re
 import sqlite3
 import unicodedata
+import uuid
 from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -27,6 +29,7 @@ EVENT_SKIPPED = "skipped"
 EVENT_MISSED = "missed"
 EVENT_PAUSED = "paused"
 FINAL_STATUSES = {EVENT_DONE_FULL, EVENT_DONE_PARTIAL, EVENT_SKIPPED, EVENT_MISSED}
+BERLIN = ZoneInfo("Europe/Berlin")
 
 
 class HabitService:
@@ -124,7 +127,7 @@ class HabitService:
         return [self._row_to_definition(row) for row in rows]
 
     def status(self, target_date: date | None = None) -> dict[str, Any]:
-        day = target_date or date.today()
+        day = target_date or _business_today()
         habits = []
         for habit in self.list_definitions(include_paused=True):
             daily = self._daily_status(habit["id"], day)
@@ -133,7 +136,8 @@ class HabitService:
                     **habit,
                     "today": daily,
                     "current_streak": self._streak_through(habit["id"], day),
-                    "pending": habit["status"] == "active" and daily["final_status"] is None,
+                    "scheduled_today": _is_scheduled_for_day(habit, day),
+                    "pending": habit["status"] == "active" and daily["final_status"] is None and _is_scheduled_for_day(habit, day),
                 }
             )
         return {
@@ -251,7 +255,7 @@ class HabitService:
         if resolved["status"] != "success":
             return resolved
         habit = resolved["habit"]
-        day = target_date or date.today()
+        day = target_date or _business_today()
         now = _utc_now()
         self._insert_event(
             habit["id"],
@@ -314,7 +318,7 @@ class HabitService:
                     f"{habit.get('habit_type')!r}."
                 ),
             }
-        day = target_date or date.today()
+        day = target_date or _business_today()
         now = _utc_now()
         canonical_trigger = classify_trigger(trigger)
         normalized_replacement = normalize_replacement(replacement)
@@ -385,7 +389,7 @@ class HabitService:
         if resolved["status"] != "success":
             return resolved
         habit = resolved["habit"]
-        day = target_date or date.today()
+        day = target_date or _business_today()
         now = _utc_now()
         self._insert_event(
             habit["id"],
@@ -422,16 +426,17 @@ class HabitService:
         }
 
     def week_patterns(self, reference_date: date | None = None) -> dict[str, Any]:
-        signals: list[PatternSignal] = detect_patterns(self.connection, reference_date=reference_date)
+        day = reference_date or _business_today()
+        signals: list[PatternSignal] = detect_patterns(self.connection, reference_date=day)
         return {
             "status": "success",
-            "reference_date_berlin": (reference_date or date.today()).isoformat(),
+            "reference_date_berlin": day.isoformat(),
             "pattern_count": len(signals),
             "patterns": [signal.to_dict() for signal in signals],
         }
 
     def daily_summary(self, target_date: date | None = None) -> dict[str, Any]:
-        day = target_date or date.today()
+        day = target_date or _business_today()
         status = self.status(day)
         habits = []
         counts = {
@@ -445,7 +450,7 @@ class HabitService:
             final_status = habit["today"]["final_status"]
             pending = habit["pending"]
             first_trackable_day = _date_from_iso(habit["created_at_utc"]) or day
-            if habit["status"] == "active" and final_status is None and first_trackable_day <= day < date.today():
+            if habit["status"] == "active" and final_status is None and _is_scheduled_for_day(habit, day) and first_trackable_day <= day < _business_today():
                 final_status = EVENT_MISSED
                 pending = False
             if final_status in counts:
@@ -460,6 +465,7 @@ class HabitService:
                     "target_time": habit["target_time"],
                     "final_status": final_status,
                     "pending": pending,
+                    "scheduled_today": habit.get("scheduled_today", True),
                     "current_streak": habit["current_streak"],
                     "minimum_version": habit["minimum_version"],
                     "notes": habit["today"].get("notes"),
@@ -525,7 +531,7 @@ class HabitService:
             "UPDATE habit_definitions SET status = ?, updated_at_utc = ? WHERE id = ?",
             ("paused", now, habit["id"]),
         )
-        self._insert_event(habit["id"], date.today(), EVENT_PAUSED, source, notes, now)
+        self._insert_event(habit["id"], _business_today(), EVENT_PAUSED, source, notes, now)
         self.connection.commit()
         return {"status": "success", "habit": self.get_definition(habit["id"])}
 
@@ -541,7 +547,7 @@ class HabitService:
         if mode not in {"full", "partial", "minimum"}:
             return {"status": "config_missing", "error": "mode must be full, partial, or minimum."}
         event_type = EVENT_DONE_FULL if mode == "full" else EVENT_DONE_PARTIAL
-        return self._set_final_status(query, event_type, target_date or date.today(), source, notes)
+        return self._set_final_status(query, event_type, target_date or _business_today(), source, notes)
 
     def skip_habit(
         self,
@@ -551,7 +557,7 @@ class HabitService:
         source: str = "cli",
         notes: str | None = None,
     ) -> dict[str, Any]:
-        return self._set_final_status(query, EVENT_SKIPPED, target_date or date.today(), source, notes)
+        return self._set_final_status(query, EVENT_SKIPPED, target_date or _business_today(), source, notes)
 
     def weekly_report(self, week_start: date) -> dict[str, Any]:
         week_end = week_start + timedelta(days=7)
@@ -563,7 +569,7 @@ class HabitService:
                 day = week_start + timedelta(days=offset)
                 daily = self._daily_status(habit["id"], day)
                 final_status = daily["final_status"]
-                if habit["status"] == "active" and final_status is None and first_trackable_day <= day < date.today():
+                if habit["status"] == "active" and final_status is None and _is_scheduled_for_day(habit, day) and first_trackable_day <= day < _business_today():
                     final_status = EVENT_MISSED
                 day_statuses.append(
                     {
@@ -577,7 +583,7 @@ class HabitService:
             partial_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_DONE_PARTIAL)
             skipped_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_SKIPPED)
             missed_count = sum(1 for item in day_statuses if item["final_status"] == EVENT_MISSED)
-            latest_trackable_day = min(week_end - timedelta(days=1), date.today())
+            latest_trackable_day = min(week_end - timedelta(days=1), _business_today())
             if habit["status"] == "active":
                 trackable_day_count = 0
                 for item in day_statuses:
@@ -587,11 +593,11 @@ class HabitService:
                         continue
                     if item_day < first_trackable_day:
                         continue
-                    if item_day <= latest_trackable_day:
+                    if item_day <= latest_trackable_day and _is_scheduled_for_day(habit, item_day):
                         trackable_day_count += 1
             else:
                 trackable_day_count = sum(1 for item in day_statuses if item["final_status"] is not None)
-            streak_date = self._weekly_streak_anchor(habit["id"], week_start, min(week_end - timedelta(days=1), date.today()))
+            streak_date = self._weekly_streak_anchor(habit["id"], week_start, min(week_end - timedelta(days=1), _business_today()))
             habits.append(
                 {
                     "id": habit["id"],
@@ -618,7 +624,7 @@ class HabitService:
     def handle_text(self, text: str, *, target_date: date | None = None, source: str = "telegram") -> dict[str, Any]:
         raw = text.strip()
         normalized = _normalize(raw)
-        day = target_date or date.today()
+        day = target_date or _business_today()
         if not raw:
             return {"status": "config_missing", "error": "Text is required."}
         if "status" in normalized:
@@ -736,9 +742,9 @@ class HabitService:
             """
             INSERT INTO habit_events (
                 habit_id, business_date_berlin, event_type, source, notes, created_at_utc,
-                failure_mode, recovery_used
+                failure_mode, recovery_used, event_uuid, recorded_at_utc, effective_at_local, actor
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 habit_id,
@@ -749,6 +755,10 @@ class HabitService:
                 created_at_utc,
                 failure_mode,
                 1 if recovery_used else 0,
+                str(uuid.uuid4()),
+                created_at_utc,
+                target_date.isoformat(),
+                source,
             ),
         )
 
@@ -823,6 +833,8 @@ class HabitService:
         replacement_raw = row["replacement_actions_json"] if "replacement_actions_json" in keys else None
         recovery_raw = row["recovery_rule_json"] if "recovery_rule_json" in keys else None
         trigger_raw = row["trigger_window_json"] if "trigger_window_json" in keys else None
+        schedule_raw = row["schedule_rule_json"] if "schedule_rule_json" in keys else None
+        briefing_raw = row["briefing_policy_json"] if "briefing_policy_json" in keys else None
         return {
             "id": row["id"],
             "name": row["name"],
@@ -838,6 +850,13 @@ class HabitService:
             "replacement_actions": json.loads(replacement_raw) if replacement_raw else None,
             "recovery_rule": json.loads(recovery_raw) if recovery_raw else None,
             "trigger_window": json.loads(trigger_raw) if trigger_raw else None,
+            "timezone": row["timezone"] if "timezone" in keys else "Europe/Berlin",
+            "start_date_berlin": row["start_date_berlin"] if "start_date_berlin" in keys else None,
+            "end_date_berlin": row["end_date_berlin"] if "end_date_berlin" in keys else None,
+            "schedule_rule": json.loads(schedule_raw) if schedule_raw else None,
+            "category": row["category"] if "category" in keys else None,
+            "salience": row["salience"] if "salience" in keys else 3,
+            "briefing_policy": json.loads(briefing_raw) if briefing_raw else None,
             "created_at_utc": row["created_at_utc"],
             "updated_at_utc": row["updated_at_utc"],
         }
@@ -852,6 +871,31 @@ class HabitService:
         name = re.sub(r"\b(täglich|taeglich|daily|jeden tag)\b", "", name, flags=re.IGNORECASE).strip()
         return self.add_habit(name=name, target_time=target_time, frequency="daily")
 
+
+
+def _is_scheduled_for_day(habit: dict[str, Any], day: date) -> bool:
+    start = _date_from_iso(habit.get("start_date_berlin"))
+    end = _date_from_iso(habit.get("end_date_berlin"))
+    if start and day < start:
+        return False
+    if end and day > end:
+        return False
+
+    rule = habit.get("schedule_rule") or {}
+    weekdays = rule.get("weekdays") if isinstance(rule, dict) else None
+    if weekdays is not None:
+        try:
+            return day.weekday() in {int(item) for item in weekdays}
+        except (TypeError, ValueError):
+            return False
+
+    frequency = habit.get("frequency") or "daily"
+    if frequency == "daily":
+        return True
+    if frequency == "weekly":
+        # Weekly habits need an explicit schedule before EOS auto-prompts or auto-misses them.
+        return False
+    return True
 
 def _unique_habit_id(connection: sqlite3.Connection, name: str) -> str:
     base = "habit-" + re.sub(r"[^a-z0-9]+", "-", _normalize(name)).strip("-")
@@ -922,7 +966,7 @@ def _render_daily_summary(result: dict[str, Any]) -> str:
     else:
         lines.append("- Keine offenen oder verfehlten Gewohnheiten im Tagesstand.")
     lines.extend(["", "## Morgen besser"])
-    if counts["pending"] or counts[EVENT_MISSED] or counts[EVENT_SKIPPED]:
+    if not_happened or counts["pending"] or counts[EVENT_MISSED] or counts[EVENT_SKIPPED]:
         focus = not_happened[0] if not_happened else "die wichtigste offene Gewohnheit"
         lines.append(f"- Nicht alle Gewohnheiten diskutieren: morgen zuerst nur {focus} minimal absichern.")
         lines.append("- Im Abendgespraech klaeren: Was lief gut? Was ist ausgefallen? Welche eine Barriere macht morgen leichter?")
@@ -992,6 +1036,8 @@ def _select_main_pattern(patterns: list[dict[str, Any]]) -> dict[str, Any] | Non
 def _habit_names_by_state(habits: list[dict[str, Any]], states: set[str | None]) -> list[str]:
     names = []
     for habit in habits:
+        if habit.get("scheduled_today") is False and habit.get("final_status") is None:
+            continue
         if habit.get("final_status") in states:
             names.append(str(habit["name"]))
     return names
@@ -1004,6 +1050,10 @@ def _format_limited_names(names: list[str], *, limit: int) -> str:
     if suffix > 0:
         return f"{rendered} (+ {suffix} weitere)"
     return rendered
+
+
+def _business_today() -> date:
+    return datetime.now(BERLIN).date()
 
 
 def _utc_now() -> str:
