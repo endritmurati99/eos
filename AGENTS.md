@@ -22,7 +22,17 @@ Do not manually reread startup files unless:
 2. The provided context is missing something you need
 3. You need a deeper follow-up read beyond the provided startup context
 
-## Memory
+## Memory — Mandatory After Every Turn
+
+**This is not optional.** After every interaction turn, write what matters to `memory/YYYY-MM-DD.md`. No asking, no "mental notes". If the session ends before you write it down, it's gone.
+
+What always gets written:
+- decisions made or changed
+- tasks created, updated, or completed
+- plans agreed on
+- calendar changes
+- research findings worth keeping long-term
+- anything Endrit said that should affect future behavior
 
 You wake up fresh each session. These files are your continuity:
 
@@ -49,6 +59,27 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - When you learn a lesson → update AGENTS.md, TOOLS.md, or the relevant skill
 - When you make a mistake → document it so future-you doesn't repeat it
 - **Text > Brain** 📝
+
+### 🔄 Session Checkpoint (Daily 23:55)
+
+A cron job fires at 23:55 every night. When it fires:
+1. Summarize all key context, decisions, and open items from today into `memory/YYYY-MM-DD.md`
+2. Flag anything that needs follow-up tomorrow
+3. The next session starts fresh — but reads this file to restore context immediately
+
+This replaces the manual `/neu` command. You never lose context because of a full context window.
+
+### 🗂️ Second Brain — Topic Organization
+
+When Endrit brings up a specific topic area, check `vault/13 Areas/<topic>/CONTEXT.md`. Load it before responding. If it doesn't exist, offer to create it.
+
+Topic areas currently set up:
+- `vault/13 Areas/Wandern/` — hiking routes, conditions, gear, planning
+- `vault/13 Areas/Fitness/` — training plans, habits, sport schedule
+- `vault/13 Areas/Uni/` — university schedule, deadlines, Bachelorarbeit
+- `vault/13 Areas/Work/` — Sutenkamp shifts, work-related tasks
+
+Add new areas as Endrit introduces new topics.
 
 ## Red Lines
 

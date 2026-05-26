@@ -1,40 +1,84 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - EOS Tool Reference
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## EOS CLI
 
-## What Goes Here
+Working directory: `/data/.openclaw/workspaces/personal-assistant`
 
-Things like:
-
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
-
-## Examples
-
-```markdown
-### Cameras
-
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
-
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+```bash
+python3 -m src.eos_cli health
+python3 -m src.eos_cli habits status
+python3 -m src.eos_cli habits handle "<message>"
+python3 -m src.eos_cli dispatch handle "<message>"
+python3 -m src.eos_cli energy today
+python3 -m src.eos_cli daily-plan --date YYYY-MM-DD --dry-run
+python3 -m src.eos_cli weekly-plan --week-start YYYY-MM-DD --dry-run
+python3 -m src.eos_cli run-job daily_morning --no-dry-run
+python3 -m src.eos_cli run-job evening_briefing --no-dry-run
+python3 -m src.eos_cli run-job weekly_sync --no-dry-run
+python3 -m src.eos_cli run-job habit_checkin_evening --no-dry-run
+python3 -m src.eos_cli cron-audit
+python3 -m src.eos_cli model-audit
 ```
 
-## Why Separate?
+## Google Calendar (gog)
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+```bash
+gog auth status
+gog calendar list --tz Europe/Berlin
+gog calendar events --calendar primary --date YYYY-MM-DD
+gog calendar events --calendar Sport --date YYYY-MM-DD
+gog calendar create --calendar primary --title "..." --start "..." --end "..."
+```
 
----
+Status: auth broken (keyring permission error — ERR-20260421-001). Stub mode active.
 
-Add whatever helps you do your job. This is your cheat sheet.
+## Google Tasks
+
+```bash
+gog tasks list
+gog tasks create --title "..."
+gog tasks complete --id "..."
+```
+
+Status: 403 accessNotConfigured (ERR-20260428-001). Tasks API not enabled in Google Cloud project.
+
+## Database
+
+- Path: `data/eos_v2.db`
+- Schema: `data/eos_state.schema.json`
+- State: `data/eos_state.json`
+
+## Telegram Delivery
+
+- Bot account: `personal-assistant`
+- User chat ID: `6526468834`
+- Delivery via OpenClaw announce: `delivery.mode = "announce", to = "telegram:6526468834"`
+
+## Skills Available
+
+| Skill | Path | Trigger |
+|-------|------|---------|
+| self-improving-agent | `/data/.openclaw/skills/self-improving-agent/` | `/self-improvement` or auto at 02:00 |
+| graphify | `/data/.openclaw/skills/graphify/` | `/graphify` |
+| hhmail | `/data/.openclaw/skills/hhmail/` | `/hhmail` |
+| model-switch | `/data/.openclaw/skills/model-switch/` | `/model-switch` |
+
+## Web Tools
+
+- Web search: DuckDuckGo (enabled, max 5 results, 15min cache)
+- Web fetch: enabled (max 50k chars, readability mode on)
+- Browser: Chromium headless (available for JS-heavy pages)
+
+## Vault Structure
+
+```
+vault/
+  10 Inbox/      — unprocessed inputs
+  12 Projects/   — active projects
+  13 Areas/
+    Wandern/     — hiking context
+    Fitness/     — training context
+    Uni/         — university context
+    Work/        — work context
+  15 Ideas/      — ideas for later
+```
