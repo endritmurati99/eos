@@ -1,0 +1,20 @@
+{
+  "case_id": "legal",
+  "mail": {
+    "message_id": "synthetic-legal-001",
+    "thread_id": "synthetic-thread-legal-001",
+    "sender": "notices@example-legal.test",
+    "subject": "Legal notice for contract review",
+    "snippet": "Please review this synthetic contract notice.",
+    "body_excerpt": "No real legal matter or personal data is included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Legal", "_EOS/Action Required"],
+    "priority": "important",
+    "requires_reply": true,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": ["legal_sensitive"]
+  }
+}

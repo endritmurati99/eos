@@ -1,0 +1,20 @@
+{
+  "case_id": "phishing_suspected",
+  "mail": {
+    "message_id": "synthetic-phishing-suspected-001",
+    "thread_id": "synthetic-thread-phishing-suspected-001",
+    "sender": "security-alert@account-verify.invalid",
+    "subject": "Urgent account verification required",
+    "snippet": "Your mailbox will be closed unless you verify immediately.",
+    "body_excerpt": "Use the account button to avoid suspension. No login link is included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Risk/Phishing Suspected", "_Security/Suspicious", "_EOS/Review Needed"],
+    "priority": "critical",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.90,
+    "risk_flags_include": ["phishing_suspected"]
+  }
+}

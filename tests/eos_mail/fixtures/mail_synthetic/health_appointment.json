@@ -1,0 +1,20 @@
+{
+  "case_id": "health_appointment",
+  "mail": {
+    "message_id": "synthetic-health-appointment-001",
+    "thread_id": "synthetic-thread-health-appointment-001",
+    "sender": "appointments@example-clinic.test",
+    "subject": "Clinic appointment reminder",
+    "snippet": "This is a synthetic appointment reminder from a clinic.",
+    "body_excerpt": "No patient data or medical details are included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Health"],
+    "priority": "important",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": ["health_sensitive"]
+  }
+}

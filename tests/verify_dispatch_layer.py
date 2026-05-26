@@ -23,6 +23,12 @@ def assert_eq(actual, expected, label):
     assert actual == expected, f"{label}: expected {expected!r}, got {actual!r}"
 
 
+def load_cli_json(stdout: str) -> dict:
+    payload = stdout.strip()
+    assert payload, "CLI stdout must contain JSON"
+    return json.loads(payload)
+
+
 # ── 1. New intents in SUPPORTED_INTENTS ────────────────────────────────────
 
 def test_new_intents_in_supported():
@@ -236,14 +242,16 @@ def test_dispatch_unknown_no_write():
 def test_dispatch_energy_checkin():
     with tempfile.TemporaryDirectory() as tmp:
         db_path = str(Path(tmp) / "test.db")
-        result = dispatch_text("energie 7, schlaf 6, stress 3", db_path=db_path)
+        result = dispatch_text("schlaf 6 energie 5 stress 7", db_path=db_path)
         assert result.intent == "daily_checkin"
         assert result.status == "ok"
         assert result.action_type == ACTION_ENERGY_LOG
         conn = init_db(db_path)
-        row = conn.execute("SELECT energy_level, sleep_quality FROM daily_energy_logs LIMIT 1").fetchone()
+        row = conn.execute("SELECT energy_level, sleep_quality, stress FROM daily_energy_logs LIMIT 1").fetchone()
         assert row is not None, "energy log must be written"
-        assert_eq(row["energy_level"], 7, "energy_level persisted")
+        assert_eq(row["energy_level"], 5, "energy_level persisted")
+        assert_eq(row["sleep_quality"], 6, "sleep_quality persisted")
+        assert_eq(row["stress"], 7, "stress persisted")
         conn.close()
 
 
@@ -275,7 +283,7 @@ def test_cli_dispatch_handle_json():
         capture_output=True, text=True, cwd=str(WORKSPACE_ROOT)
     )
     assert result.returncode in (0, 1), f"CLI exited with {result.returncode}: {result.stderr}"
-    data = json.loads(result.stdout.strip())
+    data = load_cli_json(result.stdout)
     assert "intent" in data, f"JSON must contain 'intent', got: {data}"
     assert "status" in data
 
@@ -289,7 +297,7 @@ def test_cli_energy_today_empty():
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
         assert result.returncode in (0, 1)
-        data = json.loads(result.stdout.strip())
+        data = load_cli_json(result.stdout)
         assert data.get("status") in ("no_data", "success")
 
 
@@ -302,7 +310,7 @@ def test_cli_confirmations_list_empty():
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
         assert result.returncode in (0, 1)
-        data = json.loads(result.stdout.strip())
+        data = load_cli_json(result.stdout)
         assert "confirmations" in data
         assert data["confirmations"] == []
 

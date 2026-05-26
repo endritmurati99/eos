@@ -1,0 +1,20 @@
+{
+  "case_id": "personal_reply_required",
+  "mail": {
+    "message_id": "synthetic-personal-reply-required-001",
+    "thread_id": "synthetic-thread-personal-reply-required-001",
+    "sender": "friend@example-personal.test",
+    "subject": "Can you confirm dinner Friday?",
+    "snippet": "Please reply by tomorrow so the plan is clear.",
+    "body_excerpt": "Synthetic personal message only.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Personal", "_EOS/Action Required"],
+    "priority": "important",
+    "requires_reply": true,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": []
+  }
+}

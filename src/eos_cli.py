@@ -47,6 +47,8 @@ def main(argv: list[str] | None = None) -> int:
         result = command_confirmations(args)
     elif args.command == "energy":
         result = command_energy(args)
+    elif args.command == "mail":
+        result = command_mail(args)
     elif args.command == "cron-audit":
         result = audit_cron(args.jobs_path)
     elif args.command == "model-audit":
@@ -272,6 +274,96 @@ def command_energy(args: argparse.Namespace) -> dict[str, Any]:
     return {"status": "not_found", "error": f"Unknown energy command: {args.energy_command}"}
 
 
+def command_mail(args: argparse.Namespace) -> dict[str, Any]:
+    mail_command = str(args.mail_command)
+    dry_run = bool(getattr(args, "dry_run", True))
+    if not dry_run:
+        return _mail_no_dry_run_blocked(mail_command)
+    if mail_command == "auth-check":
+        return _mail_auth_check(args)
+    if mail_command == "audit":
+        return _mail_audit_preview(args)
+    if mail_command == "digest":
+        return _mail_digest_preview(args)
+    return {"status": "not_found", "error": f"Unknown mail command: {mail_command}"}
+
+
+def _mail_auth_check(args: argparse.Namespace) -> dict[str, Any]:
+    from src.eos_mail.auth_preflight import run_gmail_auth_preflight
+
+    result = run_gmail_auth_preflight()
+    return {
+        "command_group": "mail",
+        "mail_command": "auth-check",
+        "dry_run": bool(getattr(args, "dry_run", True)),
+        "gmail_write_actions_added": False,
+        "live_google_calls_made": False,
+        **result,
+    }
+
+
+def _mail_audit_preview(args: argparse.Namespace) -> dict[str, Any]:
+    preflight = _mail_auth_check(args)
+    return {
+        "status": preflight["status"],
+        "command_group": "mail",
+        "mail_command": "audit",
+        "dry_run": True,
+        "query": _mail_query_from_args(args),
+        "last": getattr(args, "last", None),
+        "provider_read_status": "not_attempted",
+        "provider_read_blocked_reason": "dry_run_no_live_reads",
+        "messages_seen": 0,
+        "messages": [],
+        "errors": [],
+        "auth_preflight": preflight,
+        "gmail_write_actions_added": False,
+        "live_google_calls_made": False,
+    }
+
+
+def _mail_digest_preview(args: argparse.Namespace) -> dict[str, Any]:
+    from src.eos_mail.digest import digest_payload, render_shadow_digest
+
+    preflight = _mail_auth_check(args)
+    digest = digest_payload([])
+    return {
+        "status": preflight["status"],
+        "command_group": "mail",
+        "mail_command": "digest",
+        "dry_run": True,
+        "today": bool(getattr(args, "today", False)),
+        "query": _mail_query_from_args(args),
+        "provider_read_status": "not_attempted",
+        "provider_read_blocked_reason": "dry_run_no_live_reads",
+        "auth_preflight": preflight,
+        "digest": digest,
+        "output_markdown": render_shadow_digest([]),
+        "gmail_write_actions_added": False,
+        "live_google_calls_made": False,
+    }
+
+
+def _mail_no_dry_run_blocked(mail_command: str) -> dict[str, Any]:
+    return {
+        "status": "failed",
+        "command_group": "mail",
+        "mail_command": mail_command,
+        "dry_run": False,
+        "error_class": "no_dry_run_forbidden",
+        "error": "Gmail Phase 1 CLI is read-only preview only; --no-dry-run is forbidden.",
+        "gmail_write_actions_added": False,
+        "live_google_calls_made": False,
+    }
+
+
+def _mail_query_from_args(args: argparse.Namespace) -> str:
+    if bool(getattr(args, "today", False)):
+        return "newer_than:1d"
+    last = str(getattr(args, "last", "1d") or "1d").strip()
+    return f"newer_than:{last}"
+
+
 def command_run_job(args: argparse.Namespace) -> dict[str, Any]:
     if args.send and args.dry_run:
         return {
@@ -472,6 +564,17 @@ def _build_parser() -> argparse.ArgumentParser:
     energy_log_cmd.add_argument("text")
     energy_log_cmd.add_argument("--date")
     energy_subparsers.add_parser("today")
+
+    mail = subparsers.add_parser("mail")
+    mail_subparsers = mail.add_subparsers(dest="mail_command", required=True)
+    mail_auth = mail_subparsers.add_parser("auth-check")
+    mail_auth.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+    mail_audit = mail_subparsers.add_parser("audit")
+    mail_audit.add_argument("--last", default="1d")
+    mail_audit.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
+    mail_digest = mail_subparsers.add_parser("digest")
+    mail_digest.add_argument("--today", action="store_true")
+    mail_digest.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
 
     daily = subparsers.add_parser("daily-plan")
     daily.add_argument("--date", required=True)

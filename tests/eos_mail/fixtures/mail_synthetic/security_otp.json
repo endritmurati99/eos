@@ -1,0 +1,20 @@
+{
+  "case_id": "security_otp",
+  "mail": {
+    "message_id": "synthetic-security-otp-001",
+    "thread_id": "synthetic-thread-security-otp-001",
+    "sender": "codes@example-security.test",
+    "subject": "Verification code request",
+    "snippet": "A one-time code was requested for your synthetic account.",
+    "body_excerpt": "The actual code is intentionally omitted from this fixture.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Security/OTP", "_EOS/Review Needed"],
+    "priority": "critical",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.90,
+    "risk_flags_include": ["security_sensitive"]
+  }
+}

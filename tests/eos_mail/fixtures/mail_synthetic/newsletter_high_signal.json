@@ -1,0 +1,22 @@
+{
+  "case_id": "newsletter_high_signal",
+  "mail": {
+    "message_id": "synthetic-newsletter-high-signal-001",
+    "thread_id": "synthetic-thread-newsletter-high-signal-001",
+    "sender": "editor@insight-news.test",
+    "subject": "Weekly research brief: operational AI digest",
+    "snippet": "Curated research links and one high signal essay.",
+    "body_excerpt": "Synthetic newsletter content only.",
+    "headers": {
+      "List-Unsubscribe": "<mailto:unsubscribe@insight-news.test>"
+    }
+  },
+  "expected": {
+    "categories_include": ["_Newsletter/High Signal"],
+    "priority": "important",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.90,
+    "risk_flags_include": []
+  }
+}

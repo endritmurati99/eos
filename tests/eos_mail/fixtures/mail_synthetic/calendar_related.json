@@ -1,0 +1,20 @@
+{
+  "case_id": "calendar_related",
+  "mail": {
+    "message_id": "synthetic-calendar-related-001",
+    "thread_id": "synthetic-thread-calendar-related-001",
+    "sender": "coordinator@example-company.test",
+    "subject": "Team meeting reschedule request",
+    "snippet": "Can you confirm availability for the revised meeting time?",
+    "body_excerpt": "Synthetic calendar coordination only.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Work", "_EOS/Action Required"],
+    "priority": "important",
+    "requires_reply": true,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": []
+  }
+}

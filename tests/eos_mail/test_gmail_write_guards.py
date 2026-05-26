@@ -1,0 +1,113 @@
+from __future__ import annotations
+
+import ast
+from pathlib import Path
+
+from src.eos_mail.gmail_client import (
+    FORBIDDEN_GMAIL_WRITE_SCOPES,
+    GOG_GMAIL_CONTRACT_COMMANDS,
+    GogGmailReadOnlyClient,
+    READONLY_SCOPE,
+)
+
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_no_gmail_write_scopes_are_configured_for_runtime() -> None:
+    env_example = (WORKSPACE_ROOT / ".env.example").read_text(encoding="utf-8")
+
+    assert READONLY_SCOPE == "https://www.googleapis.com/auth/gmail.readonly"
+    assert set(FORBIDDEN_GMAIL_WRITE_SCOPES) == {
+        "https://www.googleapis.com/auth/gmail.modify",
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/gmail.compose",
+        "https://mail.google.com/",
+    }
+    for forbidden_scope in FORBIDDEN_GMAIL_WRITE_SCOPES:
+        assert forbidden_scope not in env_example
+
+
+def test_gog_contract_commands_have_no_write_actions_or_scopes() -> None:
+    forbidden_terms = {
+        "send",
+        "delete",
+        "trash",
+        "archive",
+        "modify",
+        "labels",
+        "create-label",
+        "mark-read",
+        "mark-unread",
+        *FORBIDDEN_GMAIL_WRITE_SCOPES,
+    }
+
+    for command in GOG_GMAIL_CONTRACT_COMMANDS.values():
+        rendered = " ".join(command).lower().replace("list-unsubscribe", "")
+        for forbidden in forbidden_terms:
+            assert forbidden not in rendered
+
+
+def test_readonly_client_exposes_no_write_like_methods() -> None:
+    forbidden_method_names = {
+        "send",
+        "delete",
+        "archive",
+        "trash",
+        "modify_label",
+        "modify_labels",
+        "unsubscribe",
+    }
+
+    assert forbidden_method_names.isdisjoint(set(dir(GogGmailReadOnlyClient)))
+
+
+def test_eos_mail_implementation_defines_no_write_methods() -> None:
+    forbidden_function_names = {
+        "send",
+        "delete",
+        "archive",
+        "trash",
+        "modify_label",
+        "modify_labels",
+        "unsubscribe",
+    }
+
+    discovered: list[tuple[str, str]] = []
+    for path in sorted((WORKSPACE_ROOT / "src" / "eos_mail").glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in forbidden_function_names:
+                discovered.append((str(path.relative_to(WORKSPACE_ROOT)), node.name))
+
+    assert discovered == []
+
+
+def test_eos_mail_implementation_calls_no_write_methods() -> None:
+    forbidden_call_names = {
+        "send",
+        "delete",
+        "archive",
+        "trash",
+        "modify",
+        "modify_label",
+        "modify_labels",
+        "unsubscribe",
+    }
+
+    discovered: list[tuple[str, str]] = []
+    for path in sorted((WORKSPACE_ROOT / "src" / "eos_mail").glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if isinstance(func, ast.Name):
+                name = func.id
+            elif isinstance(func, ast.Attribute):
+                name = func.attr
+            else:
+                continue
+            if name in forbidden_call_names:
+                discovered.append((str(path.relative_to(WORKSPACE_ROOT)), name))
+
+    assert discovered == []

@@ -1,0 +1,20 @@
+{
+  "case_id": "tax",
+  "mail": {
+    "message_id": "synthetic-tax-001",
+    "thread_id": "synthetic-thread-tax-001",
+    "sender": "documents@example-tax.test",
+    "subject": "Tax document available",
+    "snippet": "A synthetic year-end tax document is available.",
+    "body_excerpt": "No taxpayer identifiers or financial amounts are included.",
+    "headers": {}
+  },
+  "expected": {
+    "categories_include": ["_Money/Tax"],
+    "priority": "important",
+    "requires_reply": false,
+    "safe_to_archive": false,
+    "min_confidence": 0.85,
+    "risk_flags_include": ["sensitive_tax"]
+  }
+}
