@@ -209,7 +209,7 @@ def _extract_energy_entities(normalized: str) -> dict[str, Any]:
     import re
     entities: dict[str, Any] = {}
     number_pattern = re.compile(r"(\d+)(?:\s*(?:/10|von\s*10))?")
-    tokens = normalized.split()
+    tokens = [t for t in re.split(r"[^a-z0-9]+", normalized) if t]
     for i, token in enumerate(tokens):
         for keywords, field in _ENERGY_FIELD_PATTERNS:
             if any(kw in token for kw in keywords):

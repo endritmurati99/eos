@@ -271,11 +271,11 @@ def test_dispatch_log_always_written():
 def test_cli_dispatch_handle_json():
     import subprocess
     result = subprocess.run(
-        ["python3", "-m", "src.eos_cli", "--json-only", "dispatch", "handle", "morgenroutine erledigt"],
+        [sys.executable, "-m", "src.eos_cli", "--json-only", "dispatch", "handle", "morgenroutine erledigt"],
         capture_output=True, text=True, cwd=str(WORKSPACE_ROOT)
     )
     assert result.returncode in (0, 1), f"CLI exited with {result.returncode}: {result.stderr}"
-    data = json.loads(result.stdout.strip().split("\n")[-1])
+    data = json.loads(result.stdout.strip())
     assert "intent" in data, f"JSON must contain 'intent', got: {data}"
     assert "status" in data
 
@@ -284,12 +284,12 @@ def test_cli_energy_today_empty():
     import subprocess
     with tempfile.TemporaryDirectory() as tmp:
         result = subprocess.run(
-            ["python3", "-m", "src.eos_cli", "--json-only", "energy", "today"],
+            [sys.executable, "-m", "src.eos_cli", "--json-only", "energy", "today"],
             capture_output=True, text=True, cwd=str(WORKSPACE_ROOT),
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
         assert result.returncode in (0, 1)
-        data = json.loads(result.stdout.strip().split("\n")[-1])
+        data = json.loads(result.stdout.strip())
         assert data.get("status") in ("no_data", "success")
 
 
@@ -297,12 +297,12 @@ def test_cli_confirmations_list_empty():
     import subprocess
     with tempfile.TemporaryDirectory() as tmp:
         result = subprocess.run(
-            ["python3", "-m", "src.eos_cli", "--json-only", "confirmations", "list"],
+            [sys.executable, "-m", "src.eos_cli", "--json-only", "confirmations", "list"],
             capture_output=True, text=True, cwd=str(WORKSPACE_ROOT),
             env={**__import__("os").environ, "EOS_DB_PATH": str(Path(tmp) / "test.db")}
         )
         assert result.returncode in (0, 1)
-        data = json.loads(result.stdout.strip().split("\n")[-1])
+        data = json.loads(result.stdout.strip())
         assert "confirmations" in data
         assert data["confirmations"] == []
 
