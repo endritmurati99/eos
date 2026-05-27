@@ -58,3 +58,15 @@ When receiving a clear calendar action:
 5. use `Europe/Berlin` as time basis
 6. after writing, always perform read-after-write verification
 7. respond with the real result, not a generic advisory summary
+
+## Mandatory Integration Gate
+
+**Context7** — Before writing any code that touches a Google API (Calendar, Tasks, Gmail, Drive, Maps), `gog`, Telegram, or any external library: query Context7 for current docs. Never rely on training-data knowledge of integration behavior.
+
+## Memory & Vault Write Mandate
+
+After every significant interaction, decision, or plan: write a note. Files survive; "mental notes" don't.
+- Operational context → `MEMORY.md`
+- Daily raw log → `memory/YYYY-MM-DD.md`
+- Structured daily review → `vault/11 Daily Notes/YYYY-MM-DD.md`
+- Decisions with ADR context → `vault/02 Decisions/`

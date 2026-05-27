@@ -1,3 +1,34 @@
+## EOS Runtime — Status 2026-05-27
+
+### Python
+- Always use: `.venv/bin/python -m src.eos_cli`
+- Venv: `/data/.openclaw/workspaces/personal-assistant/.venv/`
+- Never use bare `python3` in cron commands or scripts — lacks venv packages
+
+### GitHub
+- Repo: `https://github.com/endritmurati99/eos.git`
+- Branch: `agent/eos-usable-assistant-v1`
+- Auth: `GH_CONFIG_DIR=/data/.openclaw/gh-main-eos`
+- Wrapper: `/data/.local/bin/gh-eos`
+- Push: `GH_CONFIG_DIR=/data/.openclaw/gh-main-eos git -C /data/.openclaw/workspaces/personal-assistant push`
+
+### Mandatory Skills
+| Skill | Status | Scope | Notes |
+|-------|--------|-------|-------|
+| Superpowers | ✅ Available | Claude Code + Codex | Mandatory for non-trivial tasks |
+| Context7 | ✅ Available | Claude Code + Codex | Mandatory before any integration/API work |
+
+### EOS CLI Quick Reference
+```bash
+cd /data/.openclaw/workspaces/personal-assistant
+.venv/bin/python -m src.eos_cli health
+.venv/bin/python -m src.eos_cli run-job daily_morning --dry-run
+.venv/bin/python -m src.eos_cli run-job evening_briefing --dry-run
+.venv/bin/python -m src.eos_cli habits status
+```
+
+---
+
 # TOOLS.md - Local Notes
 
 Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.

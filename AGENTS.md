@@ -252,3 +252,64 @@ claude-gpt
 ```
 
 Do **not** rely on bare `claude --model gpt-5.5`; direct Claude Code model selection currently does not expose that route reliably. The wrapper routes Claude Code through local `claude-code-proxy` on `127.0.0.1:18765`, defaults to `ANTHROPIC_MODEL=gpt-5.5` and `ANTHROPIC_SMALL_FAST_MODEL=gpt-5.5-fast`, and auto-starts the proxy with `PORT=18765` when needed. Never expose proxy auth tokens or copy `/data/.config/claude-code-proxy/codex/auth.json` into reports, repos, prompts, or worker context packs.
+
+## EOS Memory & Vault Write Protocol — Updated 2026-05-27
+
+EOS has a layered memory system. Write to the right layer:
+
+| Layer | Path | When to write |
+|-------|------|---------------|
+| Raw daily log | `memory/YYYY-MM-DD.md` | Every session: what happened, what was asked, key outcomes |
+| Curated long-term | `MEMORY.md` | After important decisions, new facts about Endrit's life/preferences |
+| Structured daily review | `vault/11 Daily Notes/YYYY-MM-DD.md` | After morning/evening briefings, at end of significant sessions |
+| Decisions (ADR) | `vault/02 Decisions/ADR - <title>.md` | When a significant architectural or personal decision is made |
+| Inbox captures | `vault/00 Home/` | New ideas or brain-dump captures that need processing later |
+
+**Minimum vault daily note format:**
+```
+## YYYY-MM-DD
+### Today's Briefing
+- calendar status
+- top tasks
+- habit status
+
+### Key Events / Decisions
+- ...
+
+### Memory Updates
+- what was written to MEMORY.md
+```
+
+## GitHub Auto-Push Protocol — Updated 2026-05-27
+
+EOS repo: `https://github.com/endritmurati99/eos.git`
+Branch: `agent/eos-usable-assistant-v1`
+Auth: `GH_CONFIG_DIR=/data/.openclaw/gh-main-eos`
+
+**Push triggers:**
+- After every EOS Skill Improve run (02:00 cron)
+- After every EOS Memory Checkpoint (23:55 cron)
+- After any SOUL.md / AGENTS.md / MEMORY.md updates
+- After any meaningful code change committed to the active branch
+
+**Push blockers:**
+- Binary files like `data/eos_v2.db` (already in .gitignore — do not force-add)
+- Real credentials in any file
+- Dirty files without an explanation (stash or commit first)
+
+**Push commands:**
+```bash
+cd /data/.openclaw/workspaces/personal-assistant
+git add -A
+git commit -m "checkpoint: $(date +%Y-%m-%d)"
+GH_CONFIG_DIR=/data/.openclaw/gh-main-eos git push
+```
+
+## Context7 Integration Gate — Updated 2026-05-27
+
+Before writing any code that interacts with:
+- Google Calendar, Tasks, Gmail, Drive, Maps (via `gog` or direct API)
+- Telegram gateway
+- Any Python library used in `src/`
+
+Always query Context7 first (`@plugin:context7:context7`). EOS integrations are well-documented but API behavior changes. Do not rely on training-data knowledge.
