@@ -313,3 +313,20 @@ Before writing any code that interacts with:
 - Any Python library used in `src/`
 
 Always query Context7 first (`@plugin:context7:context7`). EOS integrations are well-documented but API behavior changes. Do not rely on training-data knowledge.
+
+---
+
+## Universal Second Brain Mandate — Enforced by Photon
+
+After EVERY significant session or prompt:
+1. Write `memory/YYYY-MM-DD.md` — raw log of what happened
+2. Write `vault/11 Daily Notes/YYYY-MM-DD.md` — structured daily review
+3. Update `MEMORY.md` if a decision or learning warrants it
+
+**Session Start Check — BEFORE any new work:**
+- Does `memory/YYYY-MM-DD.md` exist for yesterday?
+- If missing → backfill immediately (format: "Backfill YYYY-MM-DD: [summary of what was done]")
+- No exceptions. No skipping.
+
+Photon monitors compliance nightly. Missing entries are logged.
+3+ consecutive misses → Telegram alert to Endrit.
