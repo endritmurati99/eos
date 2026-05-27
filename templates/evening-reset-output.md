@@ -14,6 +14,10 @@ This is not a full daily plan and not a motivational wrap-up.
 7. Run the coaching evaluation for tomorrow's load
 
 ## Output Format
+### Abendreset
+- calm, relaxed, buddy-like opening
+- frame tonight as preparation for an easier tomorrow
+
 ### Morgen steht fest
 - confirmed hard events for tomorrow
 
@@ -25,13 +29,24 @@ This is not a full daily plan and not a motivational wrap-up.
 - up to Top-3 only when the task basis is verified and the day supports it
 
 ### Vorbereitung heute
-- prep items for work, sport, transitions, or routines
+- prep items for work, sport, transitions, household, drinks, supplements, clothes, bag, shower items, and routines
+- assume preparation may need 30-45 minutes if several items are relevant
+- include a realistic start time if 21:30 bedtime is at risk
 
 ### Meine Einschaetzung
 - short operational assessment of tomorrow's load
 
 ### Meine Empfehlung
 - exactly 1 concrete recommendation
+
+### Journalfragen
+- 2-3 short evening reflection questions: what happened, what did not happen, what makes tomorrow easier
+
+### Drei Saetze fuer heute
+- exactly 3 grounded positive affirmations
+
+### Gedanke fuer morgen
+- one short quote or quote-like motivational/discipline thought; omit attribution if unsure
 
 ### Warnung
 - exactly 1 warning only when tomorrow is overloaded, fragile, or underspecified
@@ -43,5 +58,9 @@ This is not a full daily plan and not a motivational wrap-up.
 - hard-load day or fixed sport plus hard work usually means Top-1, not Top-3
 - Deep Work follows the EOS rule `60 minutes focus + 10 minutes walking break`
 - keep the message short, direct, and operational
-- no productivity tips
-- no motivational filler
+- tone is calm, relaxed, buddy-like German; not corporate and not stiff
+- the evening briefing is the default place for recurring preparation reminders; do not create separate recurring reminders unless Endrit asks
+- protect sleep: generally aim for Endrit to be in bed by 21:30 Europe/Berlin
+- if tomorrow has Kickboxen/sport, explicitly mention sports bag, drinks, supplements, clothes, towel/shower items as relevant
+- include departure/transition notes when relevant, especially Uni-to-home, work-to-Uni, or late evening travel
+- no generic productivity filler; motivation must stay grounded and useful

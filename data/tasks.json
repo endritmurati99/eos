@@ -22,6 +22,15 @@
           "due": null,
           "updated": "2026-04-21T08:45:00.000Z",
           "completed": null
+        },
+        {
+          "id": "task-inbox-temu-scharfes-messer",
+          "title": "Bei Temu: schoenes, scharfes Messer kaufen",
+          "notes": "Capture aus Telegram: Richtig schoene Messer / scharfe Messer bei Temu zusaetzlich hinzufuegen.",
+          "status": "needsAction",
+          "due": null,
+          "updated": "2026-05-17T08:12:18.452Z",
+          "completed": null
         }
       ]
     },

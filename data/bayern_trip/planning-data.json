@@ -1,0 +1,132 @@
+{
+  "trip": {
+    "name": "Bayern Trip",
+    "context": "WhatsApp-Gruppe Bayern_Trip, Camping-/Wanderwochenende Bayern/Allgäu/Neuschwanstein-Kontext",
+    "current_phase": "Teilnehmerzahl und Terminverfügbarkeit klären",
+    "deadline": "übermorgen 20:00 Uhr laut WhatsApp-Text",
+    "primary_blocker": "Ohne verbindliche Teilnehmerzahl kann Campingplatz nicht sinnvoll angefragt/gebucht werden."
+  },
+  "screenshot_extraction": {
+    "source_note": "Neue Auswertung aus 3 WhatsApp-Screenshots: Poll-Stimmabgaben + sichtbare Chat-Rückmeldungen.",
+    "whatsapp_group": "Bayern_Trip",
+    "community": "Wissen ist Macht 🧠",
+    "group_size_visible": "13 Mitglieder laut Gruppeninfo; 12 Personen in Suche sichtbar",
+    "poll_instruction": "Bis übermorgen Abend 20:00 Uhr abstimmen; danach wird nur mit Ja-Stimmen weitergeplant.",
+    "date_constraints": [
+      "Houda Fh kann am 26.06 nicht; Juli ist okay.",
+      "Mariam: Juni schlecht; 10.07 okay; möchte exaktes Datum zur finalen Bestätigung.",
+      "Aya: 10.07 okay.",
+      "Abdul Uni: Nähe zur Klausurenphase kritisch.",
+      "Björn Ironside fragt nach Optionen/Versorgung; diese Infos im nächsten Update klarer beantworten."
+    ],
+    "last_update": "2026-05-18 screenshots 1-3",
+    "poll_yes_count_visible": 10,
+    "poll_yes_voters": [
+      "Endrit Murati",
+      "Mariam",
+      "Bachar",
+      "Houda Fh",
+      "Burak Uni",
+      "~JAMIL69 / +49 176 84238541",
+      "Mikail Caj",
+      "Armin",
+      "Björn Ironside",
+      "Nourhan✨"
+    ]
+  },
+  "visible_members": [
+    {
+      "name": "Endrit / Du",
+      "role": "Admin/Organizer",
+      "status": "organizer",
+      "notes": "JA im Poll sichtbar; Organisation."
+    },
+    {
+      "name": "Abdul Uni",
+      "status": "open",
+      "notes": "Klausurenphase-Nähe kritisch."
+    },
+    {
+      "name": "Armin",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar."
+    },
+    {
+      "name": "Aya",
+      "status": "conditional",
+      "notes": "10.07 okay; nicht in sichtbarer JA-Poll-Liste der 3 neuen Screenshots."
+    },
+    {
+      "name": "Bachar",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar."
+    },
+    {
+      "name": "Björn Ironside",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar; fragt nach Optionen/Versorgung."
+    },
+    {
+      "name": "Burak Uni",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar."
+    },
+    {
+      "name": "Houda Fh",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar; 26.06 nicht, Juli okay."
+    },
+    {
+      "name": "Mariam",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar; Juni schlecht, 10.07 okay, genaues Datum nötig."
+    },
+    {
+      "name": "Mikail Caj",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar."
+    },
+    {
+      "name": "Nourhan✨",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar."
+    },
+    {
+      "name": "~JAMIL69",
+      "status": "yes",
+      "notes": "JA im Poll sichtbar; +49 176 84238541."
+    },
+    {
+      "name": "+49 1575 2446826",
+      "status": "unknown",
+      "notes": "sichtbar in Gruppe"
+    },
+    {
+      "name": "Azika",
+      "status": "conditional",
+      "notes": "wäre dabei, falls 10.07.–12.07."
+    }
+  ],
+  "recommended_template_components": [
+    "Participants / RSVP",
+    "Date options and constraints",
+    "Camping booking tracker",
+    "Cars and drivers",
+    "Budget per person",
+    "Packing / shared equipment",
+    "Tasks and responsibility ownership",
+    "Decision log",
+    "WhatsApp update drafts"
+  ],
+  "notion_last_update": {
+    "timestamp": "2026-05-18T19:58:00+02:00",
+    "updated_sections": [
+      "participants",
+      "dates",
+      "tasks",
+      "logistics",
+      "whatsapp_notes"
+    ],
+    "next_step": "Konkreten Termin 10.07/Juli bestätigen lassen; danach Via Claudia/Claudia-Anfrage vorbereiten."
+  }
+}

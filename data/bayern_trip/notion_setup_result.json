@@ -1,0 +1,16 @@
+Updating main page...
+Creating databases...
+Filling rows...
+{
+  "ok": true,
+  "parentPageId": "363986920e81805f8bdfd6c7c6708370",
+  "databases": {
+    "participants": "https://www.notion.so/363986920e818154acd9d0d37e5ebf17",
+    "dates": "https://www.notion.so/363986920e81813d8ba3cbac619d2b8a",
+    "camping": "https://www.notion.so/363986920e8181f08294da3f001f4d02",
+    "cars": "https://www.notion.so/363986920e818140af24e7a9450eff4c",
+    "tasks": "https://www.notion.so/363986920e8181e8a13ecb8322add726",
+    "packing": "https://www.notion.so/363986920e81811d9659ec5f725def70",
+    "budget": "https://www.notion.so/363986920e81818d8963f0a563ca59d6"
+  }
+}

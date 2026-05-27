@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "parent": "https://www.notion.so/Bayern-Trip-363986920e81805f8bdfd6c7c6708370",
+  "pages": {
+    "dashboard": "https://www.notion.so/Dashboard-berblick-363986920e8181cba9d6f72c0a0c4ea3",
+    "participants": "https://www.notion.so/Teilnehmer-Zusagen-363986920e8181738fe8ca902ba18d32",
+    "camping": "https://www.notion.so/Camping-Buchung-363986920e818165951ccd97468cf5ca",
+    "transport": "https://www.notion.so/Autos-Transport-363986920e818146bbebc7aa5a2ae00c",
+    "packing": "https://www.notion.so/Packliste-Gruppenequipment-363986920e818129a27ac779c7a5f10b",
+    "budget": "https://www.notion.so/Budget-Anzahlung-363986920e8181978d99e8f532d48996",
+    "route": "https://www.notion.so/Route-Ideen-Allg-u-Via-Claudia-363986920e81818f885bcd4fabcc8120"
+  },
+  "counts": {
+    "total": 14,
+    "yes": 1,
+    "conditional": 2,
+    "unknown": 11,
+    "no": 0
+  },
+  "added": {
+    "tasks": 4,
+    "packing": 5
+  }
+}

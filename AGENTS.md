@@ -163,9 +163,11 @@ Examples: `morgenroutine erledigt`, `abendroutine partial`, `klimmzug skip heute
 
 ## 💓 Heartbeats - Be Proactive!
 
-When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
+When you receive a heartbeat poll (message matches the configured heartbeat prompt), use it as a low-noise monitoring pass. If nothing needs attention, reply `HEARTBEAT_OK`.
 
-You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it small to limit token burn.
+Heartbeat polls are not implementation sessions. During a heartbeat, read only the minimal local context needed, run lightweight status checks, and report blockers or urgent updates.
+
+Do not edit files, commit, push, delete, restart services, run heavy loops, print secrets, or write to external services during a heartbeat unless Endrit explicitly requested that exact action in the current session.
 
 ### Heartbeat vs Cron: When to Use Each
 
@@ -186,12 +188,13 @@ You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it
 
 **Tip:** Batch similar periodic checks into `HEARTBEAT.md` instead of creating multiple cron jobs. Use cron for precise schedules and standalone tasks.
 
-**Things to check (rotate through these, 2-4 times per day):**
+**Optional lightweight checks (only when relevant and already configured):**
 
 - **Emails** - Any urgent unread messages?
 - **Calendar** - Upcoming events in next 24-48h?
 - **Mentions** - Twitter/social notifications?
 - **Weather** - Relevant if your human might go out?
+- **Projects** - Current branch/status only when a project check is useful.
 
 **Track your checks** in `memory/heartbeat-state.json`:
 
@@ -219,27 +222,33 @@ You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it
 - Nothing new since last check
 - You just checked &lt;30 minutes ago
 
-**Proactive work you can do without asking:**
+**Proactive heartbeat checks you can do without asking:**
 
-- Read and organize memory files
-- Check on projects (git status, etc.)
-- Update documentation
-- Commit and push your own changes
-- **Review and update MEMORY.md** (see below)
+- Read only the minimal local files needed for the check.
+- Check lightweight project status such as branch, dirty state, or known blockers.
+- Draft recommendations or note follow-up items in chat.
+- Report only when there is a real result, blocker, risk, or decision needed.
 
-### 🔄 Memory Maintenance (During Heartbeats)
+### 🔄 Memory Review During Heartbeats
 
-Periodically (every few days), use a heartbeat to:
+During heartbeat, memory work is read-only by default.
 
-1. Read through recent `memory/YYYY-MM-DD.md` files
-2. Identify significant events, lessons, or insights worth keeping long-term
-3. Update `MEMORY.md` with distilled learnings
-4. Remove outdated info from MEMORY.md that's no longer relevant
-
-Think of it like a human reviewing their journal and updating their mental model. Daily files are raw notes; MEMORY.md is curated wisdom.
+You may identify facts that should be remembered and suggest an update, but do not rewrite `MEMORY.md`, daily notes, skills, or agent docs unless Endrit explicitly asked for that memory/documentation update in the current session.
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+## Shared Claude Code GPT Route - 2026-05-21
+
+All local agents that need Claude Code backed by GPT/Codex should use the shared wrapper command:
+
+```bash
+claude-gpt
+# or explicitly:
+/data/.local/bin/claude-codex-here
+```
+
+Do **not** rely on bare `claude --model gpt-5.5`; direct Claude Code model selection currently does not expose that route reliably. The wrapper routes Claude Code through local `claude-code-proxy` on `127.0.0.1:18765`, defaults to `ANTHROPIC_MODEL=gpt-5.5` and `ANTHROPIC_SMALL_FAST_MODEL=gpt-5.5-fast`, and auto-starts the proxy with `PORT=18765` when needed. Never expose proxy auth tokens or copy `/data/.config/claude-code-proxy/codex/auth.json` into reports, repos, prompts, or worker context packs.

@@ -74,3 +74,72 @@ Briefings und Planungsjobs sollen `auth_required`, `config_missing`, `provider_d
 - Tags: grounding, google_tasks, stubs
 
 ---
+
+## 2026-05-12 - correction
+User clarified Einkaufsliste: add Handyhalterung bei Temu as an item; keep exact shopping list corrections concise.
+
+## [LRN-20260519-001] correction
+
+**Logged**: 2026-05-19T11:18:30+02:00
+**Priority**: low
+**Status**: pending
+**Area**: workflow
+
+### Summary
+For the Bayern camping inquiry, the target campsite was Camping Via Claudia, not Camping Bannwaldsee.
+
+### Details
+User corrected the assistant after it researched Bannwaldsee. Future Bayern/Neuschwanstein campsite inquiry context may refer to “Via Claudia” and should not be silently mapped to other nearby campsites.
+
+### Suggested Action
+When campsite name is ambiguous or omitted, ask or check context before choosing a campsite; for “Via Claudia”, research Camping Via Claudia specifically.
+
+### Metadata
+- Source: user_feedback
+- Tags: camping, bayern-trip, correction
+
+---
+
+## [LRN-20260519-001] correction
+
+**Logged**: 2026-05-19T19:42:00+02:00
+**Priority**: critical
+**Status**: pending
+**Area**: external-communications
+
+### Summary
+Do not send external emails/messages on Endrit's behalf without explicit confirmation.
+
+### Details
+After sending a Gmail reply to Via Claudia, Endrit corrected the workflow: drafts should be prepared for his confirmation only, not sent automatically.
+
+### Suggested Action
+For future Gmail/external communication requests, prepare the draft/text and ask for explicit confirmation before sending. Use drafts where appropriate; never send directly unless Endrit explicitly says to send now.
+
+### Metadata
+- Source: user_feedback
+- Related Files: MEMORY.md
+- Tags: gmail, external-action, confirmation-required
+
+---
+## [LRN-20260522-001] correction
+
+**Logged**: 2026-05-22T13:48:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: planning
+
+### Summary
+When summarizing Endrit's work hours, exclude 14.05.2026 because it was a holiday, even if a calendar work event exists.
+
+### Details
+Endrit corrected the work-hours total: 14.05. should be removed from the calculation because it was a Feiertag.
+
+### Suggested Action
+For payroll/hour summaries, flag holiday dates and ask/verify before counting them; update the total by subtracting the affected work shift.
+
+### Metadata
+- Source: user_feedback
+- Tags: eos, calendar, work-hours, payroll, holiday
+
+---

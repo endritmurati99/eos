@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "archivedOldBlocks": 6,
+  "main": "https://www.notion.so/Bayern-Trip-363986920e81805f8bdfd6c7c6708370",
+  "pages": {
+    "participants": "https://www.notion.so/Teilnehmer-363986920e81814e9d3dc34d2ffb6b1d",
+    "planning": "https://www.notion.so/Planung-363986920e8181a1b312ed4950c5eea2",
+    "logistics": "https://www.notion.so/Logistik-363986920e81814ba0cbc5e0dac2bd49",
+    "budget": "https://www.notion.so/Budget-363986920e818102ac78d568815d02b2",
+    "route": "https://www.notion.so/Route-Ideen-363986920e8181acb1e5c38aa46d518f",
+    "comms": "https://www.notion.so/WhatsApp-Notizen-363986920e81815ea740e04ab5be5f35"
+  },
+  "databases": {
+    "participants": "https://www.notion.so/363986920e8181f898f1de296c3720e2",
+    "dates": "https://www.notion.so/363986920e81811aa545e500b199bdd0",
+    "tasks": "https://www.notion.so/363986920e81817482c6eaed18539cd9",
+    "logistics": "https://www.notion.so/363986920e8181c29af0d8e22b57d34a",
+    "budget": "https://www.notion.so/363986920e8181caabe3d2c208b48e7e"
+  }
+}
