@@ -524,3 +524,95 @@ For small text PDFs, try `pdftotext` before model PDF analysis when provider PDF
 - Tags: pdf, gog, fallback
 
 ---
+
+## [ERR-20260528-001] skill_path_tilde_resolution
+
+**Logged**: 2026-05-28T00:01:40Z
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Reading a skill path with `~` failed because the shell home in this OpenClaw runtime did not resolve to the expected `/data/.openclaw` location.
+
+### Error
+```
+sed: can't read /data/.openclaw/agents/personal-assistant/agent/codex-home/home/.openclaw/skills/self-improving-agent/SKILL.md: No such file or directory
+```
+
+### Context
+- Attempted to read `~/.openclaw/skills/self-improving-agent/SKILL.md`.
+- Retried with `/data/.openclaw/skills/self-improving-agent/SKILL.md`, which succeeded.
+
+### Suggested Fix
+When a provided skill path contains `~`, verify the actual absolute OpenClaw path before concluding the skill is unavailable.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: AGENTS.md
+- See Also: ERR-20260518-002
+
+---
+
+## [ERR-20260528-002] pytest_habit_weekly_review_denominator
+
+**Logged**: 2026-05-28T00:04:00Z
+**Priority**: medium
+**Status**: pending
+**Area**: tests
+
+### Summary
+The repository test suite fails in the habit weekly-review denominator test.
+
+### Error
+```
+tests/verify_habit_coaching.py::test_weekly_review_denominator_includes_backfilled_statuses_before_creation
+AssertionError: backfilled days plus current creation day: expected 3, got 5
+```
+
+### Context
+- Full command: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m pytest`
+- Result: 236 passed, 1 failed.
+- Targeted rerun of the failing test reproduced the failure.
+- Current task changed docs/memory only, so this appears to be a pre-existing habit-coaching logic or test expectation issue.
+
+### Suggested Fix
+Inspect `HabitService.weekly_review` trackable-day denominator handling for statuses backfilled before habit creation.
+
+### Metadata
+- Reproducible: yes
+- Related Files: tests/verify_habit_coaching.py
+- Tags: pytest, habits, weekly-review
+
+---
+
+## [ERR-20260528-003] git_push_gh_config_not_used
+
+**Logged**: 2026-05-28T00:07:00Z
+**Priority**: medium
+**Status**: pending
+**Area**: tooling
+
+### Summary
+`GH_CONFIG_DIR=/data/.openclaw/gh-main-eos git push` failed because plain git did not automatically use the GitHub CLI auth file, and `gh` is not installed in this runtime.
+
+### Error
+```
+fatal: could not read Username for 'https://github.com': No such device or address
+/bin/bash: line 1: gh: command not found
+```
+
+### Context
+- Remote is `https://github.com/endritmurati99/eos.git`.
+- `/data/.openclaw/gh-main-eos/hosts.yml` contains GitHub auth, but only file names/redacted config were inspected.
+- Push needs either an installed `gh` with `gh auth setup-git` or a git credential helper that reads the existing config without printing secrets.
+
+### Suggested Fix
+Install/restore `gh` in this runtime or document the safe credential-helper fallback for EOS pushes.
+
+### Metadata
+- Reproducible: yes
+- Related Files: AGENTS.md
+- Tags: git, github, push, auth
+
+---

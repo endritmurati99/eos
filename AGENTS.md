@@ -131,24 +131,28 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
+If a skill path starts with `~` and a read command fails, verify the absolute OpenClaw path before treating the skill as unavailable. In this workspace, installed skills may live under `/data/.openclaw/skills`, `/data/.npm-global/lib/node_modules/openclaw/skills`, or `/data/.agents/skills`.
+
 ### EOS Commands
 
 For EOS runtime commands, work from `/data/.openclaw/workspaces/personal-assistant`.
 
-Use the deterministic CLI before improvising:
+Use the deterministic CLI before improvising. Prefer the workspace virtualenv so dependencies and DB path match cron/runtime behavior:
 
-- Health: `python3 -m src.eos_cli health`
-- Google Tasks: `python3 -m src.eos_cli tasks read|create|complete`
-- Daily plan: `python3 -m src.eos_cli daily-plan --date YYYY-MM-DD --dry-run`
-- Weekly plan: `python3 -m src.eos_cli weekly-plan --week-start YYYY-MM-DD --dry-run`
-- Habits: `python3 -m src.eos_cli habits ...`
-- Fixed jobs: `python3 -m src.eos_cli run-job <job> --dry-run`
+- Health: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli health`
+- Google Tasks: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli tasks read|create|complete`
+- Daily plan: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli daily-plan --date YYYY-MM-DD --dry-run`
+- Weekly plan: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli weekly-plan --week-start YYYY-MM-DD --dry-run`
+- Habits: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli habits ...`
+- Fixed jobs: `EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli run-job <job> --dry-run`
+
+If `.venv` is missing or broken, report that environment issue explicitly instead of silently falling back to system Python.
 
 Telegram habit text is command-like input. Route short/tolerant habit messages through:
 
 ```bash
 cd /data/.openclaw/workspaces/personal-assistant
-python3 -m src.eos_cli habits handle "<message text>"
+EOS_DB_PATH=data/eos_v2.db .venv/bin/python -m src.eos_cli habits handle "<message text>"
 ```
 
 Examples: `morgenroutine erledigt`, `abendroutine partial`, `klimmzug skip heute, zu muede`, `habit status`, `habits heute`. If the CLI returns `ambiguous`, ask a short clarification instead of guessing.
