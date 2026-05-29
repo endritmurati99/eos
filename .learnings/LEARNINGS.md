@@ -143,3 +143,26 @@ For payroll/hour summaries, flag holiday dates and ask/verify before counting th
 - Tags: eos, calendar, work-hours, payroll, holiday
 
 ---
+
+## [LRN-20260529-001] correction
+
+**Logged**: 2026-05-29T09:10:00Z
+**Priority**: medium
+**Status**: pending
+**Area**: planning
+
+### Summary
+For Endrit's work-hour calculations, apply the stored standard 0:30 h break unless he explicitly says otherwise.
+
+### Details
+Endrit corrected the May 2026 running total: the baseline before Do 28.05. is 55:45 h net, not 54:45. For Fr 29.05. 06:45-15:30, the gross time is 8:45 and the stored normal break rule gives 8:15 h net. I first interpreted the day with a 1:00 h break and corrected the Telegram answer immediately after checking `MEMORY.md`.
+
+### Suggested Action
+Before answering payroll/hour totals, check the stored break rule and calculate in hours:minutes, not decimal notation. Only present a 1:00 h break alternate when the user says today's break differs.
+
+### Metadata
+- Source: correction
+- Related Files: MEMORY.md, memory/2026-05-29.md
+- Tags: eos, work-hours, payroll, break-rule
+
+---

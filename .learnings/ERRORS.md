@@ -616,3 +616,32 @@ Install/restore `gh` in this runtime or document the safe credential-helper fall
 - Tags: git, github, push, auth
 
 ---
+
+## [ERR-20260529-001] rg_unavailable
+
+**Logged**: 2026-05-29T09:10:00Z
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+`rg` is not installed in this OpenClaw runtime.
+
+### Error
+```
+/bin/bash: line 1: rg: command not found
+```
+
+### Context
+- Attempted to search `MEMORY.md` for Google/OAuth/workflow context.
+- Retried with `grep`, which worked.
+
+### Suggested Fix
+Use `grep` as the local fallback in this workspace unless `ripgrep` is installed later.
+
+### Metadata
+- Reproducible: yes
+- Related Files: MEMORY.md
+- Tags: tooling, search
+
+---
