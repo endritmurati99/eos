@@ -1,0 +1,11 @@
+{
+  "mode": "root_repo",
+  "canonical_path": ".",
+  "origin": "https://github.com/endritmurati99/eos.git",
+  "branch_policy": "feature_branch_required_for_changes",
+  "push_requires_explicit_approval": true,
+  "notes": [
+    "EOS persists Personal Assistant implementation work in the workspace-root repository.",
+    "No direct pushes to main are allowed; review dirty tracked state before commit or push."
+  ]
+}

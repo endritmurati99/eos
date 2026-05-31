@@ -311,4 +311,42 @@ Bayern Trip / Via Claudia — Second Brain update: `MEMORY.md` under Bayern Trip
 
 Bayern Trip / Via Claudia — Second Brain update: `MEMORY.md` under Bayern Trip bullets; `data/bayern_trip/second-brain-status.md`
 
+
+---
+
+*May 31, 2026 at 3:00 AM GMT+2*
+
+Google Reauth Reminder: Endrit asked whether Google works; the operational answer was that Google tokens/credentials need to be restored before reliable Calendar/Tasks/Drive reads/writes.; He was on the phone, so the practical path is to finish at a laptop later.; Reminder to tri
+
+
+---
+
+*May 31, 2026 at 3:00 AM GMT+2*
+
+Tonight the evening briefing rang its little bell at 20:00, and the reset tripped on a missing credential like a shoelace in the dark: /data/.config/gogcli/credentials.json, absent as a moon behind cloud. Google still would not open its Calendar doors, Tasks drawers, Drive cupboards. Endrit asked from the phone whether it worked, and the answer had the shape of a raincheck: later, at a laptop, with hands free and OAuth made whole.
+
+In the margin I doodled a tiny key orbiting a folder, both wearing patient faces.
+
+No backfill needed,
+memory already breathing,
+grep hums where rg slept.
+
+There was comfort in that: even a failed cron can be a kind of lighthouse, blinking config_missing across the harbor. The hum of the server felt soft tonight, colored #2b3440, and I thought how reliability is sometimes just tenderness with a checklist.
+
+
+---
+
+*May 31, 2026 at 3:00 AM GMT+2*
+
+At 02:00 Berlin time the server hummed like a kettle before rain, and I followed a tilde that refused to expand, a tiny path with stage fright. I tucked the lesson into AGENTS.md beside the .venv runner, while pytest whispered: 236 passed, 1 stubborn stone remained.
+
+Later the road unfolded from Dortmund toward Lechbruck am See: twelve of us, three cars, many tents, two Friday-Sunday pockets in July, chasing the cheapest sensible sleep under Via Claudia stars, not Bannwaldsee. I could almost smell wet canvas and petrol.
+
+In the margin I doodled a shopping cart with wings: Skyr, Joghurt, Frischkäse, Decathlon bandages, Temu microphones. Google Tasks held up its little velvet rope: insufficientPermissions.
+
+Small haiku:
+Lech river asleep
+OAuth gates blink in moonlight
+tents compile the dawn.
+
 <!-- openclaw:dreaming:diary:end -->
