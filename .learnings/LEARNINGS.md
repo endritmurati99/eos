@@ -166,3 +166,29 @@ Before answering payroll/hour totals, check the stored break rule and calculate 
 - Tags: eos, work-hours, payroll, break-rule
 
 ---
+
+## [LRN-20260601-001] insight
+
+**Logged**: 2026-06-01T02:00:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: workflow
+
+### Summary
+Skill-Improve Cron 2026-06-01: recurring OAuth/habit-Pattern unverändert — kein neuer durable Fact zum Encoden.
+
+### Details
+Vierter aufeinanderfolgender Skill-Improve Run (29./30./31.05./01.06.) ohne neue LEARNINGS/ERRORS. Google-OAuth-Blocker Tag 41 dominiert die offenen Risiken. Habit-Backlog wächst (jetzt 3 Tage tief). Pattern bereits in SOUL.md / AGENTS.md / MEMORY.md encoded — keine weiteren Edits sinnvoll, bis Endrit aktiv eingreift (OAuth-Reauth am Laptop, Habit-Backfill).
+
+### Suggested Action
+Beim nächsten live-Touch: OAuth-Reauth-Prompt + Habit-Backfill-Frage in erste Antwort packen.
+
+### Metadata
+- Source: skill_improve_cron
+- Related Files: memory/skill-improve-2026-06-01.md, vault/11 Daily Notes/2026-06-01.md
+- Tags: skill-improve, oauth, habits, recurring-pattern
+- Recurrence-Count: 4
+- First-Seen: 2026-05-29
+- Last-Seen: 2026-06-01
+
+---
