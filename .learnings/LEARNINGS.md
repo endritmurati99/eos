@@ -192,3 +192,31 @@ Beim nächsten live-Touch: OAuth-Reauth-Prompt + Habit-Backfill-Frage in erste A
 - Last-Seen: 2026-06-01
 
 ---
+
+## [LRN-20260602-001] insight
+
+**Logged**: 2026-06-02T02:00:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: infra
+
+### Summary
+Google OAuth blocker (Day 41, 2026-04-21 → 2026-06-01) resolved — live_gog read paths back online for Calendar and Tasks.
+
+### Details
+Skill-Improve-Cron #5 since 29.05.: erstmals materielle Aenderung. Live health check 02:00 zeigt `calendar=success live_gog` (10 hard events), `tasks=success live_gog` (6 open), und `evening_briefing` 2026-06-01 20:00 lief `success` ohne `config_missing` Crash. Damit ist der dominierende SPOF der letzten ~6 Wochen aufgeloest. Root cause unbekannt — silent fix oder Token-Refresh-Erfolg. Keine Alerting-Mechanik fuer eine erneute Token-Lapse.
+
+### Suggested Action
+1. Bei der naechsten live-Touch-Session: Endrit kurz informieren und nach Backfill (Habits 29.05.-02.06.) + Task-Triage fragen.
+2. Mittel-frist: simple alert wenn calendar/tasks zurueck auf `config_missing` fallen (z.B. abendlicher Health-Check sendet Telegram nur bei Statuswechsel).
+3. Code-Konsistenz weiterhin offen: `evening_briefing` crasht hart vs. `daily_morning` degradiert — sollte gleich behandelt werden.
+
+### Metadata
+- Source: skill_improve_cron
+- Related Files: memory/skill-improve-2026-06-02.md, vault/11 Daily Notes/2026-06-02.md, second-brain/30-runs/2026-06-02-skill-improve.md
+- Tags: oauth, gog, calendar, tasks, resolved-blocker, monitoring-gap
+- See Also: LRN-20260601-001
+- First-Seen: 2026-04-21 (blocker start)
+- Last-Seen: 2026-06-02 (resolution observed)
+
+---
