@@ -638,8 +638,6 @@ def _render_evening_reset(
     lines.append("")
     lines.append("🎒 Vorbereitung")
     prep_lines = []
-    if sport_events:
-        prep_lines.append("Sporttasche packen")
     prep_lines.extend(evaluation["prep_items"])
     if prep_lines:
         for item in _dedupe_preserve_order(prep_lines)[:5]:

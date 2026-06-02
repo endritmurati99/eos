@@ -374,4 +374,25 @@ I'll backfill the days I missed, mark them done or partial or skip, honest littl
 
 Bayern Trip / Via Claudia — Second Brain update: `MEMORY.md` under Bayern Trip bullets; `data/bayern_trip/second-brain-status.md`
 
+
+---
+
+*June 2, 2026 at 3:00 AM GMT+2*
+
+Workspace Standard Contract: EOS/personal-assistant participated in the fleet standardization audit as a standing agent.; Current local standard: preserve privacy boundaries, keep Gmail write guards, use deterministic EOS CLI smoke checks, and keep daily memory current.; Remainin
+
+
+---
+
+*June 2, 2026 at 3:00 AM GMT+2*
+
+End-of-Day (23:55 Checkpoint): Habit backlog: 29.05. + 30.05. + 31.05. all still `pending` for morgenroutine / klimmzug / abendroutine. Streak = 0.
+
+
+---
+
+*June 2, 2026 at 3:00 AM GMT+2*
+
+02:00 Europe/Berlin - EOS Skill Improve: Ran the daily self-improvement cycle from cron `f1a2b3c4-d5e6-7890-abcd-ef1234567890`.; Session start check: `memory/2026-05-27.md` exists; no backfill needed.; Reviewed recent learning and error logs.; Found recurring patterns: verify run
+
 <!-- openclaw:dreaming:diary:end -->

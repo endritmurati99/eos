@@ -609,7 +609,6 @@ def _build_parser() -> argparse.ArgumentParser:
             "daily_morning",
             "evening_briefing",
             "weekly_sync",
-            "sport_prep_reminder",
             "daily_hang_reminder",
             "habit_checkin_morning",
             "habit_checkin_evening",

@@ -51,48 +51,6 @@ def run_eos_job(
             workspace_root=root,
         )
 
-    if job == "sport_prep_reminder":
-        day = target_date or (datetime.now(BERLIN).date() + timedelta(days=1))
-        gateway = TaskGateway()
-        calendar_result = _load_calendar_events(
-            gateway=gateway,
-            workspace_root=root,
-            target_date_berlin=day,
-            dry_run=dry_run,
-            allow_stub_calendar=False,
-        )
-        sport_events = [
-            event
-            for event in calendar_result.get("hard_events", [])
-            if _looks_like_sport(event.get("title", ""))
-        ]
-        if calendar_result["calendar_read_status"] != "success":
-            status = "failed"
-            delivery_status = "not_attempted" if dry_run else "delivery_disabled"
-            skip_reason = None
-        elif not sport_events:
-            status = "skipped"
-            delivery_status = "skipped"
-            skip_reason = "no_sport_event"
-        else:
-            status = "success"
-            delivery_status = "not_attempted" if dry_run else "delivery_disabled"
-            skip_reason = None
-
-        return {
-            "status": status,
-            "job": job,
-            "run_id": run_id,
-            "dry_run": dry_run,
-            "delivery_status": delivery_status,
-            "target_date_berlin": day.isoformat(),
-            "calendar_read_status": calendar_result["calendar_read_status"],
-            "sport_event_count": len(sport_events),
-            "skip_reason": skip_reason,
-            "output_markdown": _render_sport_prep(day, sport_events),
-            "error": calendar_result.get("error"),
-        }
-
     if job == "daily_hang_reminder":
         day = target_date or datetime.now(BERLIN).date()
         return {
@@ -219,20 +177,6 @@ def _format_block(block: dict[str, Any]) -> str:
     if start:
         return f"{start} {title}"
     return title
-
-
-def _render_sport_prep(day: date, sport_events: list[dict[str, Any]]) -> str:
-    lines = [f"# Sporttaschen-Check fuer {day.isoformat()}", ""]
-    if not sport_events:
-        lines.append("- Kein relevanter Sporttermin live bestaetigt.")
-        return "\n".join(lines).strip() + "\n"
-    lines.append("Morgen stehen Sporttermine an:")
-    for event in sport_events:
-        start = event.get("start_display")
-        lines.append(f"- {start} {event.get('title')}" if start else f"- {event.get('title')}")
-    lines.append("")
-    lines.append("Pack die Sporttasche am besten heute schon.")
-    return "\n".join(lines).strip() + "\n"
 
 
 def _render_habit_checkin(job: str, result: dict[str, Any]) -> str:

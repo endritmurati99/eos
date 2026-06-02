@@ -645,3 +645,63 @@ Use `grep` as the local fallback in this workspace unless `ripgrep` is installed
 - Tags: tooling, search
 
 ---
+
+## [ERR-20260602-001] notion_codex_apps_query_tool_unavailable
+
+**Logged**: 2026-06-02T16:08:00Z
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+The Codex Apps Notion query-data-sources tool was advertised by tool discovery but failed at runtime; the Notion API MCP fallback worked.
+
+### Error
+```
+MCP error -32602: Tool notion-query-data-sources not found
+```
+
+### Context
+- Task: verify Bayern Trip participant rows and IDs after adding Okan.
+- `mcp__codex_apps__notion._notion_query_data_sources` failed even though the callable spec was returned by tool discovery.
+- `mcp__notionApi__.API_query_data_source` successfully queried the same data source when called without an explicit `Notion-Version` body field.
+
+### Suggested Fix
+For Notion database row verification in this workspace, prefer `mcp__notionApi__.API_query_data_source` when the Codex Apps query tool fails.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: none
+- Tags: notion, mcp, connector
+
+---
+
+## [ERR-20260602-002] notion_enhanced_markdown_spec_fetch_validation_error
+
+**Logged**: 2026-06-02T16:35:00Z
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Fetching the Codex Apps Notion enhanced markdown spec resource failed with a validation error while preparing a Notion page update.
+
+### Error
+```
+validation_error
+```
+
+### Context
+- Task: update Bayern Trip Notion pages with Via Claudia booking and invoice/payment links.
+- The Notion page updates still succeeded via `_update_page`; the failed docs/resource fetch was non-blocking.
+- Avoid relying on `notion://docs/enhanced-markdown-spec` as a required step in this workspace.
+
+### Suggested Fix
+Use existing page structure plus read-after-write verification for simple Notion markdown updates, and only fetch connector docs when the resource path is known to be available.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: none
+- Tags: notion, mcp, docs-resource
+
+---
