@@ -220,3 +220,32 @@ Skill-Improve-Cron #5 since 29.05.: erstmals materielle Aenderung. Live health c
 - Last-Seen: 2026-06-02 (resolution observed)
 
 ---
+
+## [LRN-20260603-001] insight
+
+**Logged**: 2026-06-03T02:00:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: workflow
+
+### Summary
+Skill-Improve Cron 2026-06-03: erster Tag nach OAuth-Recovery, in dem die Habit-Backfill-Empfehlung materiell wehtut — Morgenroutine-Streak gerade 1→0 kollabiert.
+
+### Details
+Sechster aufeinanderfolgender Skill-Improve Run (29./30./31.05./01./02./03.06.). OAuth weiterhin live (Tag 2 nach Recovery), aber die seit 5 Runs wiederholte Habit-Backfill-Empfehlung wurde nicht ausgeführt: Habit-Backlog jetzt 29.05.–02.06. = 5 Tage formal verloren, dazu 03.06. heute offen. Streak Morgenroutine fiel von 1 auf 0, Klimmzug/Abendroutine bleiben auf 0. Keine neuen User-Corrections, keine neuen Tool-Errors. Lokaler `sport_prep_reminder` Code-Cleanup vom 02.06. ist im aktuellen Branch nicht sichtbar — entweder via gestrigem Skill-Improve-Push gemerged oder lokal verloren.
+
+### Suggested Action
+1. Beim nächsten live-Touch: Streak-Bruch + 6-Tage-Backlog explizit erwähnen, bevor erneut Backfill vorgeschlagen wird — Endrit muss aktiv entscheiden „nachpflegen vs. bewusst verlieren".
+2. `sport_prep_reminder` Cleanup-Commit-Status verifizieren (`git log --oneline -20`, evtl. lokal nachholen).
+3. Mittel-frist: Skill-Improve könnte Streak-Verlust automatisch als Telegram-Hinweis senden, sobald Streak >0 → 0 fällt (eine Spezialisierung von "Statuswechsel" wie bei OAuth).
+
+### Metadata
+- Source: skill_improve_cron
+- Related Files: memory/skill-improve-2026-06-03.md, vault/11 Daily Notes/2026-06-03.md, second-brain/30-runs/2026-06-03-skill-improve.md
+- Tags: skill-improve, habits, streak-collapse, recurring-pattern
+- See Also: LRN-20260601-001, LRN-20260602-001
+- Recurrence-Count: 6
+- First-Seen: 2026-05-29
+- Last-Seen: 2026-06-03
+
+---
