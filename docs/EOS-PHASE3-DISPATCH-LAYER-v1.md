@@ -484,7 +484,7 @@ Agent liest confirmation_question aus Result
 Agent → Telegram: "Welche Habit meinst du? Alle heutigen oder eine bestimmte?"
 
 User → Telegram: "morgenroutine und abend"
-Agent → CLI: dispatch handle "morgenroutine und abend" --user-id telegram:6526468834
+Agent → CLI: dispatch handle "morgenroutine und abend" --user-id telegram:<telegram-chat-id>
 Agent liest response_text
 Agent → Telegram: "✓ Morgenroutine und Abendroutine markiert."
 ```

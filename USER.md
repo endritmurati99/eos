@@ -3,7 +3,7 @@
 - **Name:** Endrit Murati
 - **What to call them:** Endrit
 - **Timezone:** Europe/Berlin
-- **Telegram ID:** 6526468834
+- **Telegram ID:** <telegram-chat-id>
 
 ## Context
 

@@ -2,7 +2,7 @@
 
 ## EOS CLI
 
-Working directory: `/data/.openclaw/workspaces/personal-assistant`
+Working directory: `/data/.openclaw/workspaces/eos`
 
 ```bash
 python3 -m src.eos_cli health
@@ -50,9 +50,9 @@ Status: 403 accessNotConfigured (ERR-20260428-001). Tasks API not enabled in Goo
 
 ## Telegram Delivery
 
-- Bot account: `personal-assistant`
-- User chat ID: `6526468834`
-- Delivery via OpenClaw announce: `delivery.mode = "announce", to = "telegram:6526468834"`
+- Bot account: `eos`
+- User chat ID: `<telegram-chat-id>`
+- Delivery via OpenClaw announce: `delivery.mode = "announce", to = "telegram:<telegram-chat-id>"`
 
 ## Skills Available
 

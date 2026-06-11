@@ -5,6 +5,6 @@ After=docker.service
 
 [Service]
 Type=oneshot
-WorkingDirectory=/docker/openclaw-qt6t
+WorkingDirectory=/docker/openclaw-ixxh
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/docker compose exec -T -w /data/.openclaw/workspaces/personal-assistant openclaw .venv/bin/python -m src.eos_cli --json-only run-job %i --no-dry-run --send
+ExecStart=/usr/bin/docker compose exec -T -w /data/.openclaw/workspaces/eos openclaw .venv/bin/python -m src.eos_cli --json-only run-job %i --no-dry-run --send

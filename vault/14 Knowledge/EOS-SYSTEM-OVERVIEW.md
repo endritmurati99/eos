@@ -75,7 +75,7 @@ workspaces/personal-assistant/
 
 **Konfiguration in `openclaw.json`:**
 
-- **dmPolicy**: `allowlist` — nur Endrit (Telegram-ID `6526468834`) kann DMs senden ✓
+- **dmPolicy**: `allowlist` — nur Endrit (Telegram-ID `<telegram-chat-id>`) kann DMs senden ✓
 - **groupPolicy**: `allowlist` ✓
 - **Gruppe** `-1003851215474`: konfiguriert mit Topics 2 und 5 (beide behandeln sich wie DMs, `requireMention: false`)
 - **historyLimit**: 50 Messages pro Kontext

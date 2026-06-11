@@ -164,7 +164,7 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 
 ### EOS Commands
 
-For EOS runtime commands, work from `/data/.openclaw/workspaces/personal-assistant`.
+For EOS runtime commands, work from `/data/.openclaw/workspaces/eos`.
 
 Use the deterministic CLI before improvising:
 
@@ -178,7 +178,7 @@ Use the deterministic CLI before improvising:
 Telegram habit text is command-like input. Route short/tolerant habit messages through:
 
 ```bash
-cd /data/.openclaw/workspaces/personal-assistant
+cd /data/.openclaw/workspaces/eos
 python3 -m src.eos_cli habits handle "<message text>"
 ```
 

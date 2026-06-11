@@ -1,8 +1,8 @@
 # EOS — Plan
 
 ## Current State
-- Dedicated agent routing via Telegram account `personal-assistant`
-- Dedicated workspace at `/data/.openclaw/workspaces/personal-assistant`
+- Dedicated agent routing via Telegram account `eos`
+- Dedicated workspace at `/data/.openclaw/workspaces/eos`
 - Current hard-event primary source: Google Calendar via `gog`
 - `data/calendar.json` retained only as explicit test/dry-verification artifact, not as primary source
 - `data/tasks.json` retained only as explicit test fixture; production defaults are live-only and must degrade honestly
