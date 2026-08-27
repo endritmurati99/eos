@@ -1,0 +1,10 @@
+{
+  "event_id": "meeting_with_decision",
+  "title": "Architecture Decision",
+  "start": "2026-05-14T11:00:00",
+  "end": "2026-05-14T12:00:00",
+  "location": "Zoom",
+  "description": "Decision needed. Define next steps and write protokoll.",
+  "attendees": ["arch@example.test", "lead@example.test"],
+  "calendar_role": "primary"
+}

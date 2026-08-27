@@ -1,0 +1,10 @@
+{
+  "event_id": "doctor_appointment",
+  "title": "Arzttermin Praxis Nord",
+  "start": "2026-05-05T08:30:00",
+  "end": "2026-05-05T09:00:00",
+  "location": "Praxis Nord",
+  "description": "Check symptoms and bring insurance card.",
+  "attendees": [],
+  "calendar_role": "primary"
+}

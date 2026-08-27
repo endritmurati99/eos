@@ -1,0 +1,10 @@
+{
+  "event_id": "admin_block",
+  "title": "Admin Rechnung und Steuer",
+  "start": "2026-05-09T15:00:00",
+  "end": "2026-05-09T16:00:00",
+  "location": null,
+  "description": "Resolve invoice, tax folder, and bank reference.",
+  "attendees": [],
+  "calendar_role": "primary"
+}

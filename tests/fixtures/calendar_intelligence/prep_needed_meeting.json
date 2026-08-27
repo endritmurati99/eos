@@ -1,0 +1,10 @@
+{
+  "event_id": "prep_needed_meeting",
+  "title": "Important Client Deadline Interview",
+  "start": "2026-05-18T08:30:00",
+  "end": "2026-05-18T09:30:00",
+  "location": "Zoom",
+  "description": "Important interview and deadline discussion.",
+  "attendees": ["client@example.test", "pm@example.test", "ops@example.test"],
+  "calendar_role": "primary"
+}

@@ -1,0 +1,10 @@
+{
+  "event_id": "deadline_review",
+  "title": "Final Deadline Review",
+  "start": "2026-05-08T11:00:00",
+  "end": "2026-05-08T12:00:00",
+  "location": "Zoom",
+  "description": "Final review before submission deadline; decide owner and blockers.",
+  "attendees": ["pm@example.test", "dev@example.test", "design@example.test"],
+  "calendar_role": "primary"
+}

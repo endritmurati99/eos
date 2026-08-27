@@ -1,0 +1,44 @@
+{
+  "events": [
+    {
+      "event_id": "no_break_1",
+      "title": "Morning Review",
+      "start": "2026-05-17T09:00:00",
+      "end": "2026-05-17T10:00:00",
+      "location": "Zoom",
+      "description": "Review.",
+      "attendees": ["a@example.test"],
+      "calendar_role": "primary"
+    },
+    {
+      "event_id": "no_break_2",
+      "title": "Project Sync",
+      "start": "2026-05-17T10:00:00",
+      "end": "2026-05-17T11:00:00",
+      "location": "Zoom",
+      "description": "Sync.",
+      "attendees": ["b@example.test"],
+      "calendar_role": "primary"
+    },
+    {
+      "event_id": "no_break_3",
+      "title": "Client Call",
+      "start": "2026-05-17T11:05:00",
+      "end": "2026-05-17T12:00:00",
+      "location": "Meet",
+      "description": "Call.",
+      "attendees": ["c@example.test"],
+      "calendar_role": "primary"
+    },
+    {
+      "event_id": "no_break_4",
+      "title": "Deadline Review",
+      "start": "2026-05-17T12:05:00",
+      "end": "2026-05-17T13:30:00",
+      "location": "Zoom",
+      "description": "Deadline review.",
+      "attendees": ["d@example.test"],
+      "calendar_role": "primary"
+    }
+  ]
+}
