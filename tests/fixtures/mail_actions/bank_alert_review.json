@@ -1,0 +1,22 @@
+{
+  "id": "bank_alert_review",
+  "mail": {
+    "message_id": "synthetic-bank-alert",
+    "thread_id": "thread-bank-alert",
+    "sender": "alerts@example-bank.test",
+    "subject": "Bank account alert",
+    "snippet": "Balance notice for your account.",
+    "body_excerpt": "Review this bank account alert. Account number 123456789012 should not be copied.",
+    "categories": ["_Money/Banking"],
+    "priority": "critical",
+    "received_at": "2026-05-04T14:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "check_bank_alert",
+    "title_prefix": "Review banking alert:",
+    "due": null,
+    "list_name": "Review",
+    "requires_approval": true
+  }
+}

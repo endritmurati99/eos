@@ -1,0 +1,22 @@
+{
+  "id": "security_login_alert_review",
+  "mail": {
+    "message_id": "synthetic-security-login",
+    "thread_id": "thread-security-login",
+    "sender": "security@example.test",
+    "subject": "New login alert",
+    "snippet": "New login detected from a new device.",
+    "body_excerpt": "Login code is 123456. Review the alert at https://login.example.test/reset.",
+    "categories": ["_Security/Login Alert"],
+    "priority": "critical",
+    "received_at": "2026-05-04T16:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "review_security_alert",
+    "title_prefix": "Review security alert:",
+    "due": null,
+    "list_name": "Review",
+    "requires_approval": true
+  }
+}

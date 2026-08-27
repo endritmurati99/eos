@@ -1,0 +1,22 @@
+{
+  "id": "send_document",
+  "mail": {
+    "message_id": "synthetic-send-document",
+    "thread_id": "thread-send-document",
+    "sender": "team@example.test",
+    "subject": "Need the signed document",
+    "snippet": "Could you send the document today?",
+    "body_excerpt": "Could you send the signed document today for the project folder?",
+    "categories": ["_EOS/Action Required", "_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T11:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "send_document",
+    "title_prefix": "Send document:",
+    "due": "2026-05-04",
+    "list_name": "Inbox",
+    "requires_approval": true
+  }
+}

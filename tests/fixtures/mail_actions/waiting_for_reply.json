@@ -1,0 +1,22 @@
+{
+  "id": "waiting_for_reply",
+  "mail": {
+    "message_id": "synthetic-waiting",
+    "thread_id": "thread-waiting",
+    "sender": "self-note@example.test",
+    "subject": "Waiting for reply from partner",
+    "snippet": "Waiting for reply on the signed quote.",
+    "body_excerpt": "Waiting for reply from the partner before continuing.",
+    "categories": ["_EOS/Waiting For Reply", "_Work"],
+    "priority": "important",
+    "received_at": "2026-05-04T21:00:00"
+  },
+  "expected": {
+    "proposal_count": 1,
+    "action_type": "waiting_for_reply",
+    "title_prefix": "Waiting for reply:",
+    "due": null,
+    "list_name": "Waiting",
+    "requires_approval": true
+  }
+}
